@@ -13,13 +13,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Activity,
-  Copy,
   FileText,
   Loader2,
   MapPin,
   Phone,
   Ruler,
-  Share2,
   Target,
   User,
 } from "lucide-react";
@@ -488,7 +486,7 @@ function generatePDF(
   .header-text .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
   .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 4px 8px; }
-  .org-badge-icon { width: 22px; height: 22px; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 7pt; font-weight: 900; color: #0d9488; line-height: 1; text-align: center; }
+  .org-badge-img { width: 22px; height: 22px; border-radius: 3px; background: #fff; object-fit: contain; flex-shrink: 0; }
   .org-badge-label { font-size: 7.5pt; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.2px; line-height: 1.2; }
   .org-note { font-size: 6.5pt; color: rgba(255,255,255,0.7); text-align: right; margin-top: 2px; font-style: italic; max-width: 130px; line-height: 1.3; }
   .tagline-center { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); color: #fff; text-align: center; font-size: 16pt; font-weight: 900; font-style: italic; padding: 14px 24px; margin: 0 -24px 24px; letter-spacing: 0.8px; text-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 20px rgba(167,243,208,0.3); border-top: 3px solid rgba(167,243,208,0.4); border-bottom: 3px solid rgba(167,243,208,0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); }
@@ -539,18 +537,17 @@ function generatePDF(
   .tl-rate-sub { font-size: 8pt; color: #ea580c; margin: 2px 0 6px; }
   .tl-months { font-size: 18pt; font-weight: 900; color: #9a3412; line-height: 1; }
   .timeline-note { font-size: 9pt; color: #7c2d12; background: #fff3e0; border: 1px solid #fdba74; border-radius: 6px; padding: 8px 12px; font-weight: 600; line-height: 1.5; }
-  .referral-section { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #86efac; border-radius: 10px; padding: 16px 20px; margin: 20px 0 16px; }
-  .referral-title { font-size: 14pt; font-weight: 900; color: #065f46; text-align: center; margin-bottom: 12px; }
-  .referral-body { display: flex; gap: 16px; align-items: center; }
-  .referral-logo-area { flex-shrink: 0; text-align: center; }
-  .ref-logo { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; border: 2px solid #0d9488; }
-  .ref-brand { font-size: 11pt; font-weight: 900; color: #0d9488; margin-top: 4px; }
-  .ref-tagline { font-size: 7pt; color: #065f46; font-style: italic; font-weight: 700; max-width: 100px; line-height: 1.3; margin-top: 2px; }
-  .referral-msg { flex: 1; }
-  .referral-msg p { font-size: 9.5pt; color: #14532d; margin-bottom: 6px; font-weight: 600; }
-  .ref-cta-text { font-size: 9pt !important; color: #047857 !important; }
-  .ref-link-box { background: #fff; border: 1.5px solid #0d9488; border-radius: 6px; padding: 6px 12px; font-size: 9pt; color: #0d9488; font-weight: 700; margin: 6px 0; word-break: break-all; }
-  .ref-hashtag { font-size: 8pt !important; color: #6b7280 !important; font-style: italic; margin-top: 4px !important; }
+  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 20px 24px; margin: 20px 0 16px; }
+  .referral-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; font-size: 8pt; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .referral-title { font-size: 18pt; font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
+  .referral-subtitle { font-size: 10pt; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 4px; }
+  .referral-subtitle strong { color: #fff; }
+  .referral-desc { font-size: 9pt; color: rgba(255,255,255,0.8); text-align: center; margin-bottom: 14px; }
+  .referral-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 12px; }
+  .ref-btn-wa { display: inline-flex; align-items: center; gap: 7px; background: #25D366; color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; text-decoration: none; }
+  .ref-btn-copy { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; border: 1.5px solid rgba(255,255,255,0.4); }
+  .ref-link-box { background: rgba(0,0,0,0.25); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 14px; font-size: 8.5pt; color: rgba(255,255,255,0.85); font-weight: 600; text-align: center; margin: 0 auto 10px; max-width: 420px; word-break: break-all; }
+  .ref-hashtag { font-size: 8pt; color: rgba(255,255,255,0.6); text-align: center; font-style: italic; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -568,15 +565,15 @@ function generatePDF(
     </div>
     <div class="header-orgs">
       <div class="org-badge">
-        <div class="org-badge-icon" style="color:#0077b6;font-size:6pt;">WHO</div>
+        <img src="${window.location.origin}/assets/generated/who-logo-transparent.dim_200x200.png" alt="WHO" class="org-badge-img" />
         <div class="org-badge-label">World Health<br/>Organization</div>
       </div>
       <div class="org-badge">
-        <div class="org-badge-icon" style="color:#c0392b;font-size:6pt;">ICMR</div>
+        <img src="${window.location.origin}/assets/generated/icmr-logo-transparent.dim_200x200.png" alt="ICMR" class="org-badge-img" />
         <div class="org-badge-label">Indian Council of<br/>Medical Research</div>
       </div>
       <div class="org-badge">
-        <div class="org-badge-icon" style="color:#1a7431;font-size:6pt;">IDA</div>
+        <img src="${window.location.origin}/assets/generated/ida-logo-transparent.dim_200x200.png" alt="IDA" class="org-badge-img" />
         <div class="org-badge-label">Indian Dietetic<br/>Association</div>
       </div>
       <div class="org-note">* Calculations based on guidelines by these organisations</div>
@@ -620,20 +617,27 @@ function generatePDF(
   ${healthRiskHtml}
 
   <div class="referral-section">
-    <div class="referral-title">💚 Sharing is Caring — Refer 2 Friends</div>
-    <div class="referral-body">
-      <div class="referral-logo-area">
-        <img src="${logoUrl}" class="ref-logo" onerror="this.style.display='none'" />
-        <div class="ref-brand">HN Coach</div>
-        <div class="ref-tagline">✨ Eat all the snacks or look like a snack ✨</div>
-      </div>
-      <div class="referral-msg">
-        <p>Your friends deserve to know their wellness score too!</p>
-        <p class="ref-cta-text">👉 Share this FREE report link with 2 friends and help them live healthier:</p>
-        <div class="ref-link-box">${window.location.origin}</div>
-        <p class="ref-hashtag">@HN_Coach &nbsp;|&nbsp; #WellnessForAll &nbsp;|&nbsp; #SharingIsCaring</p>
+    <div style="text-align:center;">
+      <div class="referral-badge">
+        <svg viewBox="0 0 24 24" fill="white" style="width:12px;height:12px;flex-shrink:0;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+        REFER 2 FRIENDS
       </div>
     </div>
+    <div class="referral-title">💚 Sharing is Caring</div>
+    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
+    <div class="referral-desc">Your friends deserve to know their wellness score too. Share this page with them today!</div>
+    <div class="referral-buttons">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${window.location.origin}`)}" class="ref-btn-wa">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Share on WhatsApp
+      </a>
+      <div class="ref-btn-copy">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy Link
+      </div>
+    </div>
+    <div class="ref-link-box">${window.location.origin}</div>
+    <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
   </div>
 
   <div class="footer">
@@ -743,6 +747,25 @@ function WellnessAssessment() {
         form.goals,
         results,
       );
+
+      // Notify coach on WhatsApp with full report details
+      const goalsLabel =
+        form.goals.map((g) => GOAL_LABELS[g] || g).join(", ") ||
+        "Not specified";
+      const weightDiff = Number.parseFloat(form.weight) - results.idealWeight;
+      const absWeightDiff = Math.abs(weightDiff).toFixed(1);
+      const weightGoalText =
+        Math.abs(weightDiff) <= 1
+          ? "✅ At Ideal Weight"
+          : weightDiff > 0
+            ? `⚠️ Need to LOSE ${absWeightDiff} kg`
+            : `↑ Need to GAIN ${absWeightDiff} kg`;
+
+      const coachMsg = encodeURIComponent(
+        `🔔 *NEW WELLNESS REPORT DOWNLOADED*\n\n👤 *Client Details*\n• Name: ${form.fullName}\n• Age: ${form.age} yrs | City: ${form.city}\n• WhatsApp: ${form.whatsapp}\n• Occupation: ${form.occupation}\n• Height: ${heightCm} cm | Weight: ${form.weight} kg\n• Goal(s): ${goalsLabel}\n\n📊 *Assessment Results*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightGoalText}\n\n📅 Downloaded on: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}\n\n_Please follow up with this client for a FREE consultation._`,
+      );
+      window.open(`https://wa.me/919155348866?text=${coachMsg}`, "_blank");
+
       setIsGenerating(false);
     }, 200);
   };
@@ -1177,230 +1200,8 @@ function WellnessAssessment() {
   );
 }
 
-// ── Social Buttons (fixed bottom-right, icon-only) ────────────────────────────
-function SocialButtons() {
-  return (
-    <div className="fixed bottom-6 right-5 z-50 flex flex-col items-center gap-2.5">
-      {/* YouTube */}
-      <a
-        data-ocid="youtube.button"
-        href="https://youtube.com/@hn_coach?si=RhYfRtvtfq8TD79D"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center w-10 h-10 rounded-full shadow-lg hover:shadow-xl hover:brightness-110 transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{ background: "#FF0000" }}
-        aria-label="Subscribe on YouTube"
-      >
-        <span className="sr-only">Subscribe on YouTube</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="white"
-          className="w-4 h-4"
-          aria-hidden="true"
-        >
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-        </svg>
-      </a>
-
-      {/* Instagram */}
-      <a
-        data-ocid="instagram.button"
-        href="https://www.instagram.com/hn_coach?igsh=cXRobXd0MDVhenlp"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center w-10 h-10 rounded-full shadow-lg hover:shadow-xl hover:brightness-110 transition-all duration-200 hover:scale-110 active:scale-95"
-        style={{
-          background:
-            "linear-gradient(135deg, #f58529 0%, #dd2a7b 50%, #8134af 100%)",
-        }}
-        aria-label="Follow on Instagram"
-      >
-        <span className="sr-only">Follow on Instagram</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="white"
-          className="w-4 h-4"
-          aria-hidden="true"
-        >
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-        </svg>
-      </a>
-
-      {/* WhatsApp */}
-      <a
-        data-ocid="whatsapp.button"
-        href="https://wa.me/919155348866"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="wa-pulse flex items-center justify-center w-10 h-10 rounded-full bg-whatsapp shadow-lg hover:shadow-xl hover:brightness-110 transition-all duration-200 hover:scale-110 active:scale-95"
-        aria-label="WhatsApp Personal Coaching"
-      >
-        <span className="sr-only">WhatsApp Personal Coaching</span>
-        <svg
-          viewBox="0 0 24 24"
-          fill="white"
-          className="w-4 h-4"
-          aria-hidden="true"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
-      </a>
-    </div>
-  );
-}
-
-// ── Referral Section ───────────────────────────────────────────────────────────
-function ReferralSection() {
-  const [copied, setCopied] = useState(false);
-
-  const pageUrl = window.location.href;
-  const waShareMsg = encodeURIComponent(
-    `Hey! 👋 I just got my FREE Wellness Assessment Report from HN Coach. It shows your ideal weight, BMI, water intake, footsteps and more! Get yours free here: ${pageUrl}. Sharing is caring 💚 - @HN_Coach`,
-  );
-  const waShareUrl = `https://wa.me/?text=${waShareMsg}`;
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(pageUrl);
-    } catch {
-      // fallback
-      const el = document.createElement("textarea");
-      el.value = pageUrl;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <motion.section
-      data-ocid="referral.section"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="w-full max-w-4xl mx-auto px-4 pt-6 pb-2"
-    >
-      <div
-        className="relative overflow-hidden rounded-2xl"
-        style={{
-          background:
-            "linear-gradient(135deg, #052e16 0%, #064e3b 40%, #065f46 70%, #0d9488 100%)",
-          boxShadow:
-            "0 0 0 2px rgba(134,239,172,0.3), 0 8px 32px rgba(6,78,59,0.5)",
-        }}
-      >
-        {/* sparkle overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 20% 50%, rgba(167,243,208,0.12) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(110,231,183,0.10) 0%, transparent 50%)",
-          }}
-        />
-
-        <div className="relative px-5 py-7 text-center">
-          {/* Label pill */}
-          <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-3 py-1 text-xs font-bold text-emerald-200 uppercase tracking-widest mb-4">
-            <Share2 className="w-3 h-3" />
-            Refer 2 Friends
-          </div>
-
-          {/* Heading */}
-          <h2
-            className="text-2xl sm:text-3xl font-extrabold text-white mb-2 leading-tight"
-            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
-          >
-            💚 Sharing is Caring
-          </h2>
-
-          {/* Subheading */}
-          <p className="text-emerald-100 text-sm sm:text-base font-semibold mb-1 max-w-xl mx-auto leading-relaxed">
-            Refer 2 friends and help them get their{" "}
-            <span className="text-white font-extrabold">
-              FREE Wellness Assessment Report
-            </span>
-          </p>
-          <p className="text-emerald-200/80 text-sm mb-6 max-w-lg mx-auto">
-            Your friends deserve to know their wellness score too. Share this
-            page with them today!
-          </p>
-
-          {/* Buttons row */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {/* WhatsApp Share */}
-            <a
-              data-ocid="referral.share.whatsapp.button"
-              href={waShareUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm transition-all duration-200 hover:brightness-110 hover:scale-105 active:scale-95 shadow-lg"
-              style={{
-                background: "#25D366",
-                color: "#fff",
-                boxShadow: "0 4px 16px rgba(37,211,102,0.4)",
-              }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="white"
-                aria-hidden="true"
-                style={{ width: 18, height: 18, flexShrink: 0 }}
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              Share on WhatsApp
-            </a>
-
-            {/* Copy Link */}
-            <button
-              type="button"
-              data-ocid="referral.copy.link.button"
-              onClick={handleCopyLink}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
-              style={{
-                background: copied
-                  ? "linear-gradient(135deg, #dcfce7, #bbf7d0)"
-                  : "rgba(255,255,255,0.15)",
-                color: copied ? "#065f46" : "#fff",
-                border: "1.5px solid rgba(255,255,255,0.25)",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              <Copy className="w-4 h-4" />
-              {copied ? "✅ Link Copied!" : "Copy Link"}
-            </button>
-          </div>
-
-          {/* URL preview box */}
-          <div
-            className="mt-5 mx-auto max-w-sm text-xs font-mono rounded-lg px-4 py-2 text-emerald-200 truncate"
-            style={{
-              background: "rgba(0,0,0,0.25)",
-              border: "1px solid rgba(134,239,172,0.25)",
-            }}
-          >
-            {pageUrl}
-          </div>
-
-          {/* Hashtags */}
-          <p className="text-emerald-300/60 text-xs mt-3 italic">
-            @HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp;
-            #SharingIsCaring
-          </p>
-        </div>
-      </div>
-    </motion.section>
-  );
-}
-
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
-  const year = new Date().getFullYear();
-  const hostname = encodeURIComponent(window.location.hostname);
-
   // FOMO countdown: starts at 5 minutes (300 seconds)
   const [countdown, setCountdown] = useState(300);
   useEffect(() => {
@@ -1631,9 +1432,6 @@ export default function App() {
         <WellnessAssessment />
       </main>
 
-      {/* Referral Section */}
-      <ReferralSection />
-
       {/* Join Our Team Section */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-8 pb-4">
         <div
@@ -1714,22 +1512,6 @@ export default function App() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border mt-8 py-5 text-center text-xs text-muted-foreground">
-        © {year}. Built with ❤️ using{" "}
-        <a
-          href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${hostname}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline hover:text-foreground transition-colors"
-        >
-          caffeine.ai
-        </a>
-      </footer>
-
-      {/* Social Buttons */}
-      <SocialButtons />
     </div>
   );
 }
