@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque[opsz,wdth,wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Figtree";
+  src: url("/assets/fonts/Figtree[wght].woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+
+    /* Teal-green health palette */
+    --background: 0.965 0.012 192;
+    --foreground: 0.16 0.028 205;
+    --card: 0.995 0.003 190;
+    --card-foreground: 0.16 0.028 205;
+    --popover: 0.995 0.003 190;
+    --popover-foreground: 0.16 0.028 205;
+    --primary: 0.50 0.145 196;
+    --primary-foreground: 0.99 0 0;
+    --secondary: 0.91 0.025 192;
+    --secondary-foreground: 0.22 0.035 205;
+    --muted: 0.93 0.015 192;
+    --muted-foreground: 0.46 0.022 196;
+    --accent: 0.86 0.065 158;
+    --accent-foreground: 0.16 0.045 168;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.87 0.018 192;
+    --input: 0.87 0.018 192;
+    --ring: 0.50 0.145 196;
+    --chart-1: 0.50 0.145 196;
+    --chart-2: 0.58 0.13 158;
+    --chart-3: 0.72 0.11 100;
+    --chart-4: 0.63 0.155 252;
+    --chart-5: 0.68 0.17 32;
+
+    /* Result panel — teal tint with good contrast */
+    --result-bg: 0.91 0.055 192;
+    --result-border: 0.78 0.085 192;
+    --result-foreground: 0.16 0.028 205;
+
+    /* WhatsApp green (token so no raw hex in components) */
+    --whatsapp: 0.72 0.18 152;
+    --whatsapp-pulse: 0.72 0.18 152;
+
+    /* Sidebar (unused but required) */
+    --sidebar: 0.965 0.012 192;
+    --sidebar-foreground: 0.16 0.028 205;
+    --sidebar-primary: 0.50 0.145 196;
+    --sidebar-primary-foreground: 0.99 0 0;
+    --sidebar-accent: 0.91 0.025 192;
+    --sidebar-accent-foreground: 0.22 0.035 205;
+    --sidebar-border: 0.87 0.018 192;
+    --sidebar-ring: 0.50 0.145 196;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+/* WhatsApp pulse ring animation */
+@keyframes wa-pulse {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.18 152 / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 12px oklch(0.72 0.18 152 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.72 0.18 152 / 0);
+  }
+}
+
+.wa-pulse {
+  animation: wa-pulse 2.4s ease-out infinite;
+}
+
+/* Page mesh gradient background */
+.page-mesh {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 10%, oklch(0.88 0.07 192 / 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 85%, oklch(0.86 0.065 158 / 0.35) 0%, transparent 55%);
+}
