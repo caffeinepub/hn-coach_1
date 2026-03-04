@@ -1268,37 +1268,42 @@ export default function App() {
             </p>
           </div>
           {/* Organisation logos */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex flex-col items-center">
-              <img
-                src="/assets/generated/who-logo-transparent.dim_200x200.png"
-                alt="WHO"
-                className="w-8 h-8 object-contain"
-              />
-              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
-                WHO
-              </span>
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/generated/who-logo-transparent.dim_200x200.png"
+                  alt="WHO"
+                  className="w-8 h-8 object-contain"
+                />
+                <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                  WHO
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/generated/icmr-logo-transparent.dim_200x200.png"
+                  alt="ICMR"
+                  className="w-8 h-8 object-contain"
+                />
+                <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                  ICMR
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <img
+                  src="/assets/generated/ida-logo-transparent.dim_200x200.png"
+                  alt="IDA"
+                  className="w-8 h-8 object-contain"
+                />
+                <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                  IDA
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col items-center">
-              <img
-                src="/assets/generated/icmr-logo-transparent.dim_200x200.png"
-                alt="ICMR"
-                className="w-8 h-8 object-contain"
-              />
-              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
-                ICMR
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <img
-                src="/assets/generated/ida-logo-transparent.dim_200x200.png"
-                alt="IDA"
-                className="w-8 h-8 object-contain"
-              />
-              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
-                IDA
-              </span>
-            </div>
+            <p className="text-[8px] text-muted-foreground italic text-right leading-tight max-w-[120px]">
+              Calculations based on guidelines by these organisations
+            </p>
           </div>
         </div>
       </header>
