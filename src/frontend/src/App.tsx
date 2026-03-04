@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -12,17 +13,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Activity,
-  Apple,
-  Droplets,
   FileText,
-  Flame,
-  Leaf,
   Loader2,
   MapPin,
   Phone,
+  Ruler,
   Target,
   User,
-  UtensilsCrossed,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -53,19 +50,17 @@ interface UnifiedFormData {
   age: string;
   city: string;
   whatsapp: string;
+  occupation: string;
   // Body metrics
-  height: string;
+  height: string; // always stored in cm
+  heightMode: "cm" | "ft"; // which input mode the user chose
+  heightFt: string; // feet part when using ft/in mode
+  heightIn: string; // inches part when using ft/in mode
   weight: string;
   gender: string;
   activityLevel: string;
-  // Goal
-  target: string;
-  // Diet preferences
-  dietType: string;
-  rawFruits: string;
-  rawSalad: string;
-  curd: string;
-  hungerCapacity: string;
+  // Goals (multiple selection)
+  goals: string[];
 }
 
 // ── Calculations ───────────────────────────────────────────────────────────────
@@ -75,6 +70,16 @@ const ACTIVITY_MULTIPLIERS: Record<string, number> = {
   moderately_active: 1.55,
   very_active: 1.725,
   extra_active: 1.9,
+};
+
+const GOAL_LABELS: Record<string, string> = {
+  weight_loss: "Weight Loss",
+  fat_loss: "Fat Loss",
+  belly_fat_loss: "Belly Fat Loss",
+  muscle_gain: "Muscle Gain",
+  weight_gain: "Weight Gain",
+  weight_maintain: "Weight Maintain",
+  energy_stamina: "Increase Energy & Stamina",
 };
 
 function computeResults(
@@ -306,24 +311,16 @@ function getHealthRisks(bmi: number): HealthRisk[] {
 // ── (HealthRiskAwareness only used in PDF now — removed from page render) ──────
 
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
-interface DietPrefs {
-  dietType: string;
-  rawFruits: string;
-  rawSalad: string;
-  curd: string;
-  hungerCapacity: string;
-}
-
 function generatePDF(
   name: string,
   age: string,
   city: string,
   whatsapp: string,
+  occupation: string,
   height: string,
   weight: string,
-  target: string,
+  goals: string[],
   results: AssessmentResults,
-  dietPrefs: DietPrefs,
 ) {
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -415,12 +412,6 @@ function generatePDF(
     }
   }
 
-  const hungerLabel: Record<string, string> = {
-    "3hrs": "Every 3 Hours",
-    "4hrs": "Every 4 Hours",
-    "5hrs": "Every 5 Hours",
-  };
-
   // Health Risk section for PDF
   let healthRiskHtml = "";
   if (results.bmi >= 18.5 && results.bmi < 25) {
@@ -469,20 +460,11 @@ function generatePDF(
         ? `Need to LOSE ${absWeightDiff} kg`
         : `Need to GAIN ${absWeightDiff} kg`;
 
-  const dietTypeLabel =
-    dietPrefs.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian";
-  const rawFruitsLabel = dietPrefs.rawFruits === "yes" ? "Yes" : "No";
-  const rawSaladLabel = dietPrefs.rawSalad === "yes" ? "Yes" : "No";
-  const curdLabel = dietPrefs.curd === "yes" ? "Yes" : "No";
-  const hungerCapacityLabel =
-    dietPrefs.hungerCapacity === "3hrs"
-      ? "Every 3 hrs"
-      : dietPrefs.hungerCapacity === "4hrs"
-        ? "Every 4 hrs"
-        : "Every 5 hrs";
+  const goalsLabel =
+    goals.map((g) => GOAL_LABELS[g] || g).join(", ") || "Not specified";
 
   const waMsg = encodeURIComponent(
-    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal: ${target}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\n*🥗 Diet Preferences*\n• Diet: ${dietTypeLabel}\n• Raw Fruits Today: ${rawFruitsLabel}\n• Raw Salad Today: ${rawSaladLabel}\n• Curd Today: ${curdLabel}\n• Hunger Capacity: ${hungerCapacityLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
+    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
   );
   const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
@@ -495,18 +477,19 @@ function generatePDF(
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #1f2937; background: #fff; }
   .page { max-width: 760px; margin: 0 auto; padding: 0 24px 32px; }
-  .header { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 20px 24px 16px; margin: 0 -24px 24px; display: flex; align-items: center; gap: 16px; }
-  .header-logo { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); flex-shrink: 0; }
+  .header { background: linear-gradient(135deg, #0d9488 0%, #059669 55%, #0f766e 100%); color: #fff; padding: 22px 24px 18px; margin: 0 -24px 0; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 18px rgba(13,148,136,0.4); }
+  .header-logo { width: 80px; height: 80px; border-radius: 14px; object-fit: cover; border: 3px solid rgba(255,255,255,0.6); flex-shrink: 0; box-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+  .header-logo-fallback { width: 80px; height: 80px; border-radius: 14px; border: 3px solid rgba(255,255,255,0.6); flex-shrink: 0; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 22pt; font-weight: 900; color: #fff; }
   .header-text { flex: 1; }
-  .header-text h1 { font-size: 22pt; font-weight: 800; letter-spacing: -0.5px; }
-  .header-text p { font-size: 11pt; margin-top: 4px; opacity: 0.9; }
+  .header-text h1 { font-size: 24pt; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .header-text p { font-size: 11pt; margin-top: 5px; opacity: 0.92; font-weight: 600; }
   .header-text .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
   .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 4px 8px; }
   .org-badge-icon { width: 22px; height: 22px; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 7pt; font-weight: 900; color: #0d9488; line-height: 1; text-align: center; }
   .org-badge-label { font-size: 7.5pt; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.2px; line-height: 1.2; }
   .org-note { font-size: 6.5pt; color: rgba(255,255,255,0.7); text-align: right; margin-top: 2px; font-style: italic; max-width: 130px; line-height: 1.3; }
-  .tagline-center { background: linear-gradient(135deg, #0d9488, #059669); color: #fff; text-align: center; font-size: 14pt; font-weight: 900; font-style: italic; padding: 12px 20px; margin: 0 -24px 20px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.25); border-top: 3px solid rgba(255,255,255,0.3); border-bottom: 3px solid rgba(255,255,255,0.3); }
+  .tagline-center { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); color: #fff; text-align: center; font-size: 16pt; font-weight: 900; font-style: italic; padding: 14px 24px; margin: 0 -24px 24px; letter-spacing: 0.8px; text-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 20px rgba(167,243,208,0.3); border-top: 3px solid rgba(167,243,208,0.4); border-bottom: 3px solid rgba(167,243,208,0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); }
   .personal { background: #f0fdf9; border: 1px solid #99f6e4; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
   .personal h2 { color: #0d9488; font-size: 11pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
   .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
@@ -563,10 +546,10 @@ function generatePDF(
 <body>
 <div class="page">
   <div class="header">
-    <img src="${logoUrl}" alt="HN Coach Logo" class="header-logo" />
+    <img src="${logoUrl}" alt="HN Coach Logo" class="header-logo" onerror="this.outerHTML='<div class=\\'header-logo-fallback\\'>HN</div>'" />
     <div class="header-text">
       <h1>HN Coach</h1>
-      <p>Wellness Assessment Report</p>
+      <p>Free Wellness Assessment Report</p>
       <div class="date">Generated on: ${today}</div>
     </div>
     <div class="header-orgs">
@@ -586,7 +569,7 @@ function generatePDF(
     </div>
   </div>
 
-  <div class="tagline-center">✨ Eat all the snacks or look like a snack ✨</div>
+  <div class="tagline-center">✨ &nbsp; Eat all the snacks or look like a snack &nbsp; ✨</div>
 
   <div class="personal">
     <h2>Personal Details</h2>
@@ -600,22 +583,8 @@ function generatePDF(
       <div>
         <div class="personal-row"><span>Height:</span><span>${height} cm</span></div>
         <div class="personal-row"><span>Weight:</span><span>${weight} kg</span></div>
-        <div class="personal-row"><span>Goal:</span><span>${target}</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title">Diet Preferences</div>
-  <div class="diet-box">
-    <div class="diet-grid">
-      <div>
-        <div class="diet-row"><span>Diet Type:</span><span>${dietPrefs.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian"}</span></div>
-        <div class="diet-row"><span>Eats Raw Fruits:</span><span>${dietPrefs.rawFruits === "yes" ? "Yes" : "No"}</span></div>
-        <div class="diet-row"><span>Eats Raw Salad:</span><span>${dietPrefs.rawSalad === "yes" ? "Yes" : "No"}</span></div>
-      </div>
-      <div>
-        <div class="diet-row"><span>Eats Curd:</span><span>${dietPrefs.curd === "yes" ? "Yes" : "No"}</span></div>
-        <div class="diet-row"><span>Hunger Capacity:</span><span>${hungerLabel[dietPrefs.hungerCapacity] ?? dietPrefs.hungerCapacity}</span></div>
+        <div class="personal-row"><span>Occupation:</span><span>${occupation}</span></div>
+        <div class="personal-row"><span>Goal(s):</span><span>${goalsLabel}</span></div>
       </div>
     </div>
   </div>
@@ -666,16 +635,15 @@ const EMPTY_FORM: UnifiedFormData = {
   age: "",
   city: "",
   whatsapp: "",
+  occupation: "",
   height: "",
+  heightMode: "cm",
+  heightFt: "",
+  heightIn: "",
   weight: "",
   gender: "",
   activityLevel: "",
-  target: "",
-  dietType: "",
-  rawFruits: "",
-  rawSalad: "",
-  curd: "",
-  hungerCapacity: "",
+  goals: [],
 };
 
 function WellnessAssessment() {
@@ -690,26 +658,41 @@ function WellnessAssessment() {
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+  const toggleGoal = (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      goals: prev.goals.includes(value)
+        ? prev.goals.filter((g) => g !== value)
+        : [...prev.goals, value],
+    }));
+  };
+
+  const heightCm =
+    form.heightMode === "ft"
+      ? (() => {
+          const ft = Number.parseFloat(form.heightFt) || 0;
+          const inches = Number.parseFloat(form.heightIn) || 0;
+          return String(Math.round((ft * 12 + inches) * 2.54));
+        })()
+      : form.height;
+
   const allFilled =
     form.fullName.trim() &&
     form.age.trim() &&
     form.city.trim() &&
     form.whatsapp.trim() &&
-    form.height.trim() &&
+    form.occupation.trim() &&
+    heightCm &&
+    Number(heightCm) > 0 &&
     form.weight.trim() &&
     form.gender &&
     form.activityLevel &&
-    form.target.trim() &&
-    form.dietType &&
-    form.rawFruits &&
-    form.rawSalad &&
-    form.curd &&
-    form.hungerCapacity;
+    form.goals.length > 0;
 
   const handleGenerateReport = () => {
     const results = computeResults({
       weight: form.weight,
-      height: form.height,
+      height: heightCm,
       age: form.age,
       gender: form.gender,
       activityLevel: form.activityLevel,
@@ -723,17 +706,11 @@ function WellnessAssessment() {
         form.age,
         form.city,
         form.whatsapp,
-        form.height,
+        form.occupation,
+        heightCm,
         form.weight,
-        form.target,
+        form.goals,
         results,
-        {
-          dietType: form.dietType,
-          rawFruits: form.rawFruits,
-          rawSalad: form.rawSalad,
-          curd: form.curd,
-          hungerCapacity: form.hungerCapacity,
-        },
       );
       setIsGenerating(false);
     }, 200);
@@ -867,6 +844,25 @@ function WellnessAssessment() {
                   />
                 </div>
               </div>
+
+              {/* Occupation */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="f-occupation"
+                  className="text-sm font-medium text-foreground/80"
+                >
+                  Occupation <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="f-occupation"
+                  data-ocid="assessment.occupation.input"
+                  type="text"
+                  placeholder="e.g. Software Engineer, Teacher, Homemaker"
+                  value={form.occupation}
+                  onChange={setInput("occupation")}
+                  className="h-11"
+                />
+              </div>
             </div>
 
             <Separator />
@@ -882,15 +878,46 @@ function WellnessAssessment() {
                 </h3>
               </div>
 
-              {/* Height + Weight */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="f-height"
-                    className="text-sm font-medium text-foreground/80"
-                  >
-                    Height (cm) <span className="text-destructive">*</span>
+              {/* Height */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
+                    <Ruler className="w-3.5 h-3.5 text-primary" />
+                    Height <span className="text-destructive">*</span>
                   </Label>
+                  {/* Toggle cm / ft+in */}
+                  <div className="flex rounded-lg overflow-hidden border border-border text-xs font-semibold">
+                    <button
+                      type="button"
+                      data-ocid="assessment.height.cm.toggle"
+                      onClick={() =>
+                        setForm((p) => ({ ...p, heightMode: "cm" }))
+                      }
+                      className={`px-3 py-1.5 transition-colors ${
+                        form.heightMode === "cm"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      cm
+                    </button>
+                    <button
+                      type="button"
+                      data-ocid="assessment.height.ft.toggle"
+                      onClick={() =>
+                        setForm((p) => ({ ...p, heightMode: "ft" }))
+                      }
+                      className={`px-3 py-1.5 transition-colors ${
+                        form.heightMode === "ft"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      ft / in
+                    </button>
+                  </div>
+                </div>
+                {form.heightMode === "cm" ? (
                   <Input
                     id="f-height"
                     data-ocid="assessment.height.input"
@@ -900,24 +927,74 @@ function WellnessAssessment() {
                     onChange={setInput("height")}
                     className="h-11"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="f-weight"
-                    className="text-sm font-medium text-foreground/80"
-                  >
-                    Weight (kg) <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="f-weight"
-                    data-ocid="assessment.weight.input"
-                    type="number"
-                    placeholder="e.g. 70"
-                    value={form.weight}
-                    onChange={setInput("weight")}
-                    className="h-11"
-                  />
-                </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="f-height-ft"
+                        className="text-xs text-muted-foreground"
+                      >
+                        Feet
+                      </Label>
+                      <Input
+                        id="f-height-ft"
+                        data-ocid="assessment.height.ft.input"
+                        type="number"
+                        placeholder="e.g. 5"
+                        min={1}
+                        max={8}
+                        value={form.heightFt}
+                        onChange={setInput("heightFt")}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="f-height-in"
+                        className="text-xs text-muted-foreground"
+                      >
+                        Inches
+                      </Label>
+                      <Input
+                        id="f-height-in"
+                        data-ocid="assessment.height.in.input"
+                        type="number"
+                        placeholder="e.g. 6"
+                        min={0}
+                        max={11}
+                        value={form.heightIn}
+                        onChange={setInput("heightIn")}
+                        className="h-11"
+                      />
+                    </div>
+                  </div>
+                )}
+                {form.heightMode === "ft" &&
+                  heightCm &&
+                  Number(heightCm) > 0 && (
+                    <p className="text-xs text-primary font-medium">
+                      = {heightCm} cm
+                    </p>
+                  )}
+              </div>
+
+              {/* Weight */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="f-weight"
+                  className="text-sm font-medium text-foreground/80"
+                >
+                  Weight (kg) <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="f-weight"
+                  data-ocid="assessment.weight.input"
+                  type="number"
+                  placeholder="e.g. 70"
+                  value={form.weight}
+                  onChange={setInput("weight")}
+                  className="h-11"
+                />
               </div>
 
               {/* Gender + Activity Level */}
@@ -981,156 +1058,51 @@ function WellnessAssessment() {
                   Your Goal
                 </h3>
               </div>
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="f-target"
-                  className="text-sm font-medium text-foreground/80"
-                >
-                  Goal / Target <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="f-target"
-                  data-ocid="assessment.target.input"
-                  type="text"
-                  placeholder='e.g. "Lose 5 kg", "Build muscle", "Stay fit"'
-                  value={form.target}
-                  onChange={setInput("target")}
-                  className="h-11"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* ── Section 4: Diet Preferences ───────────────────────── */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <Leaf className="w-3.5 h-3.5 text-primary" />
-                </span>
-                <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Diet Preferences
-                </h3>
-              </div>
-
-              {/* Diet Type */}
-              <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-foreground/80">
-                  Diet Preference <span className="text-destructive">*</span>
-                </Label>
-                <Select value={form.dietType} onValueChange={set("dietType")}>
-                  <SelectTrigger
-                    data-ocid="assessment.diet.select"
-                    className="h-11"
-                  >
-                    <SelectValue placeholder="Vegetarian or Non-Vegetarian?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="veg">
-                      <span className="flex items-center gap-2">
-                        <Leaf className="w-3.5 h-3.5 text-green-600" />
-                        Vegetarian
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-foreground/80">
+                    Select Your Goal(s){" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Select one or more goals
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {(
+                    [
+                      ["weight_loss", "Weight Loss"],
+                      ["fat_loss", "Fat Loss"],
+                      ["belly_fat_loss", "Belly Fat Loss"],
+                      ["muscle_gain", "Muscle Gain"],
+                      ["weight_gain", "Weight Gain"],
+                      ["weight_maintain", "Weight Maintain"],
+                      ["energy_stamina", "Increase Energy & Stamina"],
+                    ] as [string, string][]
+                  ).map(([value, label], index) => (
+                    <label
+                      key={value}
+                      htmlFor={`goal-${value}`}
+                      className="flex items-center gap-2 p-2.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-primary/5 cursor-pointer transition-all"
+                    >
+                      <Checkbox
+                        id={`goal-${value}`}
+                        checked={form.goals.includes(value)}
+                        onCheckedChange={() => toggleGoal(value)}
+                        data-ocid={`assessment.goal.${index + 1}.checkbox`}
+                      />
+                      <span className="text-sm font-medium text-foreground/80">
+                        {label}
                       </span>
-                    </SelectItem>
-                    <SelectItem value="nonveg">
-                      <span className="flex items-center gap-2">
-                        <UtensilsCrossed className="w-3.5 h-3.5 text-red-500" />
-                        Non-Vegetarian
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Raw Fruits + Raw Salad */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
-                    <Apple className="w-3.5 h-3.5 text-orange-500" />
-                    Raw Fruits added today?{" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={form.rawFruits}
-                    onValueChange={set("rawFruits")}
-                  >
-                    <SelectTrigger
-                      data-ocid="assessment.rawfruits.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="Yes / No" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    </label>
+                  ))}
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
-                    <Leaf className="w-3.5 h-3.5 text-green-600" />
-                    Raw Salad added today?{" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={form.rawSalad} onValueChange={set("rawSalad")}>
-                    <SelectTrigger
-                      data-ocid="assessment.rawsalad.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="Yes / No" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Curd + Hunger Capacity */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
-                    <Droplets className="w-3.5 h-3.5 text-yellow-600" />
-                    Curd added today?{" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={form.curd} onValueChange={set("curd")}>
-                    <SelectTrigger
-                      data-ocid="assessment.curd.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="Yes / No" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-primary" />
-                    Hunger Control Capacity{" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={form.hungerCapacity}
-                    onValueChange={set("hungerCapacity")}
-                  >
-                    <SelectTrigger
-                      data-ocid="assessment.hunger.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="Select diet timing" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="3hrs">3 hrs diet</SelectItem>
-                      <SelectItem value="4hrs">4 hrs diet</SelectItem>
-                      <SelectItem value="5hrs">5 hrs diet</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {form.goals.length > 0 && (
+                  <p className="text-xs text-primary font-medium mt-1">
+                    Selected:{" "}
+                    {form.goals.map((g) => GOAL_LABELS[g] || g).join(", ")}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1272,19 +1244,61 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-background page-mesh">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-3.5 flex items-center gap-3.5">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+          {/* Logo */}
           <img
             src="/assets/uploads/IMG-20260226-WA0000-1-1.jpg"
             alt="HN Coach"
-            className="w-12 h-12 rounded-xl object-cover shadow-md ring-2 ring-primary/30"
+            className="w-11 h-11 rounded-xl object-cover shadow-md ring-2 ring-primary/30 flex-shrink-0"
           />
-          <div>
-            <h1 className="font-display font-bold text-2xl text-foreground leading-none tracking-tight">
+          {/* Brand text */}
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display font-bold text-xl text-foreground leading-none tracking-tight">
               HN Coach
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5 font-medium tracking-wide uppercase">
-              Health &amp; Nutrition Calculators
+            <p
+              className="text-xs font-bold mt-0.5 tracking-wide uppercase"
+              style={{
+                background: "linear-gradient(90deg, #0d9488, #059669)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Free Wellness Assessment
             </p>
+          </div>
+          {/* Organisation logos */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex flex-col items-center">
+              <img
+                src="/assets/generated/who-logo-transparent.dim_200x200.png"
+                alt="WHO"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                WHO
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <img
+                src="/assets/generated/icmr-logo-transparent.dim_200x200.png"
+                alt="ICMR"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                ICMR
+              </span>
+            </div>
+            <div className="flex flex-col items-center">
+              <img
+                src="/assets/generated/ida-logo-transparent.dim_200x200.png"
+                alt="IDA"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-[9px] font-bold text-muted-foreground leading-none mt-0.5">
+                IDA
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -1294,18 +1308,38 @@ export default function App() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: "easeOut" }}
-        className="w-full"
+        className="w-full relative overflow-hidden"
         style={{
           background:
-            "linear-gradient(135deg, #0d9488 0%, #059669 55%, #16a34a 100%)",
+            "linear-gradient(135deg, #064e3b 0%, #065f46 40%, #047857 70%, #059669 100%)",
+          boxShadow: "0 4px 20px rgba(6,78,59,0.45)",
         }}
       >
-        <div className="max-w-4xl mx-auto px-4 py-5 text-center">
-          <p className="text-xl sm:text-2xl font-display font-bold italic text-white tracking-tight drop-shadow-sm">
+        {/* subtle shine overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)",
+          }}
+        />
+        <div className="max-w-4xl mx-auto px-4 py-6 text-center relative">
+          {/* sparkle row */}
+          <p className="text-xs text-emerald-300 font-semibold tracking-widest uppercase mb-2 opacity-80">
+            ✦ HN Coach Motto ✦
+          </p>
+          <p
+            className="text-2xl sm:text-3xl md:text-4xl font-display font-black italic text-white tracking-tight"
+            style={{
+              textShadow:
+                "0 2px 16px rgba(0,0,0,0.45), 0 0 32px rgba(167,243,208,0.25)",
+              lineHeight: 1.25,
+            }}
+          >
             💪 Eat all the snacks or look like a snack. 💪
           </p>
-          <p className="text-xs sm:text-sm text-white/80 mt-1 font-medium tracking-wide">
-            Your free personalised wellness assessment starts here
+          <p className="text-sm sm:text-base text-emerald-100 mt-2.5 font-semibold tracking-wide">
+            Your free personalised wellness assessment starts here ↓
           </p>
         </div>
       </motion.div>
