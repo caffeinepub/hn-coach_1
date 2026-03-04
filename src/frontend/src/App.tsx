@@ -353,9 +353,10 @@ function generatePDF(
   let timelineHtml = "";
   if (Math.abs(weightDiff) > 1) {
     if (weightDiff > 0) {
-      // Need to LOSE weight — 3 to 5 kg/month
-      const fastMonths = Math.ceil(absWeightDiffNum / 5);
-      const slowMonths = Math.ceil(absWeightDiffNum / 3);
+      // Need to LOSE weight — 3, 4, 5 kg/month
+      const months5 = Math.ceil(absWeightDiffNum / 5);
+      const months4 = Math.ceil(absWeightDiffNum / 4);
+      const months3 = Math.ceil(absWeightDiffNum / 3);
       timelineHtml = `
       <div class="section-title" style="color:#ea580c;border-bottom-color:#ea580c;">&#128197; Your Weight Loss Timeline</div>
       <div class="timeline-box loss">
@@ -364,20 +365,27 @@ function generatePDF(
           <div class="timeline-col fast">
             <div class="tl-rate">Fast Track</div>
             <div class="tl-rate-sub">5 kg/month</div>
-            <div class="tl-months">${fastMonths} Month${fastMonths > 1 ? "s" : ""}</div>
+            <div class="tl-months">${months5} Month${months5 > 1 ? "s" : ""}</div>
           </div>
-          <div class="timeline-vs">to</div>
+          <div class="timeline-vs">·</div>
+          <div class="timeline-col mid">
+            <div class="tl-rate">Moderate</div>
+            <div class="tl-rate-sub">4 kg/month</div>
+            <div class="tl-months">${months4} Month${months4 > 1 ? "s" : ""}</div>
+          </div>
+          <div class="timeline-vs">·</div>
           <div class="timeline-col slow">
             <div class="tl-rate">Steady Pace</div>
             <div class="tl-rate-sub">3 kg/month</div>
-            <div class="tl-months">${slowMonths} Month${slowMonths > 1 ? "s" : ""}</div>
+            <div class="tl-months">${months3} Month${months3 > 1 ? "s" : ""}</div>
           </div>
         </div>
-        <div class="timeline-note">With consistent diet &amp; exercise, you can achieve your ideal weight in <strong>${fastMonths}–${slowMonths} months</strong>. Start today — every day counts!</div>
+        <div class="timeline-note">With consistent diet &amp; exercise, you can achieve your ideal weight in <strong>${months5}–${months3} months</strong>. Start today — every day counts!</div>
       </div>`;
     } else {
       // Need to GAIN weight — 2 to 3 kg/month
       const fastMonths = Math.ceil(absWeightDiffNum / 3);
+      const midMonths = Math.ceil(absWeightDiffNum / 2.5);
       const slowMonths = Math.ceil(absWeightDiffNum / 2);
       timelineHtml = `
       <div class="section-title" style="color:#2563eb;border-bottom-color:#2563eb;">&#128197; Your Weight Gain Timeline</div>
@@ -389,7 +397,13 @@ function generatePDF(
             <div class="tl-rate-sub" style="color:#3b82f6;">3 kg/month</div>
             <div class="tl-months" style="color:#1e3a8a;">${fastMonths} Month${fastMonths > 1 ? "s" : ""}</div>
           </div>
-          <div class="timeline-vs">to</div>
+          <div class="timeline-vs">·</div>
+          <div class="timeline-col mid" style="background:#e0f2fe;border-color:#7dd3fc;">
+            <div class="tl-rate" style="color:#1d4ed8;">Moderate</div>
+            <div class="tl-rate-sub" style="color:#3b82f6;">2.5 kg/month</div>
+            <div class="tl-months" style="color:#1e3a8a;">${midMonths} Month${midMonths > 1 ? "s" : ""}</div>
+          </div>
+          <div class="timeline-vs">·</div>
           <div class="timeline-col slow" style="background:#eff6ff;border-color:#bfdbfe;">
             <div class="tl-rate" style="color:#1d4ed8;">Steady Pace</div>
             <div class="tl-rate-sub" style="color:#3b82f6;">2 kg/month</div>
@@ -448,8 +462,27 @@ function generatePDF(
     <div class="risk-disclaimer">This is for awareness only. Consult HN Coach for personalised guidance.</div>`;
   }
 
+  const weightDiffLabel =
+    Math.abs(weightDiff) <= 1
+      ? "At Ideal Weight ✅"
+      : weightDiff > 0
+        ? `Need to LOSE ${absWeightDiff} kg`
+        : `Need to GAIN ${absWeightDiff} kg`;
+
+  const dietTypeLabel =
+    dietPrefs.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian";
+  const rawFruitsLabel = dietPrefs.rawFruits === "yes" ? "Yes" : "No";
+  const rawSaladLabel = dietPrefs.rawSalad === "yes" ? "Yes" : "No";
+  const curdLabel = dietPrefs.curd === "yes" ? "Yes" : "No";
+  const hungerCapacityLabel =
+    dietPrefs.hungerCapacity === "3hrs"
+      ? "Every 3 hrs"
+      : dietPrefs.hungerCapacity === "4hrs"
+        ? "Every 4 hrs"
+        : "Every 5 hrs";
+
   const waMsg = encodeURIComponent(
-    `Hi HN Coach! I just downloaded my Free Wellness Assessment Report.\n\nName: ${name}\nWeight: ${weight} kg\nBMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\nGoal: ${target}\n\nI'd love a FREE Consultation. Can you please help me? 🙏`,
+    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal: ${target}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\n*🥗 Diet Preferences*\n• Diet: ${dietTypeLabel}\n• Raw Fruits Today: ${rawFruitsLabel}\n• Raw Salad Today: ${rawSaladLabel}\n• Curd Today: ${curdLabel}\n• Hunger Capacity: ${hungerCapacityLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
   );
   const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
@@ -464,9 +497,15 @@ function generatePDF(
   .page { max-width: 760px; margin: 0 auto; padding: 0 24px 32px; }
   .header { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 20px 24px 16px; margin: 0 -24px 24px; display: flex; align-items: center; gap: 16px; }
   .header-logo { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); flex-shrink: 0; }
+  .header-text { flex: 1; }
   .header-text h1 { font-size: 22pt; font-weight: 800; letter-spacing: -0.5px; }
   .header-text p { font-size: 11pt; margin-top: 4px; opacity: 0.9; }
   .header-text .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
+  .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 4px 8px; }
+  .org-badge-icon { width: 22px; height: 22px; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 7pt; font-weight: 900; color: #0d9488; line-height: 1; text-align: center; }
+  .org-badge-label { font-size: 7.5pt; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.2px; line-height: 1.2; }
+  .org-note { font-size: 6.5pt; color: rgba(255,255,255,0.7); text-align: right; margin-top: 2px; font-style: italic; max-width: 130px; line-height: 1.3; }
   .tagline-center { background: linear-gradient(135deg, #0d9488, #059669); color: #fff; text-align: center; font-size: 14pt; font-weight: 900; font-style: italic; padding: 12px 20px; margin: 0 -24px 20px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.25); border-top: 3px solid rgba(255,255,255,0.3); border-bottom: 3px solid rgba(255,255,255,0.3); }
   .personal { background: #f0fdf9; border: 1px solid #99f6e4; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
   .personal h2 { color: #0d9488; font-size: 11pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -506,10 +545,11 @@ function generatePDF(
   .timeline-box.loss { background: #fff7ed; border: 1.5px solid #fdba74; }
   .timeline-box.gain { background: #eff6ff; border: 1.5px solid #93c5fd; }
   .timeline-header { font-size: 10.5pt; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
-  .timeline-grid { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .timeline-col { flex: 1; text-align: center; background: #fff3e0; border: 1.5px solid #ffcc80; border-radius: 8px; padding: 10px 8px; }
+  .timeline-grid { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .timeline-col { flex: 1; text-align: center; background: #fff3e0; border: 1.5px solid #ffcc80; border-radius: 8px; padding: 10px 6px; }
+  .timeline-col.mid { background: #fef3c7; border-color: #fde68a; }
   .timeline-col.slow { background: #fef9c3; border-color: #fcd34d; }
-  .timeline-vs { font-size: 9pt; font-weight: 800; color: #6b7280; flex-shrink: 0; }
+  .timeline-vs { font-size: 11pt; font-weight: 800; color: #d1d5db; flex-shrink: 0; }
   .tl-rate { font-size: 9pt; font-weight: 800; color: #c2410c; text-transform: uppercase; letter-spacing: 0.3px; }
   .tl-rate-sub { font-size: 8pt; color: #ea580c; margin: 2px 0 6px; }
   .tl-months { font-size: 18pt; font-weight: 900; color: #9a3412; line-height: 1; }
@@ -528,6 +568,21 @@ function generatePDF(
       <h1>HN Coach</h1>
       <p>Wellness Assessment Report</p>
       <div class="date">Generated on: ${today}</div>
+    </div>
+    <div class="header-orgs">
+      <div class="org-badge">
+        <div class="org-badge-icon" style="color:#0077b6;font-size:6pt;">WHO</div>
+        <div class="org-badge-label">World Health<br/>Organization</div>
+      </div>
+      <div class="org-badge">
+        <div class="org-badge-icon" style="color:#c0392b;font-size:6pt;">ICMR</div>
+        <div class="org-badge-label">Indian Council of<br/>Medical Research</div>
+      </div>
+      <div class="org-badge">
+        <div class="org-badge-icon" style="color:#1a7431;font-size:6pt;">IDA</div>
+        <div class="org-badge-label">Indian Dietetic<br/>Association</div>
+      </div>
+      <div class="org-note">* Calculations based on guidelines by these organisations</div>
     </div>
   </div>
 
