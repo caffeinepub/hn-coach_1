@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -21,19 +20,15 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Activity,
-  AlertTriangle,
   ArrowDown,
   ArrowUp,
   CheckCircle2,
   Download,
   Droplets,
-  Dumbbell,
   FileText,
   Flame,
   Footprints,
-  Heart,
   Scale,
-  Shield,
   Timer,
   User,
 } from "lucide-react";
@@ -58,30 +53,6 @@ interface AssessmentInputs {
   age: string;
   gender: string;
   activityLevel: string;
-}
-
-interface HealthRisk {
-  condition: string;
-  timeline: string;
-  urgency: "high" | "medium" | "low";
-}
-
-interface SupersetExercise {
-  number: number;
-  exerciseA: string;
-  exerciseB: string;
-  sets: number;
-  reps: string;
-  rest: string;
-  duration: string;
-}
-
-interface SupersetPlan {
-  level: string;
-  goal: string;
-  exercises: SupersetExercise[];
-  totalTime: string;
-  tip: string;
 }
 
 // ── Calculations ───────────────────────────────────────────────────────────────
@@ -125,12 +96,12 @@ function computeResults(inputs: AssessmentInputs): AssessmentResults | null {
   // TDEE
   const tdee = bmr * (ACTIVITY_MULTIPLIERS[activityLevel] ?? 1.2);
 
-  // Water intake: weight / 15 litres
-  const waterIntake = w / 15;
+  // Water intake: weight / 18 litres
+  const waterIntake = w / 18;
 
-  // Footsteps
-  const footsteps =
-    a > 60 || w > 100 ? "7,000 – 8,000 steps/day" : "10,000 steps/day";
+  // Footsteps: 1 kg body = 110 footsteps
+  const footstepsNum = Math.round(w * 110);
+  const footsteps = `${footstepsNum.toLocaleString()} steps/day`;
 
   // Exercise minutes
   let exerciseMinutes: string;
@@ -156,290 +127,15 @@ function computeResults(inputs: AssessmentInputs): AssessmentResults | null {
   };
 }
 
-// ── Health Risks Logic ─────────────────────────────────────────────────────────
-function getHealthRisks(bmiCategory: string, gender: string): HealthRisk[] {
-  if (bmiCategory === "Obese") {
-    const risks: HealthRisk[] = [
-      {
-        condition: "Type 2 Diabetes",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      },
-      {
-        condition: "Hypertension",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      },
-      {
-        condition: "Heart Disease",
-        timeline: "Risk within 1–2 years",
-        urgency: "medium",
-      },
-      {
-        condition: "Sleep Apnea",
-        timeline: "Risk within 1–2 years",
-        urgency: "medium",
-      },
-      {
-        condition: "Fatty Liver Disease",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      },
-      {
-        condition: "Joint Pain & Osteoarthritis",
-        timeline: "Risk within 1–3 years",
-        urgency: "low",
-      },
-      {
-        condition: "Metabolic Syndrome",
-        timeline: "Risk within 6 months",
-        urgency: "high",
-      },
-    ];
-    if (gender === "female") {
-      risks.push({
-        condition: "PCOS",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      });
-    }
-    return risks;
-  }
-  if (bmiCategory === "Overweight") {
-    return [
-      {
-        condition: "Pre-Diabetes",
-        timeline: "Risk within 1–2 years",
-        urgency: "medium",
-      },
-      {
-        condition: "Hypertension",
-        timeline: "Risk within 1–3 years",
-        urgency: "low",
-      },
-      {
-        condition: "Insulin Resistance",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      },
-      {
-        condition: "Joint Stress",
-        timeline: "Risk within 2–3 years",
-        urgency: "low",
-      },
-      {
-        condition: "Fatty Liver",
-        timeline: "Risk within 1–2 years",
-        urgency: "medium",
-      },
-    ];
-  }
-  if (bmiCategory === "Underweight") {
-    const risks: HealthRisk[] = [
-      {
-        condition: "Anemia",
-        timeline: "Risk within 3–6 months",
-        urgency: "high",
-      },
-      {
-        condition: "Osteoporosis",
-        timeline: "Risk within 1–2 years",
-        urgency: "medium",
-      },
-      {
-        condition: "Weakened Immune System",
-        timeline: "Risk within few months",
-        urgency: "high",
-      },
-      {
-        condition: "Hormonal Imbalance",
-        timeline: "Risk within 6–12 months",
-        urgency: "high",
-      },
-    ];
-    if (gender === "female") {
-      risks.push({
-        condition: "Irregular Menstruation",
-        timeline: "Risk within few months",
-        urgency: "high",
-      });
-    }
-    return risks;
-  }
-  return []; // Normal BMI
-}
-
-function urgencyBadgeClass(urgency: HealthRisk["urgency"]) {
-  switch (urgency) {
-    case "high":
-      return "bg-red-100 text-red-700 border-red-200";
-    case "medium":
-      return "bg-orange-100 text-orange-700 border-orange-200";
-    case "low":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-  }
-}
-
-// ── Superset Plans ─────────────────────────────────────────────────────────────
-function computeSupersetPlan(level: string, goal: string): SupersetPlan {
-  const tips: Record<string, string> = {
-    lose_weight: "Tip: Keep rest times strict for fat burn",
-    build_muscle:
-      "Tip: Focus on progressive overload — increase weight each week",
-    maintain_fitness: "Tip: Consistency is key — 3–4 sessions per week",
-  };
-
-  if (level === "beginner") {
-    return {
-      level,
-      goal,
-      exercises: [
-        {
-          number: 1,
-          exerciseA: "Push-ups",
-          exerciseB: "Bodyweight Squats",
-          sets: 3,
-          reps: "10 reps",
-          rest: "60s rest",
-          duration: "~8 min",
-        },
-        {
-          number: 2,
-          exerciseA: "Dumbbell Rows",
-          exerciseB: "Lunges",
-          sets: 3,
-          reps: "10 reps",
-          rest: "60s rest",
-          duration: "~8 min",
-        },
-        {
-          number: 3,
-          exerciseA: "Shoulder Press",
-          exerciseB: "Glute Bridges",
-          sets: 3,
-          reps: "10 reps",
-          rest: "60s rest",
-          duration: "~8 min",
-        },
-        {
-          number: 4,
-          exerciseA: "Plank",
-          exerciseB: "Mountain Climbers",
-          sets: 3,
-          reps: "30s hold",
-          rest: "45s rest",
-          duration: "~6 min",
-        },
-      ],
-      totalTime: "~30 min",
-      tip: tips[goal] ?? tips.maintain_fitness,
-    };
-  }
-
-  if (level === "intermediate") {
-    return {
-      level,
-      goal,
-      exercises: [
-        {
-          number: 1,
-          exerciseA: "Bench Press",
-          exerciseB: "Pull-ups",
-          sets: 4,
-          reps: "12 reps",
-          rest: "60s rest",
-          duration: "~10 min",
-        },
-        {
-          number: 2,
-          exerciseA: "Deadlift",
-          exerciseB: "Overhead Press",
-          sets: 4,
-          reps: "10 reps",
-          rest: "60s rest",
-          duration: "~10 min",
-        },
-        {
-          number: 3,
-          exerciseA: "Romanian Deadlift",
-          exerciseB: "Dumbbell Curls",
-          sets: 4,
-          reps: "12 reps",
-          rest: "60s rest",
-          duration: "~10 min",
-        },
-        {
-          number: 4,
-          exerciseA: "Lat Pulldown",
-          exerciseB: "Tricep Dips",
-          sets: 4,
-          reps: "12 reps",
-          rest: "45s rest",
-          duration: "~8 min",
-        },
-      ],
-      totalTime: "~40 min",
-      tip: tips[goal] ?? tips.maintain_fitness,
-    };
-  }
-
-  // Advanced
-  return {
-    level,
-    goal,
-    exercises: [
-      {
-        number: 1,
-        exerciseA: "Barbell Squat",
-        exerciseB: "Pull-ups",
-        sets: 5,
-        reps: "12 reps",
-        rest: "45s rest",
-        duration: "~12 min",
-      },
-      {
-        number: 2,
-        exerciseA: "Deadlift",
-        exerciseB: "Incline Press",
-        sets: 5,
-        reps: "10 reps",
-        rest: "45s rest",
-        duration: "~12 min",
-      },
-      {
-        number: 3,
-        exerciseA: "Leg Press",
-        exerciseB: "Seated Row",
-        sets: 5,
-        reps: "12 reps",
-        rest: "45s rest",
-        duration: "~10 min",
-      },
-      {
-        number: 4,
-        exerciseA: "Romanian Deadlift",
-        exerciseB: "Arnold Press",
-        sets: 5,
-        reps: "12 reps",
-        rest: "45s rest",
-        duration: "~10 min",
-      },
-      {
-        number: 5,
-        exerciseA: "Plank",
-        exerciseB: "Burpees",
-        sets: 5,
-        reps: "30s / 10 reps",
-        rest: "30s rest",
-        duration: "~8 min",
-      },
-    ],
-    totalTime: "~52 min",
-    tip: tips[goal] ?? tips.maintain_fitness,
-  };
-}
-
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
+interface DietPrefs {
+  dietType: string;
+  rawFruits: string;
+  rawSalad: string;
+  curd: string;
+  hungerCapacity: string;
+}
+
 function generatePDF(
   name: string,
   age: string,
@@ -448,8 +144,7 @@ function generatePDF(
   weight: string,
   target: string,
   results: AssessmentResults,
-  supersetPlan: SupersetPlan | null,
-  gender: string,
+  dietPrefs: DietPrefs,
 ) {
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -457,53 +152,28 @@ function generatePDF(
     year: "numeric",
   });
 
+  const logoUrl = `${window.location.origin}/assets/uploads/IMG-20260226-WA0000-1-1.jpg`;
+  const posterUrl = `${window.location.origin}/assets/uploads/IMG_20260304_203219-1.jpg`;
+
   const currentW = Number.parseFloat(weight);
   const weightDiff = currentW - results.idealWeight;
   const absWeightDiff = Math.abs(weightDiff).toFixed(1);
 
-  const risks = getHealthRisks(results.bmiCategory, gender);
-  const topRisks = risks.slice(0, 4);
-
   let weightGoalHtml = "";
+  const motivationMsg = `<div class="motivation-msg">&#127775; Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>`;
   if (Math.abs(weightDiff) <= 1) {
-    weightGoalHtml = `<div class="banner green">&#10003; You are at your <strong>IDEAL WEIGHT!</strong> Keep it up.</div>`;
+    weightGoalHtml = `<div class="banner green">&#10003; You are at your <strong>IDEAL WEIGHT!</strong> Keep it up.</div>${motivationMsg}`;
   } else if (weightDiff > 0) {
-    weightGoalHtml = `<div class="banner orange">&#9888; You need to <strong>LOSE ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>`;
+    weightGoalHtml = `<div class="banner orange">&#9888; You need to <strong>LOSE ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>${motivationMsg}`;
   } else {
-    weightGoalHtml = `<div class="banner blue">&#8593; You need to <strong>GAIN ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>`;
+    weightGoalHtml = `<div class="banner blue">&#8593; You need to <strong>GAIN ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>${motivationMsg}`;
   }
 
-  let risksHtml = "";
-  if (results.bmiCategory === "Normal") {
-    risksHtml = `<div class="banner green">&#10003; Your weight is in a healthy range. Maintain your habits!</div>`;
-  } else {
-    risksHtml = topRisks
-      .map(
-        (r) =>
-          `<div class="risk-row"><span class="risk-name">${r.condition}</span><span class="risk-badge ${r.urgency}">${r.timeline}</span></div>`,
-      )
-      .join("");
-  }
-
-  let supersetHtml = "";
-  if (supersetPlan) {
-    const levelCap =
-      supersetPlan.level.charAt(0).toUpperCase() + supersetPlan.level.slice(1);
-    const exerciseRows = supersetPlan.exercises
-      .map(
-        (ex) =>
-          `<tr><td><strong>Superset ${ex.number}</strong></td><td>${ex.exerciseA} + ${ex.exerciseB}</td><td>${ex.sets} × ${ex.reps}</td><td>${ex.rest}</td><td>${ex.duration}</td></tr>`,
-      )
-      .join("");
-    supersetHtml = `
-      <div class="section-title">Your Superset Workout Plan</div>
-      <div class="banner teal">Total Session: <strong>${supersetPlan.totalTime}</strong> &nbsp;|&nbsp; Level: ${levelCap}</div>
-      <table class="superset-table">
-        <thead><tr><th>#</th><th>Exercises</th><th>Sets × Reps</th><th>Rest</th><th>Duration</th></tr></thead>
-        <tbody>${exerciseRows}</tbody>
-      </table>
-      <p class="tip">${supersetPlan.tip}</p>`;
-  }
+  const hungerLabel: Record<string, string> = {
+    "3hrs": "Every 3 Hours",
+    "4hrs": "Every 4 Hours",
+    "5hrs": "Every 5 Hours",
+  };
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -514,15 +184,17 @@ function generatePDF(
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #1f2937; background: #fff; }
   .page { max-width: 760px; margin: 0 auto; padding: 0 24px 32px; }
-  .header { background: #0d9488; color: #fff; padding: 20px 24px 16px; margin: 0 -24px 24px; }
-  .header h1 { font-size: 22pt; font-weight: 800; letter-spacing: -0.5px; }
-  .header p { font-size: 11pt; margin-top: 4px; opacity: 0.9; }
-  .header .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
+  .header { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 20px 24px 16px; margin: 0 -24px 24px; display: flex; align-items: center; gap: 16px; }
+  .header-logo { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); flex-shrink: 0; }
+  .header-text h1 { font-size: 22pt; font-weight: 800; letter-spacing: -0.5px; }
+  .header-text p { font-size: 11pt; margin-top: 4px; opacity: 0.9; }
+  .header-text .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
+  .tagline-center { background: linear-gradient(135deg, #0d9488, #059669); color: #fff; text-align: center; font-size: 14pt; font-weight: 900; font-style: italic; padding: 12px 20px; margin: 0 -24px 20px; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.25); border-top: 3px solid rgba(255,255,255,0.3); border-bottom: 3px solid rgba(255,255,255,0.3); }
   .personal { background: #f0fdf9; border: 1px solid #99f6e4; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
   .personal h2 { color: #0d9488; font-size: 11pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
   .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
   .personal-row { display: flex; gap: 6px; font-size: 10pt; padding: 3px 0; }
-  .personal-row span:first-child { font-weight: 700; color: #374151; min-width: 80px; }
+  .personal-row span:first-child { font-weight: 700; color: #374151; min-width: 120px; }
   .section-title { font-size: 13pt; font-weight: 800; color: #0d9488; margin: 20px 0 6px; border-bottom: 1.5px solid #0d9488; padding-bottom: 4px; }
   .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid #d1fae5; border-radius: 6px; margin-bottom: 6px; }
   .metric-row:nth-child(even) { background: #f8fffe; }
@@ -533,20 +205,14 @@ function generatePDF(
   .banner.green { background: #dcfce7; color: #14532d; border: 1.5px solid #86efac; }
   .banner.orange { background: #fff7ed; color: #7c2d12; border: 1.5px solid #fdba74; }
   .banner.blue { background: #eff6ff; color: #1e3a8a; border: 1.5px solid #93c5fd; }
-  .banner.teal { background: #ccfbf1; color: #065f46; border: 1.5px solid #5eead4; }
-  .risk-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; background: #fff5f5; border: 1px solid #fecaca; }
-  .risk-name { font-weight: 700; font-size: 10pt; color: #374151; }
-  .risk-badge { font-size: 8.5pt; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
-  .risk-badge.high { background: #fee2e2; color: #991b1b; }
-  .risk-badge.medium { background: #ffedd5; color: #9a3412; }
-  .risk-badge.low { background: #fef9c3; color: #713f12; }
-  .disclaimer { font-size: 8pt; font-style: italic; color: #9ca3af; margin-top: 8px; line-height: 1.5; }
-  .superset-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; }
-  .superset-table th { background: #0d9488; color: #fff; padding: 8px 10px; text-align: left; font-size: 9pt; }
-  .superset-table td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; }
-  .superset-table tr:nth-child(even) td { background: #f8fffe; }
-  .tip { font-size: 9.5pt; font-style: italic; color: #0d9488; margin-top: 8px; font-weight: 600; }
-  .footer { background: #0d9488; color: #fff; text-align: center; padding: 10px; margin: 32px -24px 0; font-size: 8.5pt; }
+  .motivation-msg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-size: 10.5pt; font-weight: 700; line-height: 1.5; }
+  .diet-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-bottom: 6px; }
+  .diet-box h3 { color: #065f46; font-size: 10.5pt; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .diet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
+  .diet-row { display: flex; gap: 6px; font-size: 9.5pt; padding: 3px 0; }
+  .diet-row span:first-child { font-weight: 700; color: #374151; min-width: 130px; }
+  .poster-img { width: 55%; max-height: 180px; border-radius: 10px; margin: 16px auto; display: block; object-fit: cover; }
+  .footer { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; text-align: center; padding: 14px 16px; margin: 20px -24px 0; font-size: 9pt; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -556,10 +222,15 @@ function generatePDF(
 <body>
 <div class="page">
   <div class="header">
-    <h1>HN Coach</h1>
-    <p>Wellness Assessment Report</p>
-    <div class="date">Generated on: ${today}</div>
+    <img src="${logoUrl}" alt="HN Coach Logo" class="header-logo" />
+    <div class="header-text">
+      <h1>HN Coach</h1>
+      <p>Wellness Assessment Report</p>
+      <div class="date">Generated on: ${today}</div>
+    </div>
   </div>
+
+  <div class="tagline-center">✨ Eat all the snacks or look like a snack ✨</div>
 
   <div class="personal">
     <h2>Personal Details</h2>
@@ -577,25 +248,45 @@ function generatePDF(
     </div>
   </div>
 
+  <div class="section-title">Diet Preferences</div>
+  <div class="diet-box">
+    <div class="diet-grid">
+      <div>
+        <div class="diet-row"><span>Diet Type:</span><span>${dietPrefs.dietType === "veg" ? "Vegetarian" : "Non-Vegetarian"}</span></div>
+        <div class="diet-row"><span>Eats Raw Fruits:</span><span>${dietPrefs.rawFruits === "yes" ? "Yes" : "No"}</span></div>
+        <div class="diet-row"><span>Eats Raw Salad:</span><span>${dietPrefs.rawSalad === "yes" ? "Yes" : "No"}</span></div>
+      </div>
+      <div>
+        <div class="diet-row"><span>Eats Curd:</span><span>${dietPrefs.curd === "yes" ? "Yes" : "No"}</span></div>
+        <div class="diet-row"><span>Hunger Capacity:</span><span>${hungerLabel[dietPrefs.hungerCapacity] ?? dietPrefs.hungerCapacity}</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="section-title">Wellness Assessment Results</div>
   <div class="metric-row"><div><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div></div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div></div>
   <div class="metric-row"><div><div class="metric-label">BMI (Body Mass Index)</div><div class="metric-note">${results.bmiCategory}</div></div><div class="metric-value">${results.bmi.toFixed(1)}</div></div>
   <div class="metric-row"><div><div class="metric-label">BMR (Basal Metabolic Rate)</div><div class="metric-note">Calories burned at rest</div></div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div>
   <div class="metric-row"><div><div class="metric-label">TDEE (Total Daily Energy Expenditure)</div><div class="metric-note">Calories to maintain weight</div></div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div>
-  <div class="metric-row"><div><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 15 kg body weight</div></div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div>
-  <div class="metric-row"><div><div class="metric-label">Daily Footsteps</div><div class="metric-note">Recommended walking target</div></div><div class="metric-value">${results.footsteps}</div></div>
+  <div class="metric-row"><div><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 18 kg body weight</div></div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div>
+  <div class="metric-row"><div><div class="metric-label">Daily Footsteps</div><div class="metric-note">1 kg body = 110 footsteps</div></div><div class="metric-value">${results.footsteps}</div></div>
   <div class="metric-row"><div><div class="metric-label">Daily Exercise Duration</div><div class="metric-note">Based on activity level</div></div><div class="metric-value">${results.exerciseMinutes}</div></div>
 
   <div class="section-title">Weight Goal</div>
   ${weightGoalHtml}
 
-  <div class="section-title">Health Risk Awareness</div>
-  ${risksHtml}
-  <p class="disclaimer">* This is an educational estimate based on BMI. Please consult a healthcare professional for personalized advice.</p>
+  <img src="${posterUrl}" alt="HN Coach Program" class="poster-img" />
 
-  ${supersetHtml}
-
-  <div class="footer">Generated by HN Coach &nbsp;|&nbsp; @hn_coach &nbsp;|&nbsp; Personalized Wellness Coaching</div>
+  <div class="footer">
+    <div style="margin-bottom:6px;font-size:10pt;font-weight:700;">HN Coach &nbsp;|&nbsp; Personalized Wellness Coaching</div>
+    <div style="margin-bottom:8px;">
+      <a href="https://wa.me/919155348866" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:6px 14px;border-radius:20px;text-decoration:none;font-size:9pt;font-weight:700;">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Chat on WhatsApp: +91 91553 48866
+      </a>
+    </div>
+    <div style="font-size:8pt;opacity:0.85;">Consult HN Coach for personalized advice.</div>
+  </div>
 </div>
 </body>
 </html>`;
@@ -652,23 +343,27 @@ function MetricBlock({
   );
 }
 
-// ── BMI Category badge colors ──────────────────────────────────────────────────
-function bmiColor(category: string) {
-  switch (category) {
-    case "Underweight":
-      return "bg-blue-50 text-blue-700 border-blue-200";
-    case "Normal":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "Overweight":
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    case "Obese":
-      return "bg-red-50 text-red-700 border-red-200";
-    default:
-      return "bg-muted text-muted-foreground border-border";
-  }
+// ── Weight Gap Banner ──────────────────────────────────────────────────────────
+function MotivationMsg() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.15 }}
+      className="mt-3 p-4 rounded-xl bg-amber-50 border-2 border-amber-400 shadow-sm"
+    >
+      <p className="text-sm font-bold text-amber-900 leading-relaxed text-center">
+        ✨ Achieve your ideal weight without wasting any single minute to avoid
+        long-term disease, disorders and live a medicine-free life.{" "}
+        <span className="text-primary underline underline-offset-2">
+          Consult HN Coach
+        </span>{" "}
+        for personalized guidance.
+      </p>
+    </motion.div>
+  );
 }
 
-// ── Weight Gap Banner ──────────────────────────────────────────────────────────
 function WeightGapBanner({
   currentWeight,
   idealWeight,
@@ -681,164 +376,94 @@ function WeightGapBanner({
 
   if (Math.abs(diff) <= 1) {
     return (
-      <motion.div
-        data-ocid="weight.gap.banner"
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.45 }}
-        className="flex items-center gap-4 p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 shadow-sm"
-      >
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 shrink-0">
-          <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-        </div>
-        <div>
-          <p className="font-bold text-emerald-800 text-base leading-snug">
-            You are at your{" "}
-            <span className="text-emerald-600 font-extrabold text-lg">
-              Ideal Weight!
-            </span>
-          </p>
-          <p className="text-sm text-emerald-700 mt-0.5">
-            Keep up the great work and maintain your healthy habits.
-          </p>
-        </div>
-      </motion.div>
+      <div>
+        <motion.div
+          data-ocid="weight.gap.banner"
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.45 }}
+          className="flex items-center gap-4 p-6 rounded-2xl bg-emerald-50 border-2 border-emerald-300 shadow-md"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 shrink-0 shadow-sm">
+            <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+          </div>
+          <div>
+            <p className="font-bold text-emerald-800 text-lg leading-snug">
+              You are at your{" "}
+              <span className="text-emerald-600 font-extrabold text-xl">
+                Ideal Weight!
+              </span>
+            </p>
+            <p className="text-sm text-emerald-700 mt-1">
+              Keep up the great work and maintain your healthy habits.
+            </p>
+          </div>
+        </motion.div>
+        <MotivationMsg />
+      </div>
     );
   }
 
   if (diff > 0) {
     return (
+      <div>
+        <motion.div
+          data-ocid="weight.gap.banner"
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.45 }}
+          className="flex items-center gap-4 p-6 rounded-2xl bg-orange-50 border-2 border-orange-300 shadow-md"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 shrink-0 shadow-sm">
+            <ArrowDown className="w-7 h-7 text-orange-600" />
+          </div>
+          <div>
+            <p className="font-bold text-orange-900 text-lg leading-snug">
+              You need to{" "}
+              <span className="text-red-600 font-extrabold text-2xl">
+                LOSE {absDiff} kg
+              </span>{" "}
+              to reach your ideal weight
+            </p>
+            <p className="text-sm text-orange-700 mt-1">
+              Your ideal weight is <strong>{idealWeight.toFixed(1)} kg</strong>.
+              Start your journey today with HN Coach.
+            </p>
+          </div>
+        </motion.div>
+        <MotivationMsg />
+      </div>
+    );
+  }
+
+  return (
+    <div>
       <motion.div
         data-ocid="weight.gap.banner"
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.45 }}
-        className="flex items-center gap-4 p-5 rounded-2xl bg-orange-50 border-2 border-orange-300 shadow-sm"
+        className="flex items-center gap-4 p-6 rounded-2xl bg-blue-50 border-2 border-blue-300 shadow-md"
       >
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 shrink-0">
-          <ArrowDown className="w-6 h-6 text-orange-600" />
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 shrink-0 shadow-sm">
+          <ArrowUp className="w-7 h-7 text-blue-600" />
         </div>
         <div>
-          <p className="font-bold text-orange-900 text-base leading-snug">
+          <p className="font-bold text-blue-900 text-lg leading-snug">
             You need to{" "}
-            <span className="text-red-600 font-extrabold text-xl">
-              LOSE {absDiff} kg
+            <span className="text-blue-600 font-extrabold text-2xl">
+              GAIN {absDiff} kg
             </span>{" "}
             to reach your ideal weight
           </p>
-          <p className="text-sm text-orange-700 mt-0.5">
+          <p className="text-sm text-blue-700 mt-1">
             Your ideal weight is <strong>{idealWeight.toFixed(1)} kg</strong>.
-            Start your journey today.
+            Focus on healthy nutrition.
           </p>
         </div>
       </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      data-ocid="weight.gap.banner"
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.45 }}
-      className="flex items-center gap-4 p-5 rounded-2xl bg-blue-50 border-2 border-blue-300 shadow-sm"
-    >
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 shrink-0">
-        <ArrowUp className="w-6 h-6 text-blue-600" />
-      </div>
-      <div>
-        <p className="font-bold text-blue-900 text-base leading-snug">
-          You need to{" "}
-          <span className="text-blue-600 font-extrabold text-xl">
-            GAIN {absDiff} kg
-          </span>{" "}
-          to reach your ideal weight
-        </p>
-        <p className="text-sm text-blue-700 mt-0.5">
-          Your ideal weight is <strong>{idealWeight.toFixed(1)} kg</strong>.
-          Focus on healthy nutrition.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Health Risk Section ────────────────────────────────────────────────────────
-function HealthRisksSection({
-  bmiCategory,
-  gender,
-}: {
-  bmiCategory: string;
-  gender: string;
-}) {
-  const risks = getHealthRisks(bmiCategory, gender);
-
-  return (
-    <motion.div
-      data-ocid="health.risks.section"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.15 }}
-    >
-      <Card className="shadow-md border-border/60">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2.5 font-display text-lg text-foreground">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100">
-              <Heart className="w-4 h-4 text-red-600" />
-            </span>
-            Health Risks at Your Current Weight
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {bmiCategory === "Normal" ? (
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-              <Shield className="w-5 h-5 text-emerald-600 shrink-0" />
-              <p className="text-sm font-medium text-emerald-800">
-                Your weight is in a healthy range. Maintain your habits and
-                you're on the right path!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {risks.map((risk, idx) => (
-                <motion.div
-                  key={risk.condition}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, delay: idx * 0.07 }}
-                  className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-card border border-border/50"
-                >
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle
-                      className={`w-4 h-4 shrink-0 ${
-                        risk.urgency === "high"
-                          ? "text-red-500"
-                          : risk.urgency === "medium"
-                            ? "text-orange-500"
-                            : "text-yellow-500"
-                      }`}
-                    />
-                    <span className="text-sm font-semibold text-foreground">
-                      {risk.condition}
-                    </span>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs font-bold shrink-0 ${urgencyBadgeClass(risk.urgency)}`}
-                  >
-                    {risk.timeline}
-                  </Badge>
-                </motion.div>
-              ))}
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground italic pt-1 leading-relaxed">
-            * This is an educational estimate based on BMI. Please consult a
-            healthcare professional for personalized advice.
-          </p>
-        </CardContent>
-      </Card>
-    </motion.div>
+      <MotivationMsg />
+    </div>
   );
 }
 
@@ -853,8 +478,6 @@ function WellnessAssessment() {
   });
   const [results, setResults] = useState<AssessmentResults | null>(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [supersetPlanForPDF, setSupersetPlanForPDF] =
-    useState<SupersetPlan | null>(null);
 
   // Report form state
   const [reportName, setReportName] = useState("");
@@ -863,6 +486,13 @@ function WellnessAssessment() {
   const [reportHeight, setReportHeight] = useState("");
   const [reportWeight, setReportWeight] = useState("");
   const [reportTarget, setReportTarget] = useState("");
+
+  // Diet preference state
+  const [dietType, setDietType] = useState("");
+  const [rawFruits, setRawFruits] = useState("");
+  const [rawSalad, setRawSalad] = useState("");
+  const [curd, setCurd] = useState("");
+  const [hungerCapacity, setHungerCapacity] = useState("");
 
   const handleCalculate = () => {
     const r = computeResults(inputs);
@@ -884,7 +514,12 @@ function WellnessAssessment() {
       !reportCity ||
       !reportHeight ||
       !reportWeight ||
-      !reportTarget
+      !reportTarget ||
+      !dietType ||
+      !rawFruits ||
+      !rawSalad ||
+      !curd ||
+      !hungerCapacity
     )
       return;
     generatePDF(
@@ -895,14 +530,21 @@ function WellnessAssessment() {
       reportWeight,
       reportTarget,
       results,
-      supersetPlanForPDF,
-      inputs.gender,
+      { dietType, rawFruits, rawSalad, curd, hungerCapacity },
     );
     setShowDialog(false);
   };
 
-  // Expose setter for superset plan (passed down via ref-like pattern)
   const currentWeight = Number.parseFloat(inputs.weight);
+  const allDietFilled =
+    dietType && rawFruits && rawSalad && curd && hungerCapacity;
+  const allBasicFilled =
+    reportName &&
+    reportAge &&
+    reportCity &&
+    reportHeight &&
+    reportWeight &&
+    reportTarget;
 
   return (
     <>
@@ -916,13 +558,13 @@ function WellnessAssessment() {
         >
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
             <FileText className="w-3.5 h-3.5" />
-            Free Assessment
+            Free Wellness Report
           </div>
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground leading-tight">
-            Get Your Wellness Assessment
+            Get Your Free Wellness Assessment Report
           </h2>
           <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">
-            Fill in your details once and get a complete report covering 7 key
+            Fill in your details once and get your free report covering 7 key
             wellness metrics — completely free.
           </p>
         </motion.div>
@@ -935,7 +577,11 @@ function WellnessAssessment() {
         >
           <Card
             data-ocid="assessment.form"
-            className="shadow-md border-border/60"
+            className="shadow-lg border-border/60 ring-1 ring-primary/10"
+            style={{
+              boxShadow:
+                "0 0 0 1px oklch(0.5 0.145 196 / 0.12), 0 4px 24px oklch(0.5 0.145 196 / 0.08)",
+            }}
           >
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2.5 font-display text-lg text-foreground">
@@ -1077,7 +723,7 @@ function WellnessAssessment() {
                 onClick={handleCalculate}
               >
                 <Activity className="w-5 h-5 mr-2" />
-                Get My Free Assessment
+                Get Your Free Wellness Assessment Report
               </Button>
             </CardContent>
           </Card>
@@ -1101,12 +747,6 @@ function WellnessAssessment() {
                   idealWeight={results.idealWeight}
                 />
               )}
-
-              {/* Health Risks Section */}
-              <HealthRisksSection
-                bmiCategory={results.bmiCategory}
-                gender={inputs.gender}
-              />
 
               {/* Wellness Metrics Card */}
               <Card
@@ -1133,10 +773,7 @@ function WellnessAssessment() {
                     icon={<Activity className="w-4 h-4 text-primary" />}
                     label={`BMI — ${results.bmiCategory}`}
                     value={results.bmi.toFixed(1)}
-                    note={(() => {
-                      const colors = bmiColor(results.bmiCategory);
-                      return colors ? results.bmiCategory : undefined;
-                    })()}
+                    note={results.bmiCategory}
                     delay={0.1}
                   />
                   <MetricBlock
@@ -1157,14 +794,14 @@ function WellnessAssessment() {
                     icon={<Droplets className="w-4 h-4 text-primary" />}
                     label="Daily Water Intake"
                     value={`${results.waterIntake.toFixed(1)} L/day`}
-                    note="1 litre per 15 kg body weight"
+                    note="1 litre per 18 kg body weight"
                     delay={0.25}
                   />
                   <MetricBlock
                     icon={<Footprints className="w-4 h-4 text-primary" />}
                     label="Daily Footsteps"
                     value={results.footsteps}
-                    note="Recommended daily walking target"
+                    note="1 kg body = 110 footsteps"
                     delay={0.3}
                   />
                   <MetricBlock
@@ -1183,7 +820,7 @@ function WellnessAssessment() {
                     onClick={handleOpenModal}
                   >
                     <Download className="w-5 h-5 mr-2" />
-                    Download My Report (Free)
+                    Download Your Free Wellness Report
                   </Button>
                 </CardContent>
               </Card>
@@ -1192,19 +829,19 @@ function WellnessAssessment() {
         </AnimatePresence>
       </section>
 
-      {/* Superset Workout Planner — passes plan back up via callback */}
-      <SupersetPlannerWithCallback onPlanGenerated={setSupersetPlanForPDF} />
-
       {/* PDF Download Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent data-ocid="report.dialog" className="max-w-md w-full">
+        <DialogContent
+          data-ocid="report.dialog"
+          className="max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        >
           <DialogHeader>
             <DialogTitle className="font-display text-xl">
-              Download Your Wellness Report
+              Download Your Free Wellness Report
             </DialogTitle>
             <DialogDescription>
-              Please fill in your details. They will appear on your personalised
-              PDF report.
+              Fill in your details and diet preferences — all will appear in
+              your personalised PDF report.
             </DialogDescription>
           </DialogHeader>
 
@@ -1302,6 +939,113 @@ function WellnessAssessment() {
                 className="h-10"
               />
             </div>
+
+            <Separator />
+
+            {/* Diet Preferences Section */}
+            <p className="text-sm font-semibold text-foreground">
+              Diet Preferences
+            </p>
+
+            {/* Diet Type */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium">
+                Diet Preference <span className="text-destructive">*</span>
+              </Label>
+              <Select value={dietType} onValueChange={setDietType}>
+                <SelectTrigger data-ocid="report.diet.select" className="h-10">
+                  <SelectValue placeholder="Veg or Non-Veg?" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="veg">Vegetarian</SelectItem>
+                  <SelectItem value="nonveg">Non-Vegetarian</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Raw Fruits + Raw Salad */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  Do you eat raw fruits? (Added today?){" "}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Select value={rawFruits} onValueChange={setRawFruits}>
+                  <SelectTrigger
+                    data-ocid="report.rawfruits.select"
+                    className="h-10"
+                  >
+                    <SelectValue placeholder="Yes / No" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  Do you eat raw salad? (Added today?){" "}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Select value={rawSalad} onValueChange={setRawSalad}>
+                  <SelectTrigger
+                    data-ocid="report.rawsalad.select"
+                    className="h-10"
+                  >
+                    <SelectValue placeholder="Yes / No" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Curd + Hunger Capacity */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  Do you eat curd? (Added today?){" "}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Select value={curd} onValueChange={setCurd}>
+                  <SelectTrigger
+                    data-ocid="report.curd.select"
+                    className="h-10"
+                  >
+                    <SelectValue placeholder="Yes / No" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium">
+                  Hunger controlling capacity{" "}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={hungerCapacity}
+                  onValueChange={setHungerCapacity}
+                >
+                  <SelectTrigger
+                    data-ocid="report.hunger.select"
+                    className="h-10"
+                  >
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3hrs">3 hrs diet</SelectItem>
+                    <SelectItem value="4hrs">4 hrs diet</SelectItem>
+                    <SelectItem value="5hrs">5 hrs diet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
 
           <DialogFooter className="flex gap-2 pt-2">
@@ -1317,14 +1061,7 @@ function WellnessAssessment() {
               data-ocid="report.download.primary_button"
               className="flex-1 font-bold"
               onClick={handleDownload}
-              disabled={
-                !reportName ||
-                !reportAge ||
-                !reportCity ||
-                !reportHeight ||
-                !reportWeight ||
-                !reportTarget
-              }
+              disabled={!allBasicFilled || !allDietFilled}
             >
               <Download className="w-4 h-4 mr-2" />
               Download PDF Report
@@ -1333,235 +1070,6 @@ function WellnessAssessment() {
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-// ── Superset Planner with callback ─────────────────────────────────────────────
-function SupersetPlannerWithCallback({
-  onPlanGenerated,
-}: {
-  onPlanGenerated: (plan: SupersetPlan | null) => void;
-}) {
-  const [weight, setWeight] = useState("");
-  const [goal, setGoal] = useState("");
-  const [level, setLevel] = useState("");
-  const [plan, setPlan] = useState<SupersetPlan | null>(null);
-
-  const handleGenerate = () => {
-    if (!level || !goal) return;
-    const p = computeSupersetPlan(level, goal);
-    setPlan(p);
-    onPlanGenerated(p);
-  };
-
-  const goalLabel: Record<string, string> = {
-    lose_weight: "Lose Weight",
-    build_muscle: "Build Muscle",
-    maintain_fitness: "Maintain Fitness",
-  };
-
-  const levelLabel: Record<string, string> = {
-    beginner: "Beginner",
-    intermediate: "Intermediate",
-    advanced: "Advanced",
-  };
-
-  return (
-    <motion.section
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      aria-label="Superset Workout Planner"
-      className="w-full mt-10"
-    >
-      {/* Heading */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
-          <Dumbbell className="w-3.5 h-3.5" />
-          Workout Planner
-        </div>
-        <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground leading-tight">
-          Superset Workout Planner
-        </h2>
-        <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">
-          Get a personalised superset plan designed for 30–60 minute sessions
-          based on your fitness level.
-        </p>
-      </div>
-
-      <Card className="shadow-md border-border/60">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2.5 font-display text-lg text-foreground">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
-              <Dumbbell className="w-4 h-4 text-primary" />
-            </span>
-            Your Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Weight */}
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="ss-weight"
-              className="text-sm font-medium text-foreground/80"
-            >
-              Current Weight (kg){" "}
-              <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="ss-weight"
-              data-ocid="superset.weight.input"
-              type="number"
-              placeholder="e.g. 70"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="h-11"
-            />
-          </div>
-
-          {/* Fitness Goal */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground/80">
-              Fitness Goal
-            </Label>
-            <Select value={goal} onValueChange={setGoal}>
-              <SelectTrigger data-ocid="superset.goal.select" className="h-11">
-                <SelectValue placeholder="Select your goal" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lose_weight">Lose Weight</SelectItem>
-                <SelectItem value="build_muscle">Build Muscle</SelectItem>
-                <SelectItem value="maintain_fitness">
-                  Maintain Fitness
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Fitness Level */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-foreground/80">
-              Fitness Level
-            </Label>
-            <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger data-ocid="superset.level.select" className="h-11">
-                <SelectValue placeholder="Select your level" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="beginner">Beginner</SelectItem>
-                <SelectItem value="intermediate">Intermediate</SelectItem>
-                <SelectItem value="advanced">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            data-ocid="superset.submit_button"
-            className="w-full h-12 text-base font-bold tracking-wide"
-            onClick={handleGenerate}
-            disabled={!goal || !level}
-          >
-            <Dumbbell className="w-5 h-5 mr-2" />
-            Generate My Superset Plan
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Results */}
-      <AnimatePresence>
-        {plan && (
-          <motion.div
-            key="superset-plan"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mt-6 space-y-4"
-          >
-            {/* Total time highlight */}
-            <div className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-primary/10 border border-primary/20">
-              <Timer className="w-6 h-6 text-primary" />
-              <div className="text-center">
-                <p className="text-xs font-semibold text-primary/70 uppercase tracking-widest">
-                  Total Session
-                </p>
-                <p className="font-display font-extrabold text-3xl text-primary">
-                  {plan.totalTime}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {levelLabel[plan.level]} · {goalLabel[plan.goal]}
-                </p>
-              </div>
-            </div>
-
-            {/* Tip */}
-            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-amber-50 border border-amber-200">
-              <Activity className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-sm font-medium text-amber-800">{plan.tip}</p>
-            </div>
-
-            {/* Superset cards */}
-            <div className="space-y-3">
-              {plan.exercises.map((ex, idx) => (
-                <motion.div
-                  key={ex.number}
-                  data-ocid="superset.plan.card"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.35, delay: idx * 0.08 }}
-                  className="p-4 rounded-xl bg-card border border-border/60 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
-                        Superset {ex.number}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 justify-end">
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-card text-muted-foreground border-border"
-                      >
-                        {ex.sets} sets × {ex.reps}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-card text-muted-foreground border-border"
-                      >
-                        {ex.rest}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-xs bg-primary/10 text-primary border-primary/20 font-semibold"
-                      >
-                        {ex.duration}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 text-center p-2.5 rounded-lg bg-primary/5 border border-primary/10">
-                      <p className="font-bold text-foreground text-sm">
-                        {ex.exerciseA}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
-                      <span className="text-primary font-black text-base">
-                        +
-                      </span>
-                    </div>
-                    <div className="flex-1 text-center p-2.5 rounded-lg bg-primary/5 border border-primary/10">
-                      <p className="font-bold text-foreground text-sm">
-                        {ex.exerciseB}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.section>
   );
 }
 
@@ -1657,14 +1165,101 @@ export default function App() {
               HN Coach
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5 font-medium tracking-wide uppercase">
-              Health & Nutrition Calculators
-            </p>
-            <p className="text-xs text-primary/80 mt-1 font-semibold italic">
-              Eat all the snacks or look like a snack.
+              Health &amp; Nutrition Calculators
             </p>
           </div>
         </div>
       </header>
+
+      {/* Hero Tagline */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease: "easeOut" }}
+        className="w-full"
+        style={{
+          background:
+            "linear-gradient(135deg, #0d9488 0%, #059669 55%, #16a34a 100%)",
+        }}
+      >
+        <div className="max-w-4xl mx-auto px-4 py-5 text-center">
+          <p className="text-xl sm:text-2xl font-display font-bold italic text-white tracking-tight drop-shadow-sm">
+            💪 Eat all the snacks or look like a snack. 💪
+          </p>
+          <p className="text-xs sm:text-sm text-white/80 mt-1 font-medium tracking-wide">
+            Your free personalised wellness assessment starts here
+          </p>
+        </div>
+      </motion.div>
+
+      {/* FOMO Offer Banner */}
+      <div className="w-full max-w-4xl mx-auto px-4 pt-4">
+        <motion.div
+          data-ocid="fomo.offer.banner"
+          initial={{ opacity: 0, y: -16, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-2xl"
+          style={{
+            background:
+              "linear-gradient(135deg, #dc2626 0%, #ea580c 45%, #f59e0b 100%)",
+            boxShadow:
+              "0 0 0 2px rgba(251,191,36,0.5), 0 8px 32px rgba(220,38,38,0.4)",
+            animation: "fomoPulse 2s ease-in-out infinite",
+          }}
+        >
+          {/* Animated border glow */}
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.08) 100%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div className="relative px-5 py-5 text-center">
+            <p className="text-xl sm:text-2xl font-bold text-white leading-snug drop-shadow-md">
+              🔥 Enroll in Our Personal Coaching Program TODAY — Get{" "}
+              <span
+                className="text-yellow-200"
+                style={{
+                  textShadow: "0 0 12px rgba(253,224,71,0.8)",
+                  fontSize: "inherit",
+                }}
+              >
+                10% OFF!
+              </span>
+            </p>
+            <p className="text-sm sm:text-base text-yellow-100 mt-1.5 font-semibold">
+              ⏰ Offer expires at{" "}
+              <span className="text-white font-extrabold underline underline-offset-2">
+                MIDNIGHT tonight
+              </span>
+              . Only a few spots left!
+            </p>
+            <a
+              href="https://wa.me/919155348866?text=Hi%20HN%20Coach%2C%20I%20want%20to%20enroll%20and%20claim%20my%2010%25%20discount!"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full font-bold text-sm text-gray-900 transition-all duration-200 hover:brightness-110 active:scale-95 hover:scale-105 shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #fde047 0%, #fbbf24 100%)",
+                boxShadow: "0 4px 16px rgba(251,191,36,0.5)",
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+                style={{ width: 18, height: 18, flexShrink: 0 }}
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Claim My 10% Discount Now
+            </a>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Banner */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-5">
