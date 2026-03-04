@@ -20,6 +20,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   Activity,
+  AlertTriangle,
   ArrowDown,
   ArrowUp,
   CheckCircle2,
@@ -29,6 +30,7 @@ import {
   Flame,
   Footprints,
   Scale,
+  ShieldCheck,
   Timer,
   User,
 } from "lucide-react";
@@ -127,6 +129,288 @@ function computeResults(inputs: AssessmentInputs): AssessmentResults | null {
   };
 }
 
+// ── Health Risk Helper ─────────────────────────────────────────────────────────
+interface HealthRisk {
+  disease: string;
+  description: string;
+  timeline: string;
+  urgency: "high" | "medium" | "low";
+}
+
+function getHealthRisks(bmi: number): HealthRisk[] {
+  if (bmi < 18.5) {
+    return [
+      {
+        disease: "Weakened Immunity",
+        description:
+          "Low body weight suppresses the immune system, making you prone to frequent infections.",
+        timeline: "Risk within 1–3 months",
+        urgency: "high",
+      },
+      {
+        disease: "Nutritional Deficiencies (Iron, B12, Vitamin D)",
+        description:
+          "Inadequate intake leads to deficiencies affecting blood, bones, and neurological health.",
+        timeline: "Risk within 2–4 months",
+        urgency: "high",
+      },
+      {
+        disease: "Anaemia",
+        description:
+          "Insufficient red blood cell production causes fatigue, breathlessness, and paleness.",
+        timeline: "Risk within 3–6 months",
+        urgency: "high",
+      },
+      {
+        disease: "Hormonal Imbalance",
+        description:
+          "Low body fat disrupts hormonal cycles, affecting metabolism, mood, and reproductive health.",
+        timeline: "Risk within 6–12 months",
+        urgency: "medium",
+      },
+      {
+        disease: "Osteoporosis",
+        description:
+          "Inadequate calcium and nutrient absorption weakens bone density, increasing fracture risk.",
+        timeline: "Risk within 6–12 months",
+        urgency: "medium",
+      },
+    ];
+  }
+
+  if (bmi < 25) {
+    return [];
+  }
+
+  if (bmi < 30) {
+    return [
+      {
+        disease: "High Cholesterol",
+        description:
+          "Excess weight raises LDL levels, narrowing arteries and reducing cardiovascular efficiency.",
+        timeline: "Risk within 6–12 months",
+        urgency: "medium",
+      },
+      {
+        disease: "Hypertension (High Blood Pressure)",
+        description:
+          "Extra body mass forces the heart to work harder, straining the arterial system over time.",
+        timeline: "Risk within 6–12 months",
+        urgency: "medium",
+      },
+      {
+        disease: "Type 2 Diabetes (Pre-diabetic Stage)",
+        description:
+          "Excess fat increases insulin resistance, progressively impairing blood sugar regulation.",
+        timeline: "Risk within 12–18 months",
+        urgency: "low",
+      },
+      {
+        disease: "Fatty Liver Disease (NAFLD)",
+        description:
+          "Fat accumulates in liver cells, reducing liver function and increasing inflammation.",
+        timeline: "Risk within 12–18 months",
+        urgency: "low",
+      },
+      {
+        disease: "Sleep Apnoea",
+        description:
+          "Excess neck and throat tissue obstructs airways during sleep, disrupting oxygen supply.",
+        timeline: "Risk within 12–24 months",
+        urgency: "low",
+      },
+      {
+        disease: "Joint Pain & Osteoarthritis",
+        description:
+          "Extra weight accelerates cartilage wear in knees, hips, and spine joints.",
+        timeline: "Risk within 18–24 months",
+        urgency: "low",
+      },
+    ];
+  }
+
+  // BMI >= 30 (Obese)
+  return [
+    {
+      disease: "Hypertension (Stage 2)",
+      description:
+        "Severe arterial pressure strain significantly elevates the risk of heart attack and stroke.",
+      timeline: "Risk within 3–6 months",
+      urgency: "high",
+    },
+    {
+      disease: "Type 2 Diabetes",
+      description:
+        "Chronic insulin resistance leads to uncontrolled blood sugar, damaging organs and nerves.",
+      timeline: "Risk within 6–9 months",
+      urgency: "high",
+    },
+    {
+      disease: "Sleep Apnoea (Severe)",
+      description:
+        "Obstructed airways cause dangerous sleep hypoxia, increasing cardiac arrhythmia risk.",
+      timeline: "Risk within 6–12 months",
+      urgency: "medium",
+    },
+    {
+      disease: "Metabolic Syndrome",
+      description:
+        "A cluster of conditions — high blood sugar, fat, and pressure — multiplying disease risk.",
+      timeline: "Risk within 6–12 months",
+      urgency: "medium",
+    },
+    {
+      disease: "Heart Disease & Stroke",
+      description:
+        "Excess fat deposits in arteries raise the likelihood of blocked vessels and cardiac events.",
+      timeline: "Risk within 12–18 months",
+      urgency: "low",
+    },
+    {
+      disease: "Fatty Liver (NASH)",
+      description:
+        "Severe fat accumulation causes liver inflammation, scarring (fibrosis), and cirrhosis risk.",
+      timeline: "Risk within 12–24 months",
+      urgency: "low",
+    },
+    {
+      disease: "Kidney Disease",
+      description:
+        "Hypertension and diabetes caused by obesity gradually impair kidney filtration function.",
+      timeline: "Risk within 12–24 months",
+      urgency: "low",
+    },
+    {
+      disease: "Certain Cancers (Colorectal, Breast)",
+      description:
+        "Chronic inflammation and hormonal disruption from excess fat increase cancer cell growth.",
+      timeline: "Risk within 2–5 years",
+      urgency: "low",
+    },
+  ];
+}
+
+// ── Health Risk Awareness Component ───────────────────────────────────────────
+function HealthRiskAwareness({ bmi }: { bmi: number }) {
+  const risks = getHealthRisks(bmi);
+
+  const urgencyStyles = {
+    high: {
+      badge: "bg-red-100 text-red-700 border border-red-200",
+      border: "border-l-red-500",
+      dot: "bg-red-500",
+    },
+    medium: {
+      badge: "bg-orange-100 text-orange-700 border border-orange-200",
+      border: "border-l-orange-500",
+      dot: "bg-orange-500",
+    },
+    low: {
+      badge: "bg-yellow-100 text-yellow-700 border border-yellow-200",
+      border: "border-l-yellow-500",
+      dot: "bg-yellow-500",
+    },
+  };
+
+  if (bmi >= 18.5 && bmi < 25) {
+    return (
+      <motion.div
+        data-ocid="health.risk.section"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.15 }}
+      >
+        <Card className="shadow-md border-emerald-200 bg-emerald-50/60">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2.5 font-display text-lg text-emerald-800">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              </span>
+              Health Risk Awareness
+            </CardTitle>
+            <p className="text-xs text-emerald-700/80 mt-0.5 font-medium">
+              Based on your BMI — per WHO Guidelines
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-100/70 border border-emerald-200">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+              <p className="text-sm font-semibold text-emerald-800 leading-snug">
+                Your BMI is in the healthy range. Maintain your lifestyle to
+                stay disease-free.
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 text-center italic">
+              This is for awareness only. Consult HN Coach for personalised
+              guidance.
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      data-ocid="health.risk.section"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.15 }}
+    >
+      <Card className="shadow-md border-red-200/60">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2.5 font-display text-lg text-foreground">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+            </span>
+            Health Risk Awareness
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+            Based on your BMI — per WHO Guidelines
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-2.5">
+          <p className="text-xs text-amber-700 font-semibold bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            ⚠️ These are potential risks if your current weight is not addressed.
+            Early action prevents these conditions.
+          </p>
+          {risks.map((risk, idx) => {
+            const styles = urgencyStyles[risk.urgency];
+            return (
+              <div
+                key={risk.disease}
+                data-ocid={`health.risk.item.${idx + 1}`}
+                className={`flex items-start gap-3 p-3 rounded-xl bg-card border border-border/50 border-l-4 ${styles.border}`}
+              >
+                <span
+                  className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${styles.dot}`}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground leading-snug">
+                    {risk.disease}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                    {risk.description}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-full whitespace-nowrap ${styles.badge}`}
+                >
+                  {risk.timeline}
+                </span>
+              </div>
+            );
+          })}
+          <p className="text-xs text-muted-foreground mt-1 text-center italic pt-1 border-t border-border/40">
+            This is for awareness only. Consult HN Coach for personalised
+            guidance.
+          </p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
 interface DietPrefs {
   dietType: string;
@@ -158,6 +442,7 @@ function generatePDF(
   const currentW = Number.parseFloat(weight);
   const weightDiff = currentW - results.idealWeight;
   const absWeightDiff = Math.abs(weightDiff).toFixed(1);
+  const healthRisks = getHealthRisks(results.bmi);
 
   let weightGoalHtml = "";
   const motivationMsg = `<div class="motivation-msg">&#127775; Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>`;
@@ -174,6 +459,47 @@ function generatePDF(
     "4hrs": "Every 4 Hours",
     "5hrs": "Every 5 Hours",
   };
+
+  // Health Risk section for PDF
+  let healthRiskHtml = "";
+  if (results.bmi >= 18.5 && results.bmi < 25) {
+    healthRiskHtml = `
+    <div class="section-title risk-header">&#9989; Health Risk Awareness — WHO Guidelines</div>
+    <div class="risk-healthy">
+      <strong>&#128994; Your BMI is in the healthy range.</strong> Maintain your lifestyle to stay disease-free.
+      <div class="risk-disclaimer">This is for awareness only. Consult HN Coach for personalised guidance.</div>
+    </div>`;
+  } else if (healthRisks.length > 0) {
+    const riskRows = healthRisks
+      .map((r) => {
+        const badgeColor =
+          r.urgency === "high"
+            ? "#fecaca;color:#b91c1c"
+            : r.urgency === "medium"
+              ? "#fed7aa;color:#c2410c"
+              : "#fef9c3;color:#a16207";
+        return `<tr>
+          <td class="risk-disease">${r.disease}</td>
+          <td class="risk-desc">${r.description}</td>
+          <td><span class="risk-badge" style="background:${badgeColor}">${r.timeline}</span></td>
+        </tr>`;
+      })
+      .join("");
+    healthRiskHtml = `
+    <div class="section-title risk-header">&#9888; Health Risk Awareness — WHO Guidelines</div>
+    <div class="risk-warning">&#9888; These are potential risks if your current weight is not addressed. Early action prevents these conditions.</div>
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th style="width:26%">Condition</th>
+          <th>What it affects</th>
+          <th style="width:22%">Expected Timeline</th>
+        </tr>
+      </thead>
+      <tbody>${riskRows}</tbody>
+    </table>
+    <div class="risk-disclaimer">This is for awareness only. Consult HN Coach for personalised guidance.</div>`;
+  }
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -213,6 +539,17 @@ function generatePDF(
   .diet-row span:first-child { font-weight: 700; color: #374151; min-width: 130px; }
   .poster-img { width: 55%; max-height: 180px; border-radius: 10px; margin: 16px auto; display: block; object-fit: cover; }
   .footer { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; text-align: center; padding: 14px 16px; margin: 20px -24px 0; font-size: 9pt; }
+  .risk-header { color: #dc2626 !important; border-bottom-color: #dc2626 !important; }
+  .risk-healthy { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 16px; font-size: 10pt; color: #14532d; margin-bottom: 8px; }
+  .risk-warning { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 6px; padding: 8px 12px; font-size: 9pt; color: #92400e; margin-bottom: 8px; font-weight: 600; }
+  .risk-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 9pt; }
+  .risk-table thead tr { background: #fff1f2; }
+  .risk-table th { text-align: left; padding: 7px 10px; font-size: 8.5pt; color: #991b1b; font-weight: 700; border-bottom: 1.5px solid #fecaca; }
+  .risk-table td { padding: 7px 10px; border-bottom: 1px solid #fee2e2; vertical-align: top; }
+  .risk-disease { font-weight: 700; color: #1f2937; }
+  .risk-desc { color: #4b5563; font-style: italic; }
+  .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 8pt; font-weight: 700; white-space: nowrap; }
+  .risk-disclaimer { font-size: 8pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 6px; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -274,6 +611,8 @@ function generatePDF(
 
   <div class="section-title">Weight Goal</div>
   ${weightGoalHtml}
+
+  ${healthRiskHtml}
 
   <img src="${posterUrl}" alt="HN Coach Program" class="poster-img" />
 
@@ -747,6 +1086,9 @@ function WellnessAssessment() {
                   idealWeight={results.idealWeight}
                 />
               )}
+
+              {/* Health Risk Awareness */}
+              <HealthRiskAwareness bmi={results.bmi} />
 
               {/* Wellness Metrics Card */}
               <Card
