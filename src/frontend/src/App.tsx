@@ -770,7 +770,7 @@ function generatePDF(
   <div class="macro-coach-cta">
     <div class="macro-coach-title">&#127807; Want a Personalised Diet Plan Based on Your Numbers?</div>
     <div class="macro-coach-desc">These are your personalised daily nutrition targets. For a custom meal plan, food timings, and ongoing coaching designed specifically for your goals, get in touch with HN Coach today.</div>
-    <a href="https://wa.me/919155348866?text=Hi%20HN%20Coach!%20I%20downloaded%20my%20Wellness%20Report%20and%20I%20want%20a%20personalised%20diet%20plan%20based%20on%20my%20nutrition%20targets.%20Can%20you%20help%20me%3F" class="macro-coach-btn">&#128172; Contact HN Coach for Personalised Diet Plan &amp; Coaching</a>
+    <a href="https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach! I downloaded my Wellness Report and I want a personalised diet plan based on my nutrition targets. Can you help me?${invitedBy ? `\n\n📌 Referred By: ${invitedBy}` : ""}`)}" class="macro-coach-btn">&#128172; Contact HN Coach for Personalised Diet Plan &amp; Coaching</a>
   </div>
   <div class="guarantee-box">
     <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
@@ -868,8 +868,9 @@ function generatePDF(
   const goalsLabel =
     goals.map((g) => GOAL_LABELS[g] || g).join(", ") || "Not specified";
 
+  const referredByLine = invitedBy ? `\n• Referred By: ${invitedBy}` : "";
   const waMsg = encodeURIComponent(
-    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
+    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
   );
   const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
@@ -886,7 +887,7 @@ function generatePDF(
     <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
     <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${referralPageUrl}`)}" class="ref-btn-wa">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${name}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </a>
@@ -1468,8 +1469,11 @@ function WellnessAssessment() {
             ? `⚠️ Need to LOSE ${absWeightDiff} kg`
             : `↑ Need to GAIN ${absWeightDiff} kg`;
 
+      const referredByLine = form.invitedBy
+        ? `\n• Referred By: ${form.invitedBy}`
+        : "";
       const coachMsg = encodeURIComponent(
-        `🔔 *NEW WELLNESS REPORT DOWNLOADED*\n\n👤 *Client Details*\n• Name: ${form.fullName}\n• Age: ${form.age} yrs | City: ${form.city}\n• WhatsApp: ${form.whatsapp}\n• Occupation: ${form.occupation}\n• Height: ${heightCm} cm | Weight: ${form.weight} kg\n• Goal(s): ${goalsLabel}\n\n📊 *Assessment Results*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightGoalText}\n\n📅 Downloaded on: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}\n\n_Please follow up with this client for a FREE consultation._`,
+        `🔔 *NEW WELLNESS REPORT DOWNLOADED*\n\n👤 *Client Details*\n• Name: ${form.fullName}\n• Age: ${form.age} yrs | City: ${form.city}\n• WhatsApp: ${form.whatsapp}\n• Occupation: ${form.occupation}\n• Height: ${heightCm} cm | Weight: ${form.weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n📊 *Assessment Results*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightGoalText}\n\n📅 Downloaded on: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}\n\n_Please follow up with this client for a FREE consultation._`,
       );
       window.open(`https://wa.me/919155348866?text=${coachMsg}`, "_blank");
 
@@ -1494,8 +1498,11 @@ function WellnessAssessment() {
   };
 
   const shareOnWhatsApp = () => {
+    const referrerTag = form.fullName
+      ? `\n\n📌 Referred By: ${form.fullName}`
+      : "";
     const msg = encodeURIComponent(
-      `Hi! I just got my FREE Wellness Assessment Report from HN Coach. It's amazing! Get yours here: ${referralLink}`,
+      `Hi! I just got my FREE Wellness Assessment Report from HN Coach. It's amazing! Get yours here: ${referralLink}${referrerTag}`,
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");
   };
@@ -2253,6 +2260,15 @@ function WellnessAssessment() {
 
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
+  // Read referrer from URL param (e.g. ?ref=Rahul)
+  const urlReferrer = (() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("ref") || "";
+  })();
+  const referrerSuffix = urlReferrer
+    ? `\n\n📌 *Referred By:* ${urlReferrer}`
+    : "";
+
   // FOMO countdown: starts at 5 minutes (300 seconds)
   const [countdown, setCountdown] = useState(300);
   useEffect(() => {
@@ -2439,7 +2455,7 @@ export default function App() {
               </span>
             </p>
             <a
-              href="https://wa.me/919155348866?text=Hi%20HN%20Coach%2C%20I%20want%20to%20enroll%20and%20claim%20my%2010%25%20discount!"
+              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I want to enroll and claim my 10% discount!${referrerSuffix}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full font-bold text-sm text-gray-900 transition-all duration-200 hover:brightness-110 active:scale-95 hover:scale-105 shadow-lg"
@@ -2536,7 +2552,7 @@ export default function App() {
               results focused.
             </p>
             <a
-              href="https://wa.me/919155348866?text=Hi%20HN%20Coach!%20I%20want%20to%20know%20more%20about%20the%2030%20Days%20Money%20Back%20Guarantee%20coaching%20program."
+              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach! I want to know more about the 30 Days Money Back Guarantee coaching program.${referrerSuffix}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               data-ocid="guarantee.cta.primary_button"
@@ -2609,7 +2625,7 @@ export default function App() {
               healthier, happier lives.
             </p>
             <a
-              href="https://wa.me/919155348866?text=Hi%20HN%20Coach%2C%20I%20am%20interested%20in%20joining%20your%20team%20as%20a%20Wellness%20Coach."
+              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I am interested in joining your team as a Wellness Coach.${referrerSuffix}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               data-ocid="join.team.primary_button"
