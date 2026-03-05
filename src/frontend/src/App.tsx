@@ -9,9 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
-  Activity,
   Copy,
   FileText,
   Loader2,
@@ -19,7 +17,6 @@ import {
   Phone,
   Ruler,
   Share2,
-  User,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -1074,7 +1071,7 @@ function generatePDF(
 
   <div class="section-title">Wellness Assessment Results</div>
   <div class="metric-row"><div><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div></div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div></div>
-  <div class="metric-row"><div><div class="metric-label">BMI (Body Mass Index)</div><div class="metric-note">${results.bmiCategory}</div></div><div class="metric-value">${results.bmi.toFixed(1)}</div></div>
+  <div class="metric-row"><div><div class="metric-label">BMI (Body Mass Index)</div><div class="metric-note" style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};flex-shrink:0;"></span>${results.bmiCategory}</div></div><div class="metric-value">${results.bmi.toFixed(1)}</div></div>
   <div class="metric-row"><div><div class="metric-label">BMR (Basal Metabolic Rate)</div><div class="metric-note">Calories burned at rest</div></div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div>
   <div class="metric-row"><div><div class="metric-label">TDEE (Total Daily Energy Expenditure)</div><div class="metric-note">Calories to maintain weight</div></div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div>
   <div class="metric-row"><div><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 18 kg body weight</div></div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div>
@@ -1103,18 +1100,19 @@ function generatePDF(
     </div>
     <div class="referral-title">💚 Sharing is Caring</div>
     <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
-    <div class="referral-desc">Your friends deserve to know their wellness score too. Share this page with them today!</div>
+    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${window.location.origin}`)}" class="ref-btn-wa">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </a>
-      <div class="ref-btn-copy">
-        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-        Copy Link
-      </div>
+      <button type="button" onclick="var el=document.getElementById('ref-copy-input');el.select();document.execCommand('copy');this.textContent='✓ Link Copied!';this.style.background='rgba(255,255,255,0.25)';" class="ref-btn-copy" style="cursor:pointer;border:none;">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        Copy My Referral Link
+      </button>
     </div>
-    <div class="ref-link-box">${window.location.origin}</div>
+    <input id="ref-copy-input" type="text" readonly value="${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}" style="opacity:0;position:absolute;left:-9999px;width:1px;height:1px;" />
+    <a href="${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}" class="ref-link-box" style="display:block;text-decoration:none;" target="_blank">${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}</a>
     <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
   </div>
 
@@ -1162,6 +1160,10 @@ const EMPTY_FORM: UnifiedFormData = {
 };
 
 function WellnessAssessment() {
+  const [referralLocked] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return !!params.get("ref");
+  });
   const [form, setForm] = useState<UnifiedFormData>(() => {
     // Pre-fill "Who Invited You?" from ?ref= URL parameter
     const params = new URLSearchParams(window.location.search);
@@ -1282,7 +1284,7 @@ function WellnessAssessment() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-8"
+        className="text-center mb-6"
       >
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
           <FileText className="w-3.5 h-3.5" />
@@ -1297,25 +1299,77 @@ function WellnessAssessment() {
         </p>
       </motion.div>
 
+      {/* ── Trust Badges ──────────────────────────────────────────── */}
+      <div
+        className="flex gap-2.5 overflow-x-auto pb-1 mb-6 justify-center flex-wrap"
+        aria-label="Trust signals"
+      >
+        {[
+          { icon: "🔒", label: "100% Private & Secure" },
+          { icon: "✅", label: "Trusted by 1000+ Clients" },
+          { icon: "🆓", label: "Completely Free Report" },
+          { icon: "⚡", label: "Instant Download" },
+        ].map((badge, i) => (
+          <motion.span
+            key={badge.label}
+            initial={{ opacity: 0, y: 10, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: 0.38,
+              delay: 0.08 + i * 0.07,
+              ease: "easeOut",
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 select-none"
+            style={{
+              background: "linear-gradient(135deg, #f0fdf9 0%, #dcfce7 100%)",
+              border: "1.5px solid #6ee7b7",
+              color: "#065f46",
+              boxShadow:
+                "0 2px 8px rgba(13,148,136,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+              letterSpacing: "0.01em",
+            }}
+          >
+            <span className="text-sm leading-none">{badge.icon}</span>
+            {badge.label}
+          </motion.span>
+        ))}
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, delay: 0.1 }}
+        transition={{ duration: 0.45, delay: 0.15 }}
       >
         <Card
           data-ocid="assessment.form"
-          className="shadow-lg border-border/60 ring-1 ring-primary/10"
+          className="shadow-xl border-0 overflow-hidden"
           style={{
+            background: "linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%)",
             boxShadow:
-              "0 0 0 1px oklch(0.5 0.145 196 / 0.12), 0 4px 24px oklch(0.5 0.145 196 / 0.08)",
+              "0 0 0 1.5px #6ee7b7, 0 8px 40px oklch(0.5 0.145 196 / 0.12)",
           }}
         >
+          {/* Top accent bar */}
+          <div
+            className="w-full h-1"
+            style={{
+              background:
+                "linear-gradient(90deg, #0d9488 0%, #10b981 50%, #059669 100%)",
+            }}
+          />
           <CardContent className="pt-6 space-y-8">
             {/* ── Section 1: Personal Details ──────────────────────── */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <User className="w-3.5 h-3.5 text-primary" />
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    boxShadow:
+                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                  }}
+                >
+                  1
                 </span>
                 <h3 className="font-display font-bold text-base text-foreground tracking-tight">
                   Personal Details
@@ -1424,13 +1478,37 @@ function WellnessAssessment() {
               </div>
             </div>
 
-            <Separator />
+            {/* Step divider 1→2 */}
+            <div className="flex items-center gap-3 py-1">
+              <div className="w-4 flex-shrink-0 flex justify-center">
+                <div
+                  className="w-0.5 h-6 rounded-full"
+                  style={{
+                    background: "linear-gradient(to bottom, #6ee7b7, #0d9488)",
+                  }}
+                />
+              </div>
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #6ee7b7 0%, transparent 100%)",
+                }}
+              />
+            </div>
 
             {/* ── Section 2: Body Metrics ───────────────────────────── */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <Activity className="w-3.5 h-3.5 text-primary" />
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    boxShadow:
+                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                  }}
+                >
+                  2
                 </span>
                 <h3 className="font-display font-bold text-base text-foreground tracking-tight">
                   Body Metrics
@@ -1576,42 +1654,97 @@ function WellnessAssessment() {
               </div>
             </div>
 
-            <Separator />
+            {/* Step divider 2→3 */}
+            <div className="flex items-center gap-3 py-1">
+              <div className="w-4 flex-shrink-0 flex justify-center">
+                <div
+                  className="w-0.5 h-6 rounded-full"
+                  style={{
+                    background: "linear-gradient(to bottom, #6ee7b7, #0d9488)",
+                  }}
+                />
+              </div>
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #6ee7b7 0%, transparent 100%)",
+                }}
+              />
+            </div>
 
             {/* ── Section 3: Who Invited You ────────────────────────── */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <User className="w-3.5 h-3.5 text-primary" />
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    boxShadow:
+                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                  }}
+                >
+                  3
                 </span>
                 <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Referral
+                  Referral{" "}
+                  <span className="text-destructive font-normal text-sm">
+                    (Required)
+                  </span>
                 </h3>
               </div>
               <div className="space-y-1.5">
                 <Label
-                  htmlFor="f-invited-by"
+                  htmlFor={referralLocked ? undefined : "f-invited-by"}
                   className="text-sm font-medium text-foreground/80"
                 >
                   Who Invited You? <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="f-invited-by"
-                  data-ocid="assessment.invitedby.input"
-                  type="text"
-                  placeholder="e.g. Friend's name, Instagram, WhatsApp, Google…"
-                  value={form.invitedBy}
-                  onChange={setInput("invitedBy")}
-                  className="h-11"
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Let us know how you found us.
-                </p>
+                {referralLocked ? (
+                  <div
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%)",
+                      border: "1.5px solid #6ee7b7",
+                      color: "#065f46",
+                    }}
+                  >
+                    <span className="text-green-600 text-base">✓</span>
+                    <span>
+                      Referred by <strong>{form.invitedBy}</strong>
+                    </span>
+                  </div>
+                ) : (
+                  <Input
+                    id="f-invited-by"
+                    data-ocid="assessment.invitedby.input"
+                    type="text"
+                    placeholder="e.g. Friend's name, Instagram, WhatsApp, Google…"
+                    value={form.invitedBy}
+                    onChange={setInput("invitedBy")}
+                    className="h-11"
+                    required
+                  />
+                )}
+                {referralLocked ? null : (
+                  <div
+                    className="flex items-start gap-2 px-3 py-2 rounded-lg text-xs font-medium mt-1"
+                    style={{
+                      background: "linear-gradient(135deg, #f0fdf4, #dcfce7)",
+                      border: "1px solid #6ee7b7",
+                      color: "#065f46",
+                    }}
+                  >
+                    <span className="text-base leading-none mt-0.5">💡</span>
+                    <span>
+                      <strong>Tip:</strong> If you got a referral link from a
+                      friend, their name is already filled in for you!
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-
-            <Separator />
 
             {/* ── Mandatory notice ───────────────────────────────────── */}
             <p className="text-xs text-center text-muted-foreground font-medium">
@@ -1621,7 +1754,7 @@ function WellnessAssessment() {
             </p>
 
             {/* ── CTA ────────────────────────────────────────────────── */}
-            <div className="space-y-3">
+            <div className="space-y-3 pt-1">
               {!allFilled && (
                 <p className="text-center text-xs text-muted-foreground">
                   Fill in all fields above to generate your free report.
@@ -1629,12 +1762,19 @@ function WellnessAssessment() {
               )}
               <Button
                 data-ocid="assessment.submit_button"
-                className="w-full h-14 text-base font-bold tracking-wide shadow-lg"
-                style={{
-                  background: allFilled
-                    ? "linear-gradient(135deg, #0d9488 0%, #059669 100%)"
-                    : undefined,
-                }}
+                className={`w-full h-14 text-base font-black tracking-wide border-0 text-white transition-all duration-200 ${allFilled && !isGenerating ? "cta-shimmer hover:scale-[1.01] active:scale-[0.99]" : ""}`}
+                style={
+                  !allFilled || isGenerating
+                    ? {
+                        background: "oklch(0.72 0.04 192)",
+                        color: "white",
+                        boxShadow: "none",
+                      }
+                    : {
+                        boxShadow:
+                          "0 6px 24px rgba(13,148,136,0.45), 0 2px 8px rgba(0,0,0,0.12)",
+                      }
+                }
                 onClick={handleGenerateReport}
                 disabled={!allFilled || isGenerating}
               >
@@ -1650,6 +1790,17 @@ function WellnessAssessment() {
                   </>
                 )}
               </Button>
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-xs" aria-hidden="true">
+                  🔒
+                </span>
+                <p
+                  className="text-center text-xs font-medium"
+                  style={{ color: "oklch(0.46 0.022 196)" }}
+                >
+                  No spam · No payment · Instant free personalised report
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1684,20 +1835,98 @@ function WellnessAssessment() {
               Share your personal link — when a friend opens it, their form
               shows your name as referrer automatically!
             </p>
-            <p className="text-emerald-200/80 text-xs mb-5">
-              Help 2 friends get their free wellness report today.
+
+            {/* Help 2 Friends progress visualization */}
+            <div className="flex items-center justify-center gap-5 my-5">
+              <div className="flex flex-col items-center gap-2">
+                <motion.div
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{
+                    delay: 0.15,
+                    duration: 0.4,
+                    type: "spring",
+                    stiffness: 220,
+                  }}
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
+                    border: "2px dashed rgba(134,239,172,0.55)",
+                    boxShadow:
+                      "0 0 0 4px rgba(134,239,172,0.1), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  }}
+                >
+                  🧑
+                </motion.div>
+                <span className="text-emerald-100 text-xs font-bold tracking-wide">
+                  Friend 1
+                </span>
+              </div>
+              <div className="flex flex-col items-center gap-1 self-start mt-4">
+                <div
+                  className="w-8 h-0.5 rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, rgba(134,239,172,0.6), rgba(134,239,172,0.2))",
+                  }}
+                />
+                <div
+                  className="w-5 h-0.5 rounded-full"
+                  style={{ background: "rgba(134,239,172,0.3)" }}
+                />
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <motion.div
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.4,
+                    type: "spring",
+                    stiffness: 220,
+                  }}
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
+                    border: "2px dashed rgba(134,239,172,0.55)",
+                    boxShadow:
+                      "0 0 0 4px rgba(134,239,172,0.1), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  }}
+                >
+                  🧑
+                </motion.div>
+                <span className="text-emerald-100 text-xs font-bold tracking-wide">
+                  Friend 2
+                </span>
+              </div>
+            </div>
+            <p className="text-emerald-100/75 text-xs mb-5 font-medium">
+              Tag 2 friends who deserve to know their wellness score today!
             </p>
 
-            {/* Referral link display */}
-            <div
-              className="mx-auto max-w-md mb-4 px-4 py-2.5 rounded-lg text-xs font-mono text-emerald-100 break-all text-left"
+            {/* Referral link display — click to copy */}
+            <button
+              type="button"
+              onClick={copyReferralLink}
+              className="mx-auto max-w-md w-full mb-4 px-4 py-3 rounded-xl text-xs font-mono break-all text-left transition-all duration-200 hover:brightness-125 active:scale-[0.99] cursor-pointer group"
               style={{
-                background: "rgba(0,0,0,0.3)",
-                border: "1.5px solid rgba(255,255,255,0.15)",
+                background: "rgba(0,0,0,0.35)",
+                border: "1.5px solid rgba(134,239,172,0.3)",
+                color: "#d1fae5",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
               }}
+              aria-label="Click to copy referral link"
             >
-              {referralLink}
-            </div>
+              <Copy className="w-3.5 h-3.5 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" />
+              <span className="flex-1 truncate">{referralLink}</span>
+              <span className="text-emerald-300 text-[10px] font-bold flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                {copied ? "Copied!" : "tap to copy"}
+              </span>
+            </button>
 
             {/* Action buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -1729,17 +1958,20 @@ function WellnessAssessment() {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white transition-all hover:brightness-110 active:scale-95"
                 style={{
                   background: copied
-                    ? "rgba(255,255,255,0.25)"
-                    : "rgba(255,255,255,0.12)",
+                    ? "rgba(255,255,255,0.22)"
+                    : "rgba(255,255,255,0.10)",
                   border: "1.5px solid rgba(255,255,255,0.35)",
+                  boxShadow: copied
+                    ? "0 0 0 2px rgba(134,239,172,0.4)"
+                    : "none",
                 }}
               >
                 <Copy className="w-4 h-4" />
-                {copied ? "Link Copied! ✓" : "Copy My Referral Link"}
+                {copied ? "✓ Link Copied!" : "Copy My Referral Link"}
               </button>
             </div>
 
-            <p className="text-emerald-200/60 text-xs mt-4 italic">
+            <p className="text-emerald-200/50 text-xs mt-5 italic">
               #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring
             </p>
           </div>
@@ -1857,10 +2089,6 @@ export default function App() {
           }}
         />
         <div className="max-w-4xl mx-auto px-4 py-6 text-center relative">
-          {/* sparkle row */}
-          <p className="text-xs text-emerald-300 font-semibold tracking-widest uppercase mb-2 opacity-80">
-            ✦ HN Coach Motto ✦
-          </p>
           <p
             className="text-2xl sm:text-3xl md:text-4xl font-display font-black italic text-white tracking-tight"
             style={{
@@ -1870,9 +2098,6 @@ export default function App() {
             }}
           >
             💪 Eat all the snacks or look like a snack. 💪
-          </p>
-          <p className="text-sm sm:text-base text-emerald-100 mt-2.5 font-semibold tracking-wide">
-            Your free personalised wellness assessment starts here ↓
           </p>
         </div>
       </motion.div>
