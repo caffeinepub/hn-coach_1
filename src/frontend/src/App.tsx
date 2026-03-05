@@ -147,6 +147,26 @@ function computeResults(
   };
 }
 
+// ── Macronutrient Calculator (ICMR + Protein = 1g/kg ideal weight) ────────────
+interface MacroNeeds {
+  protein: number; // grams/day — 1g per kg ideal weight
+  fat: number; // grams/day — 30% of TDEE calories / 9
+  carbs: number; // grams/day — 40% of TDEE calories / 4
+  fibre: number; // grams/day — ICMR: 0.5g/kg body weight, min 25g, max 40g
+}
+
+function computeMacros(
+  idealWeight: number,
+  tdee: number,
+  bodyWeight: number,
+): MacroNeeds {
+  const protein = Math.round(idealWeight); // 1g per kg ideal weight
+  const fat = Math.round((tdee * 0.3) / 9); // 30% of calories from fat (Global Nutrition Philosophy)
+  const carbs = Math.round((tdee * 0.4) / 4); // 40% of calories from carbs (Global Nutrition Philosophy)
+  const fibre = Math.min(40, Math.max(25, Math.round(bodyWeight * 0.5))); // ICMR 0.5g/kg, 25–40g range
+  return { protein, fat, carbs, fibre };
+}
+
 // ── Health Risk Helper ─────────────────────────────────────────────────────────
 interface HealthRisk {
   disease: string;
@@ -322,6 +342,11 @@ function generatePDF(
   goals: string[],
   results: AssessmentResults,
 ) {
+  const macros = computeMacros(
+    results.idealWeight,
+    results.tdee,
+    Number.parseFloat(weight),
+  );
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "long",
@@ -453,6 +478,69 @@ function generatePDF(
     <div class="risk-disclaimer">This is for awareness only. Consult HN Coach for personalised guidance.</div>`;
   }
 
+  // ── Macronutrient section HTML ──────────────────────────────────────────────
+  const macroOrigin = window.location.origin;
+  const macroNutrientsHtml = `
+  <div class="section-title macro-header">&#127807; Your Daily Nutrition Requirements — ICMR Guidelines</div>
+  <div class="macro-grid">
+    <div class="macro-card protein-card">
+      <div class="macro-icon-wrap protein-bg">
+        <img src="${macroOrigin}/assets/generated/protein-muscles-transparent.dim_200x200.png" alt="Protein" class="macro-icon" />
+      </div>
+      <div class="macro-content">
+        <div class="macro-badge protein-badge">PROTEIN</div>
+        <div class="macro-value">${macros.protein}g<span class="macro-unit">/day</span></div>
+        <div class="macro-formula">1g &times; ${results.idealWeight.toFixed(1)} kg ideal weight</div>
+        <div class="macro-desc">Builds &amp; repairs muscles, supports immunity and hormones.</div>
+      </div>
+    </div>
+    <div class="macro-card fat-card">
+      <div class="macro-icon-wrap fat-bg">
+        <img src="${macroOrigin}/assets/generated/fat-icon-transparent.dim_200x200.png" alt="Healthy Fat" class="macro-icon" />
+      </div>
+      <div class="macro-content">
+        <div class="macro-badge fat-badge">HEALTHY FAT</div>
+        <div class="macro-value">${macros.fat}g<span class="macro-unit">/day</span></div>
+        <div class="macro-formula">30% of TDEE (${results.tdee.toLocaleString()} kcal)</div>
+        <div class="macro-desc">Supports brain health, hormone production &amp; vitamin absorption.</div>
+      </div>
+    </div>
+    <div class="macro-card carbs-card">
+      <div class="macro-icon-wrap carbs-bg">
+        <img src="${macroOrigin}/assets/generated/carbs-energy-transparent.dim_200x200.png" alt="Carbohydrates" class="macro-icon" />
+      </div>
+      <div class="macro-content">
+        <div class="macro-badge carbs-badge">CARBOHYDRATES</div>
+        <div class="macro-value">${macros.carbs}g<span class="macro-unit">/day</span></div>
+        <div class="macro-formula">40% of TDEE (${results.tdee.toLocaleString()} kcal)</div>
+        <div class="macro-desc">Primary energy source — fuel for brain, muscles &amp; daily activity.</div>
+      </div>
+    </div>
+    <div class="macro-card fibre-card">
+      <div class="macro-icon-wrap fibre-bg">
+        <img src="${macroOrigin}/assets/generated/fibre-digestion-transparent.dim_200x200.png" alt="Dietary Fibre" class="macro-icon" />
+      </div>
+      <div class="macro-content">
+        <div class="macro-badge fibre-badge">DIETARY FIBRE</div>
+        <div class="macro-value">${macros.fibre}g<span class="macro-unit">/day</span></div>
+        <div class="macro-formula">ICMR: 0.5g/kg body weight (25–40g range)</div>
+        <div class="macro-desc">Aids digestion, controls blood sugar &amp; keeps you feeling full.</div>
+      </div>
+    </div>
+  </div>
+  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1g/kg ideal weight; Fat: 30% TDEE; Carbs: 40% TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
+  <div class="macro-coach-cta">
+    <div class="macro-coach-title">&#127807; Want a Personalised Diet Plan Based on Your Numbers?</div>
+    <div class="macro-coach-desc">These are your personalised daily nutrition targets. For a custom meal plan, food timings, and ongoing coaching designed specifically for your goals, get in touch with HN Coach today.</div>
+    <a href="https://wa.me/919155348866?text=Hi%20HN%20Coach!%20I%20downloaded%20my%20Wellness%20Report%20and%20I%20want%20a%20personalised%20diet%20plan%20based%20on%20my%20nutrition%20targets.%20Can%20you%20help%20me%3F" class="macro-coach-btn">&#128172; Contact HN Coach for Personalised Diet Plan &amp; Coaching</a>
+  </div>
+  <div class="guarantee-box">
+    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
+    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
+    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
+  </div>
+  `;
+
   const weightDiffLabel =
     Math.abs(weightDiff) <= 1
       ? "At Ideal Weight ✅"
@@ -548,6 +636,38 @@ function generatePDF(
   .ref-btn-copy { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; border: 1.5px solid rgba(255,255,255,0.4); }
   .ref-link-box { background: rgba(0,0,0,0.25); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 14px; font-size: 8.5pt; color: rgba(255,255,255,0.85); font-weight: 600; text-align: center; margin: 0 auto 10px; max-width: 420px; word-break: break-all; }
   .ref-hashtag { font-size: 8pt; color: rgba(255,255,255,0.6); text-align: center; font-style: italic; }
+  .macro-header { color: #7c3aed !important; border-bottom-color: #7c3aed !important; }
+  .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .macro-card { display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 12px 14px; border: 1.5px solid; }
+  .protein-card { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-color: #c4b5fd; }
+  .fat-card { background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%); border-color: #fcd34d; }
+  .carbs-card { background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%); border-color: #fde68a; }
+  .fibre-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
+  .macro-icon-wrap { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .protein-bg { background: #7c3aed22; }
+  .fat-bg { background: #f5960022; }
+  .carbs-bg { background: #f59e0b22; }
+  .fibre-bg { background: #16a34a22; }
+  .macro-icon { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; }
+  .macro-content { flex: 1; }
+  .macro-badge { display: inline-block; font-size: 7pt; font-weight: 800; letter-spacing: 0.8px; border-radius: 12px; padding: 2px 8px; margin-bottom: 4px; text-transform: uppercase; }
+  .protein-badge { background: #7c3aed; color: #fff; }
+  .fat-badge { background: #ea580c; color: #fff; }
+  .carbs-badge { background: #d97706; color: #fff; }
+  .fibre-badge { background: #16a34a; color: #fff; }
+  .macro-value { font-size: 20pt; font-weight: 900; line-height: 1; color: #1f2937; }
+  .macro-unit { font-size: 9pt; font-weight: 600; color: #6b7280; margin-left: 2px; }
+  .macro-formula { font-size: 7.5pt; color: #6b7280; font-style: italic; margin: 3px 0 4px; line-height: 1.3; }
+  .macro-desc { font-size: 8pt; color: #374151; line-height: 1.4; }
+  .macro-note { background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 6px; padding: 8px 12px; font-size: 8pt; color: #5b21b6; font-style: italic; margin-top: 4px; line-height: 1.5; }
+  .macro-coach-cta { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 10px; padding: 14px 18px; margin-top: 10px; text-align: center; }
+  .macro-coach-title { font-size: 11pt; font-weight: 800; color: #065f46; margin-bottom: 6px; }
+  .macro-coach-desc { font-size: 8.5pt; color: #374151; line-height: 1.5; margin-bottom: 10px; }
+  .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 12px rgba(13,148,136,0.4); }
+  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; }
+  .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
+  .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -615,6 +735,8 @@ function generatePDF(
   ${timelineHtml}
 
   ${healthRiskHtml}
+
+  ${macroNutrientsHtml}
 
   <div class="referral-section">
     <div style="text-align:center;">
@@ -1431,6 +1553,91 @@ export default function App() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
         <WellnessAssessment />
       </main>
+
+      {/* 30 Days Money Back Guarantee Surprise */}
+      <div className="w-full max-w-4xl mx-auto px-4 pt-6 pb-2">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92, y: 24 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-2xl text-center"
+          style={{
+            background:
+              "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)",
+            border: "3px solid #f59e0b",
+            boxShadow:
+              "0 8px 32px rgba(245,158,11,0.35), 0 0 0 6px rgba(245,158,11,0.1)",
+          }}
+        >
+          {/* sparkle dots */}
+          <div className="absolute top-3 left-5 text-2xl opacity-40">🎁</div>
+          <div className="absolute top-3 right-5 text-2xl opacity-40">🎁</div>
+          <div className="px-6 py-8">
+            <motion.div
+              initial={{ rotate: -6, scale: 0.8 }}
+              whileInView={{ rotate: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{
+                duration: 0.5,
+                delay: 0.2,
+                type: "spring",
+                stiffness: 200,
+              }}
+              className="inline-block px-5 py-2 rounded-full font-extrabold text-sm tracking-widest uppercase mb-4"
+              style={{
+                background: "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(245,158,11,0.5)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              🎉 Surprise Offer
+            </motion.div>
+            <h2
+              className="text-3xl sm:text-4xl font-black text-amber-900 mb-3 leading-tight"
+              style={{ textShadow: "0 2px 8px rgba(120,53,15,0.15)" }}
+            >
+              ✅ 30 Days Money Back Guarantee
+            </h2>
+            <p className="text-amber-800 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed mb-5">
+              We are so confident in our coaching program that we offer a{" "}
+              <span className="text-amber-900 font-extrabold underline decoration-amber-500">
+                full 30-day money back guarantee.
+              </span>{" "}
+              If you are not completely satisfied with your results within 30
+              days, we will refund your investment —{" "}
+              <em>no questions asked.</em>
+            </p>
+            <p className="text-amber-700 text-sm font-medium mb-6">
+              Your health transformation is our commitment. Zero risk. 100%
+              results focused.
+            </p>
+            <a
+              href="https://wa.me/919155348866?text=Hi%20HN%20Coach!%20I%20want%20to%20know%20more%20about%20the%2030%20Days%20Money%20Back%20Guarantee%20coaching%20program."
+              target="_blank"
+              rel="noopener noreferrer"
+              data-ocid="guarantee.cta.primary_button"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-base transition-all duration-200 hover:brightness-110 hover:scale-105 active:scale-95 shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #0d9488 0%, #059669 100%)",
+                color: "#fff",
+                boxShadow: "0 4px 20px rgba(13,148,136,0.4)",
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                style={{ width: 18, height: 18, flexShrink: 0 }}
+                aria-hidden="true"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Contact HN Coach — Start Today
+            </a>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Join Our Team Section */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-8 pb-4">
