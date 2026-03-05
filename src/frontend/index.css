@@ -18,6 +18,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans[wght].woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --radius: 0.75rem;
@@ -130,4 +138,54 @@
 .cta-shimmer:disabled {
   animation: none;
   background: oklch(0.72 0.04 192);
+}
+
+/* Premium input focus ring */
+.premium-input:focus-within {
+  box-shadow: 0 0 0 3px oklch(0.50 0.145 196 / 0.22), 0 2px 8px oklch(0.50 0.145 196 / 0.12);
+}
+
+/* Pulse glow for active CTA */
+@keyframes ctaGlow {
+  0%, 100% {
+    box-shadow: 0 6px 24px rgba(13,148,136,0.45), 0 2px 8px rgba(0,0,0,0.12), 0 0 0 0 rgba(13,148,136,0);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(13,148,136,0.6), 0 2px 8px rgba(0,0,0,0.15), 0 0 0 8px rgba(13,148,136,0);
+  }
+}
+.cta-shimmer {
+  animation: shimmer 2.5s linear infinite, ctaGlow 2.8s ease-in-out infinite;
+}
+
+/* Card header certificate strip pattern */
+.cert-header-strip {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,0.04) 10px,
+      rgba(255,255,255,0.04) 20px
+    ),
+    linear-gradient(135deg, #0d9488 0%, #059669 55%, #0f766e 100%);
+}
+
+/* Section connector line */
+.step-connector {
+  background: linear-gradient(to bottom, #6ee7b7, #0d9488, #6ee7b7);
+}
+
+/* Step divider pill */
+.step-divider-pill {
+  background: linear-gradient(90deg, #0d9488, #059669);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(13,148,136,0.35);
 }

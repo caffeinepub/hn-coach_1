@@ -10,13 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Activity,
   Copy,
+  Download,
   FileText,
   Loader2,
   MapPin,
   Phone,
   Ruler,
   Share2,
+  ShieldCheck,
+  User,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -146,22 +150,23 @@ function computeResults(
   };
 }
 
-// ── Macronutrient Calculator (ICMR + Protein = 1g/kg ideal weight) ────────────
+// ── Macronutrient Calculator ───────────────────────────────────────────────────
 interface MacroNeeds {
-  protein: number; // grams/day — 1g per kg ideal weight
-  fat: number; // grams/day — 30% of TDEE calories / 9
+  protein: number; // grams/day — 35% of TDEE calories / 4
+  fat: number; // grams/day — 25% of BMR calories / 9
   carbs: number; // grams/day — 40% of TDEE calories / 4
   fibre: number; // grams/day — ICMR: 0.5g/kg body weight, min 25g, max 40g
 }
 
 function computeMacros(
-  idealWeight: number,
+  _idealWeight: number,
   tdee: number,
   bodyWeight: number,
+  bmr: number,
 ): MacroNeeds {
-  const protein = Math.round(idealWeight); // 1g per kg ideal weight
-  const fat = Math.round((tdee * 0.3) / 9); // 30% of calories from fat (Global Nutrition Philosophy)
-  const carbs = Math.round((tdee * 0.4) / 4); // 40% of calories from carbs (Global Nutrition Philosophy)
+  const protein = Math.round((tdee * 0.35) / 4); // 35% of TDEE calories from protein (Global Nutrition Philosophy)
+  const fat = Math.round((bmr * 0.25) / 9); // 25% of BMR calories from fat (Global Nutrition Philosophy)
+  const carbs = Math.round((tdee * 0.4) / 4); // 40% of TDEE calories from carbs (Global Nutrition Philosophy)
   const fibre = Math.min(40, Math.max(25, Math.round(bodyWeight * 0.5))); // ICMR 0.5g/kg, 25–40g range
   return { protein, fat, carbs, fibre };
 }
@@ -574,6 +579,7 @@ function generatePDF(
     results.idealWeight,
     results.tdee,
     Number.parseFloat(weight),
+    results.bmr,
   );
   const idealMeasurements = computeIdealMeasurements(
     Number.parseFloat(height),
@@ -722,7 +728,7 @@ function generatePDF(
       <div class="macro-content">
         <div class="macro-badge protein-badge">PROTEIN</div>
         <div class="macro-value">${macros.protein}g<span class="macro-unit">/day</span></div>
-        <div class="macro-formula">1g &times; ${results.idealWeight.toFixed(1)} kg ideal weight</div>
+        <div class="macro-formula">35% of Ideal Weight (${results.idealWeight.toFixed(1)} kg)</div>
         <div class="macro-desc">Builds &amp; repairs muscles, supports immunity and hormones.</div>
       </div>
     </div>
@@ -733,7 +739,7 @@ function generatePDF(
       <div class="macro-content">
         <div class="macro-badge fat-badge">HEALTHY FAT</div>
         <div class="macro-value">${macros.fat}g<span class="macro-unit">/day</span></div>
-        <div class="macro-formula">30% of TDEE (${results.tdee.toLocaleString()} kcal)</div>
+        <div class="macro-formula">25% of BMR (${results.bmr.toLocaleString()} kcal)</div>
         <div class="macro-desc">Supports brain health, hormone production &amp; vitamin absorption.</div>
       </div>
     </div>
@@ -760,7 +766,7 @@ function generatePDF(
       </div>
     </div>
   </div>
-  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1g/kg ideal weight; Fat: 30% TDEE; Carbs: 40% TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
+  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 35% of TDEE; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
   <div class="macro-coach-cta">
     <div class="macro-coach-title">&#127807; Want a Personalised Diet Plan Based on Your Numbers?</div>
     <div class="macro-coach-desc">These are your personalised daily nutrition targets. For a custom meal plan, food timings, and ongoing coaching designed specifically for your goals, get in touch with HN Coach today.</div>
@@ -867,6 +873,33 @@ function generatePDF(
   );
   const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
+  const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}`;
+  const referralSection = `
+  <div class="referral-section">
+    <div style="text-align:center;">
+      <div class="referral-badge">
+        <svg viewBox="0 0 24 24" fill="white" style="width:12px;height:12px;flex-shrink:0;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+        REFER 2 FRIENDS
+      </div>
+    </div>
+    <div class="referral-title">💚 Sharing is Caring</div>
+    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
+    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
+    <div class="referral-buttons">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${referralPageUrl}`)}" class="ref-btn-wa">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Share on WhatsApp
+      </a>
+      <button type="button" onclick="var el=document.getElementById('ref-copy-input');el.select();document.execCommand('copy');this.textContent='✓ Link Copied!';this.style.background='rgba(255,255,255,0.25)';" class="ref-btn-copy" style="cursor:pointer;border:none;">
+        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        Copy My Referral Link
+      </button>
+    </div>
+    <input id="ref-copy-input" type="text" readonly value="${referralPageUrl}" style="opacity:0;position:absolute;left:-9999px;width:1px;height:1px;" />
+    <a href="${referralPageUrl}" class="ref-link-box" style="display:block;text-decoration:none;" target="_blank">${referralPageUrl}</a>
+    <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
+  </div>`;
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -874,69 +907,248 @@ function generatePDF(
 <title>HN Coach – Wellness Report – ${name}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #1f2937; background: #fff; }
-  .page { max-width: 760px; margin: 0 auto; padding: 0 24px 32px; }
-  .header { background: linear-gradient(135deg, #0d9488 0%, #059669 55%, #0f766e 100%); color: #fff; padding: 22px 24px 18px; margin: 0 -24px 0; display: flex; align-items: center; gap: 18px; box-shadow: 0 4px 18px rgba(13,148,136,0.4); }
-  .header-logo { width: 80px; height: 80px; border-radius: 14px; object-fit: cover; border: 3px solid rgba(255,255,255,0.6); flex-shrink: 0; box-shadow: 0 2px 12px rgba(0,0,0,0.25); }
-  .header-logo-fallback { width: 80px; height: 80px; border-radius: 14px; border: 3px solid rgba(255,255,255,0.6); flex-shrink: 0; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 22pt; font-weight: 900; color: #fff; }
-  .header-text { flex: 1; }
-  .header-text h1 { font-size: 24pt; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-  .header-text p { font-size: 11pt; margin-top: 5px; opacity: 0.92; font-weight: 600; }
-  .header-text .date { font-size: 8pt; margin-top: 6px; opacity: 0.75; }
-  .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-  .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 4px 8px; }
-  .org-badge-img { width: 22px; height: 22px; border-radius: 3px; background: #fff; object-fit: contain; flex-shrink: 0; }
-  .org-badge-label { font-size: 7.5pt; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.2px; line-height: 1.2; }
-  .org-note { font-size: 6.5pt; color: rgba(255,255,255,0.7); text-align: right; margin-top: 2px; font-style: italic; max-width: 130px; line-height: 1.3; }
-  .tagline-center { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); color: #fff; text-align: center; font-size: 16pt; font-weight: 900; font-style: italic; padding: 14px 24px; margin: 0 -24px 24px; letter-spacing: 0.8px; text-shadow: 0 2px 8px rgba(0,0,0,0.4), 0 0 20px rgba(167,243,208,0.3); border-top: 3px solid rgba(167,243,208,0.4); border-bottom: 3px solid rgba(167,243,208,0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12); }
-  .personal { background: #f0fdf9; border: 1px solid #99f6e4; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
-  .personal h2 { color: #0d9488; font-size: 11pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
-  .personal-row { display: flex; gap: 6px; font-size: 10pt; padding: 3px 0; }
-  .personal-row span:first-child { font-weight: 700; color: #374151; min-width: 120px; }
-  .section-title { font-size: 13pt; font-weight: 800; color: #0d9488; margin: 20px 0 6px; border-bottom: 1.5px solid #0d9488; padding-bottom: 4px; }
-  .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid #d1fae5; border-radius: 6px; margin-bottom: 6px; }
-  .metric-row:nth-child(even) { background: #f8fffe; }
-  .metric-label { font-weight: 700; font-size: 9.5pt; color: #374151; }
-  .metric-note { font-size: 8pt; color: #6b7280; font-style: italic; }
-  .metric-value { font-weight: 800; font-size: 12pt; color: #0d9488; }
-  .banner { border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 11pt; font-weight: 600; }
-  .banner.green { background: #dcfce7; color: #14532d; border: 1.5px solid #86efac; }
-  .banner.orange { background: #fff7ed; color: #7c2d12; border: 1.5px solid #fdba74; }
-  .banner.blue { background: #eff6ff; color: #1e3a8a; border: 1.5px solid #93c5fd; }
-  .motivation-msg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 2px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-size: 10.5pt; font-weight: 700; line-height: 1.5; }
+  body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 11pt; color: #1f2937; background: #fff; }
+  .page { max-width: 760px; margin: 0 auto; padding: 0 0 32px; }
+
+  /* ── PREMIUM HEADER ─────────────────────────────────────── */
+  .header-main {
+    background: linear-gradient(135deg, #064e3b 0%, #0d9488 45%, #059669 75%, #047857 100%);
+    color: #fff;
+    padding: 22px 26px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .header-logo-ring {
+    flex-shrink: 0;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.25));
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .header-logo {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.4);
+    display: block;
+  }
+  .header-logo-fallback {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24pt;
+    font-weight: 900;
+    color: #fff;
+  }
+  .header-brand { flex: 1; min-width: 0; }
+  .header-brand h1 { font-size: 26pt; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 2px 12px rgba(0,0,0,0.25); line-height: 1; }
+  .header-brand-sub { font-size: 10.5pt; font-weight: 700; opacity: 0.9; margin-top: 4px; letter-spacing: 0.3px; }
+  .header-brand-date { font-size: 7.5pt; opacity: 0.65; margin-top: 6px; font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+  .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 4px 9px; }
+  .org-badge-img { width: 20px; height: 20px; border-radius: 3px; background: #fff; object-fit: contain; flex-shrink: 0; }
+  .org-badge-label { font-size: 7pt; font-weight: 700; color: rgba(255,255,255,0.92); line-height: 1.2; }
+  .org-note { font-size: 6pt; color: rgba(255,255,255,0.6); text-align: right; margin-top: 2px; font-style: italic; max-width: 120px; line-height: 1.3; }
+
+  /* Gold accent line under header */
+  .header-gold-line { height: 3px; background: linear-gradient(90deg, #f59e0b, #fde68a, #f59e0b); }
+
+  /* Report ID band */
+  .header-band {
+    background: #064e3b;
+    padding: 6px 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-band-label { font-size: 7pt; color: rgba(255,255,255,0.6); font-family: 'Courier New', monospace; letter-spacing: 1px; text-transform: uppercase; }
+  .header-band-id { font-size: 7pt; color: rgba(255,255,255,0.75); font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+
+  /* ── TAGLINE ────────────────────────────────────────────── */
+  .tagline-center {
+    background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+    color: #fff;
+    text-align: center;
+    font-size: 16pt;
+    font-weight: 900;
+    font-style: italic;
+    padding: 14px 26px;
+    letter-spacing: 0.8px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 24px rgba(167,243,208,0.25);
+    border-top: 2.5px solid rgba(167,243,208,0.35);
+    border-bottom: 2.5px solid rgba(167,243,208,0.35);
+  }
+
+  /* ── CERTIFICATE BANNER ─────────────────────────────────── */
+  .cert-banner {
+    margin: 20px 24px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%);
+    border: 2px solid #d97706;
+    padding: 16px 22px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(6,78,59,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .cert-banner::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(217,119,6,0.4);
+    border-radius: 7px;
+    pointer-events: none;
+  }
+  .cert-prepared { font-size: 9.5pt; font-style: italic; color: rgba(255,255,255,0.75); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .cert-name { font-size: 22pt; font-weight: 900; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.4); margin-bottom: 2px; letter-spacing: -0.3px; }
+  .cert-sub { font-size: 8.5pt; color: rgba(255,255,255,0.65); }
+
+  /* ── PERSONAL DETAILS ───────────────────────────────────── */
+  .personal-section { margin: 0 24px 20px; position: relative; overflow: hidden; }
+  .personal-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%) rotate(-30deg);
+    font-size: 48pt;
+    font-weight: 900;
+    color: rgba(13,148,136,0.05);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: 4px;
+  }
+  .personal-inner { background: #f8fffe; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px 18px; border-left: 4px solid #0d9488; position: relative; }
+  .personal h2 { color: #065f46; font-size: 9pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .personal h2::before { content: ''; display: inline-block; width: 18px; height: 3px; background: linear-gradient(90deg, #0d9488, #059669); border-radius: 2px; }
+  .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
+  .personal-row { display: flex; gap: 6px; font-size: 9.5pt; padding: 3.5px 0; border-bottom: 0.5px solid rgba(167,243,208,0.4); }
+  .personal-row:last-child { border-bottom: none; }
+  .personal-chip { font-size: 7pt; font-weight: 700; color: #0d9488; background: rgba(13,148,136,0.1); padding: 1px 6px; border-radius: 10px; min-width: 80px; align-self: center; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
+  .personal-val { font-size: 9.5pt; color: #1f2937; font-weight: 600; }
+
+  /* ── SECTION TITLES ─────────────────────────────────────── */
+  .section-wrap { margin: 0 24px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11pt;
+    font-weight: 800;
+    color: #065f46;
+    margin: 22px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #a7f3d0;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 18px;
+    background: linear-gradient(to bottom, #0d9488, #059669);
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── METRIC CARDS (2-col grid) ──────────────────────────── */
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .metric-card {
+    display: flex;
+    align-items: stretch;
+    border-radius: 10px;
+    border: 1px solid #d1fae5;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(13,148,136,0.07);
+  }
+  .metric-card-accent { width: 4px; flex-shrink: 0; }
+  .metric-card-accent.teal { background: linear-gradient(to bottom, #0d9488, #059669); }
+  .metric-card-accent.emerald { background: linear-gradient(to bottom, #059669, #16a34a); }
+  .metric-card-accent.cyan { background: linear-gradient(to bottom, #0891b2, #0d9488); }
+  .metric-card-accent.blue { background: linear-gradient(to bottom, #2563eb, #0891b2); }
+  .metric-card-accent.indigo { background: linear-gradient(to bottom, #4f46e5, #2563eb); }
+  .metric-card-accent.violet { background: linear-gradient(to bottom, #7c3aed, #4f46e5); }
+  .metric-card-accent.amber { background: linear-gradient(to bottom, #d97706, #f59e0b); }
+  .metric-card-body { flex: 1; padding: 10px 12px; background: #f8fffe; }
+  .metric-card:nth-child(even) .metric-card-body { background: #ffffff; }
+  .metric-label { font-weight: 700; font-size: 8.5pt; color: #374151; line-height: 1.3; }
+  .metric-note { font-size: 7pt; color: #9ca3af; font-style: italic; margin-top: 2px; }
+  .metric-value { font-weight: 900; font-size: 13pt; color: #0d9488; margin-top: 5px; }
+
+  /* ── BANNERS ────────────────────────────────────────────── */
+  .banner { border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-size: 11pt; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .banner.green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #14532d; border: 1.5px solid #86efac; }
+  .banner.orange { background: linear-gradient(135deg, #fff7ed, #fde68a); color: #7c2d12; border: 1.5px solid #fdba74; }
+  .banner.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e3a8a; border: 1.5px solid #93c5fd; }
+  .motivation-msg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 2px solid #f59e0b; border-radius: 10px; padding: 12px 16px; margin: 8px 0; font-size: 10pt; font-weight: 700; line-height: 1.5; box-shadow: 0 2px 12px rgba(245,158,11,0.2); }
   .diet-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-bottom: 6px; }
   .diet-box h3 { color: #065f46; font-size: 10.5pt; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
   .diet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
   .diet-row { display: flex; gap: 6px; font-size: 9.5pt; padding: 3px 0; }
   .diet-row span:first-child { font-weight: 700; color: #374151; min-width: 130px; }
-  .poster-img { width: 55%; max-height: 180px; border-radius: 10px; margin: 16px auto; display: block; object-fit: cover; }
-  .footer { background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; text-align: center; padding: 14px 16px; margin: 20px -24px 0; font-size: 9pt; }
-  .risk-header { color: #dc2626 !important; border-bottom-color: #dc2626 !important; }
-  .risk-healthy { background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 16px; font-size: 10pt; color: #14532d; margin-bottom: 8px; }
-  .risk-warning { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 6px; padding: 8px 12px; font-size: 9pt; color: #92400e; margin-bottom: 8px; font-weight: 600; }
-  .risk-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 9pt; }
-  .risk-table thead tr { background: #fff1f2; }
-  .risk-table th { text-align: left; padding: 7px 10px; font-size: 8.5pt; color: #991b1b; font-weight: 700; border-bottom: 1.5px solid #fecaca; }
+  .footer {
+    background: linear-gradient(135deg, #064e3b 0%, #0d9488 60%, #059669 100%);
+    color: #fff;
+    text-align: center;
+    padding: 0 26px 20px;
+    margin-top: 24px;
+    position: relative;
+  }
+  .footer-gold-line { height: 3px; background: linear-gradient(90deg, #f59e0b, #fde68a, #f59e0b); margin-bottom: 20px; }
+  .footer-heading { font-size: 15pt; font-weight: 900; color: #fff; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .footer-sub { font-size: 9.5pt; color: rgba(255,255,255,0.8); margin-bottom: 16px; font-weight: 600; }
+  .footer-wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 13.5pt;
+    font-weight: 900;
+    box-shadow: 0 4px 24px rgba(37,211,102,0.6), 0 0 0 4px rgba(37,211,102,0.15);
+    letter-spacing: 0.1px;
+    border: 2px solid rgba(255,255,255,0.22);
+    margin-bottom: 14px;
+  }
+  .footer-cta-text { font-size: 12pt; font-weight: 900; color: #d1fae5; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .footer-brand { font-size: 8pt; opacity: 0.7; margin-top: 8px; }
+  .risk-header { color: #dc2626 !important; }
+  .risk-header::before { background: linear-gradient(to bottom, #dc2626, #b91c1c) !important; }
+  .risk-healthy { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 10px; padding: 12px 16px; font-size: 10pt; color: #14532d; margin-bottom: 8px; border-left: 4px solid #16a34a; }
+  .risk-warning { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #fcd34d; border-radius: 8px; padding: 8px 12px; font-size: 9pt; color: #92400e; margin-bottom: 8px; font-weight: 600; border-left: 4px solid #f59e0b; }
+  .risk-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 9pt; border-radius: 8px; overflow: hidden; }
+  .risk-table thead tr { background: linear-gradient(90deg, #fff1f2, #ffe4e6); }
+  .risk-table th { text-align: left; padding: 8px 10px; font-size: 8.5pt; color: #991b1b; font-weight: 800; border-bottom: 2px solid #fecaca; }
   .risk-table td { padding: 7px 10px; border-bottom: 1px solid #fee2e2; vertical-align: top; }
   .risk-disease { font-weight: 700; color: #1f2937; }
   .risk-desc { color: #4b5563; font-style: italic; }
-  .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 8pt; font-weight: 700; white-space: nowrap; }
-  .risk-disclaimer { font-size: 8pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 6px; }
-  .timeline-box { border-radius: 8px; padding: 14px 16px; margin: 8px 0 6px; }
-  .timeline-box.loss { background: #fff7ed; border: 1.5px solid #fdba74; }
-  .timeline-box.gain { background: #eff6ff; border: 1.5px solid #93c5fd; }
+  .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 7.5pt; font-weight: 700; white-space: nowrap; }
+  .risk-disclaimer { font-size: 7.5pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 6px; }
+  .timeline-box { border-radius: 10px; padding: 14px 16px; margin: 8px 0 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .timeline-box.loss { background: linear-gradient(135deg, #fff7ed, #fde68a22); border: 1.5px solid #fdba74; }
+  .timeline-box.gain { background: linear-gradient(135deg, #eff6ff, #dbeafe22); border: 1.5px solid #93c5fd; }
   .timeline-header { font-size: 10.5pt; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
   .timeline-grid { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .timeline-col { flex: 1; text-align: center; background: #fff3e0; border: 1.5px solid #ffcc80; border-radius: 8px; padding: 10px 6px; }
-  .timeline-col.mid { background: #fef3c7; border-color: #fde68a; }
-  .timeline-col.slow { background: #fef9c3; border-color: #fcd34d; }
+  .timeline-col { flex: 1; text-align: center; background: linear-gradient(135deg, #fff3e0, #fef3c7); border: 1.5px solid #ffcc80; border-radius: 10px; padding: 12px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .timeline-col.mid { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #fde68a; }
+  .timeline-col.slow { background: linear-gradient(135deg, #fef9c3, #fef3c7); border-color: #fcd34d; }
   .timeline-vs { font-size: 11pt; font-weight: 800; color: #d1d5db; flex-shrink: 0; }
   .tl-rate { font-size: 9pt; font-weight: 800; color: #c2410c; text-transform: uppercase; letter-spacing: 0.3px; }
   .tl-rate-sub { font-size: 8pt; color: #ea580c; margin: 2px 0 6px; }
-  .tl-months { font-size: 18pt; font-weight: 900; color: #9a3412; line-height: 1; }
-  .timeline-note { font-size: 9pt; color: #7c2d12; background: #fff3e0; border: 1px solid #fdba74; border-radius: 6px; padding: 8px 12px; font-weight: 600; line-height: 1.5; }
-  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 20px 24px; margin: 20px 0 16px; }
+  .tl-months { font-size: 20pt; font-weight: 900; color: #9a3412; line-height: 1; }
+  .timeline-note { font-size: 9pt; color: #7c2d12; background: #fff3e0; border: 1px solid #fdba74; border-radius: 8px; padding: 8px 12px; font-weight: 600; line-height: 1.5; }
+  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 20px 24px; margin: 20px 0 16px; box-shadow: 0 4px 20px rgba(6,78,59,0.3); }
   .referral-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; font-size: 8pt; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
   .referral-title { font-size: 18pt; font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
   .referral-subtitle { font-size: 10pt; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 4px; }
@@ -947,18 +1159,19 @@ function generatePDF(
   .ref-btn-copy { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; border: 1.5px solid rgba(255,255,255,0.4); }
   .ref-link-box { background: rgba(0,0,0,0.25); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 14px; font-size: 8.5pt; color: rgba(255,255,255,0.85); font-weight: 600; text-align: center; margin: 0 auto 10px; max-width: 420px; word-break: break-all; }
   .ref-hashtag { font-size: 8pt; color: rgba(255,255,255,0.6); text-align: center; font-style: italic; }
-  .macro-header { color: #7c3aed !important; border-bottom-color: #7c3aed !important; }
+  .macro-header { color: #5b21b6 !important; }
+  .macro-header::before { background: linear-gradient(to bottom, #7c3aed, #5b21b6) !important; }
   .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
-  .macro-card { display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 12px 14px; border: 1.5px solid; }
+  .macro-card { display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 12px 14px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
   .protein-card { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-color: #c4b5fd; }
   .fat-card { background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%); border-color: #fcd34d; }
   .carbs-card { background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%); border-color: #fde68a; }
   .fibre-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
   .macro-icon-wrap { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .protein-bg { background: #7c3aed22; }
-  .fat-bg { background: #f5960022; }
-  .carbs-bg { background: #f59e0b22; }
-  .fibre-bg { background: #16a34a22; }
+  .protein-bg { background: rgba(124,58,237,0.13); }
+  .fat-bg { background: rgba(245,150,0,0.13); }
+  .carbs-bg { background: rgba(245,158,11,0.13); }
+  .fibre-bg { background: rgba(22,163,74,0.13); }
   .macro-icon { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; }
   .macro-content { flex: 1; }
   .macro-badge { display: inline-block; font-size: 7pt; font-weight: 800; letter-spacing: 0.8px; border-radius: 12px; padding: 2px 8px; margin-bottom: 4px; text-transform: uppercase; }
@@ -970,12 +1183,12 @@ function generatePDF(
   .macro-unit { font-size: 9pt; font-weight: 600; color: #6b7280; margin-left: 2px; }
   .macro-formula { font-size: 7.5pt; color: #6b7280; font-style: italic; margin: 3px 0 4px; line-height: 1.3; }
   .macro-desc { font-size: 8pt; color: #374151; line-height: 1.4; }
-  .macro-note { background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 6px; padding: 8px 12px; font-size: 8pt; color: #5b21b6; font-style: italic; margin-top: 4px; line-height: 1.5; }
-  .macro-coach-cta { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 10px; padding: 14px 18px; margin-top: 10px; text-align: center; }
+  .macro-note { background: #f5f3ff; border: 1px solid #c4b5fd; border-left: 4px solid #7c3aed; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #5b21b6; font-style: italic; margin-top: 4px; line-height: 1.5; }
+  .macro-coach-cta { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-left: 4px solid #059669; border-radius: 10px; padding: 14px 18px; margin-top: 10px; text-align: center; }
   .macro-coach-title { font-size: 11pt; font-weight: 800; color: #065f46; margin-bottom: 6px; }
   .macro-coach-desc { font-size: 8.5pt; color: #374151; line-height: 1.5; margin-bottom: 10px; }
-  .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 12px rgba(13,148,136,0.4); }
-  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; }
+  .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 14px rgba(13,148,136,0.4); }
+  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(245,158,11,0.2); }
   .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
   .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
@@ -988,7 +1201,7 @@ function generatePDF(
   .body-gender-badge.male { background: #0d9488; color: #fff; }
   .body-gender-badge.female { background: #ec4899; color: #fff; }
   .body-measure-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-  .measure-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 2px solid; }
+  .measure-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 2px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .measure-card.chest { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; }
   .measure-card.waist { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
   .measure-card.hips { background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%); border-color: #d8b4fe; }
@@ -1007,14 +1220,15 @@ function generatePDF(
   .measure-val-secondary { font-size: 11pt; font-weight: 700; color: #374151; }
   .measure-note-inline { font-size: 7.5pt; color: #9ca3af; font-style: italic; margin-top: 2px; }
   .body-measure-disclaimer { font-size: 7.5pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; }
-  .avoid-header { color: #dc2626 !important; border-bottom-color: #dc2626 !important; }
+  .avoid-header { color: #dc2626 !important; }
+  .avoid-header::before { background: linear-gradient(to bottom, #dc2626, #b91c1c) !important; }
   .avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .avoid-card { display: flex; align-items: flex-start; gap: 10px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecaca; border-radius: 8px; padding: 10px 12px; }
   .avoid-icon { font-size: 20pt; flex-shrink: 0; line-height: 1; }
   .avoid-content { flex: 1; }
   .avoid-name { font-size: 9pt; font-weight: 800; color: #991b1b; margin-bottom: 2px; }
   .avoid-reason { font-size: 7.5pt; color: #6b7280; font-style: italic; line-height: 1.3; }
-  .avoid-note { background: #fff1f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; font-size: 8pt; color: #991b1b; font-style: italic; margin-top: 4px; line-height: 1.5; }
+  .avoid-note { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #991b1b; font-style: italic; margin-top: 4px; line-height: 1.5; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -1023,12 +1237,17 @@ function generatePDF(
 </head>
 <body>
 <div class="page">
-  <div class="header">
-    <img src="${logoUrl}" alt="HN Coach Logo" class="header-logo" onerror="this.outerHTML='<div class=\\'header-logo-fallback\\'>HN</div>'" />
-    <div class="header-text">
+
+  <!-- Premium Header -->
+  <div class="header-main">
+    <div class="header-logo-ring">
+      <img src="${logoUrl}" alt="HN Coach Logo" class="header-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div class="header-logo-fallback" style="display:none;">HN</div>
+    </div>
+    <div class="header-brand">
       <h1>HN Coach</h1>
-      <p>Free Wellness Assessment Report</p>
-      <div class="date">Generated on: ${today}</div>
+      <div class="header-brand-sub">Free Wellness Assessment Report</div>
+      <div class="header-brand-date">GENERATED ON: ${today.toUpperCase()}</div>
     </div>
     <div class="header-orgs">
       <div class="org-badge">
@@ -1046,41 +1265,64 @@ function generatePDF(
       <div class="org-note">* Calculations based on guidelines by these organisations</div>
     </div>
   </div>
+  <div class="header-gold-line"></div>
+  <div class="header-band">
+    <span class="header-band-label">CONFIDENTIAL WELLNESS REPORT</span>
+    <span class="header-band-id">DATE: ${today}</span>
+  </div>
 
   <div class="tagline-center">✨ &nbsp; Eat all the snacks or look like a snack &nbsp; ✨</div>
 
-  <div class="personal">
-    <h2>Personal Details</h2>
-    <div class="personal-grid">
-      <div>
-        <div class="personal-row"><span>Full Name:</span><span>${name}</span></div>
-        <div class="personal-row"><span>Age:</span><span>${age} years</span></div>
-        <div class="personal-row"><span>City:</span><span>${city}</span></div>
-        <div class="personal-row"><span>WhatsApp:</span><span>${whatsapp}</span></div>
-        <div class="personal-row"><span>Invited By:</span><span>${invitedBy || "—"}</span></div>
-      </div>
-      <div>
-        <div class="personal-row"><span>Height:</span><span>${height} cm</span></div>
-        <div class="personal-row"><span>Weight:</span><span>${weight} kg</span></div>
-        <div class="personal-row"><span>Gender:</span><span>${gender === "male" ? "Male" : "Female"}</span></div>
-        <div class="personal-row"><span>Occupation:</span><span>${occupation}</span></div>
-        <div class="personal-row"><span>Goal(s):</span><span>${goalsLabel}</span></div>
+  <!-- Certificate banner -->
+  <div class="cert-banner">
+    <div class="cert-prepared">Prepared Exclusively For</div>
+    <div class="cert-name">${name}</div>
+    <div class="cert-sub">Your personalised wellness data is ready · Based on WHO &amp; ICMR guidelines</div>
+  </div>
+
+  <!-- Personal Details with watermark -->
+  <div class="personal-section">
+    <div class="personal-watermark">HN COACH</div>
+    <div class="personal-inner">
+      <div class="personal">
+        <h2>Personal Details</h2>
+        <div class="personal-grid">
+          <div>
+            <div class="personal-row"><span class="personal-chip">Name</span><span class="personal-val">${name}</span></div>
+            <div class="personal-row"><span class="personal-chip">Age</span><span class="personal-val">${age} years</span></div>
+            <div class="personal-row"><span class="personal-chip">City</span><span class="personal-val">${city}</span></div>
+            <div class="personal-row"><span class="personal-chip">WhatsApp</span><span class="personal-val">${whatsapp}</span></div>
+            <div class="personal-row"><span class="personal-chip">Invited By</span><span class="personal-val">${invitedBy || "—"}</span></div>
+          </div>
+          <div>
+            <div class="personal-row"><span class="personal-chip">Height</span><span class="personal-val">${height} cm</span></div>
+            <div class="personal-row"><span class="personal-chip">Weight</span><span class="personal-val">${weight} kg</span></div>
+            <div class="personal-row"><span class="personal-chip">Gender</span><span class="personal-val">${gender === "male" ? "Male" : "Female"}</span></div>
+            <div class="personal-row"><span class="personal-chip">Occupation</span><span class="personal-val">${occupation}</span></div>
+            <div class="personal-row"><span class="personal-chip">Goal(s)</span><span class="personal-val">${goalsLabel}</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="section-title">Wellness Assessment Results</div>
-  <div class="metric-row"><div><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div></div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div></div>
-  <div class="metric-row"><div><div class="metric-label">BMI (Body Mass Index)</div><div class="metric-note" style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};flex-shrink:0;"></span>${results.bmiCategory}</div></div><div class="metric-value">${results.bmi.toFixed(1)}</div></div>
-  <div class="metric-row"><div><div class="metric-label">BMR (Basal Metabolic Rate)</div><div class="metric-note">Calories burned at rest</div></div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div>
-  <div class="metric-row"><div><div class="metric-label">TDEE (Total Daily Energy Expenditure)</div><div class="metric-note">Calories to maintain weight</div></div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div>
-  <div class="metric-row"><div><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 18 kg body weight</div></div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div>
-  <div class="metric-row"><div><div class="metric-label">Daily Footsteps</div><div class="metric-note">1 kg body = 110 footsteps</div></div><div class="metric-value">${results.footsteps}</div></div>
-  <div class="metric-row"><div><div class="metric-label">Daily Exercise Duration</div><div class="metric-note">Based on activity level</div></div><div class="metric-value">${results.exerciseMinutes}</div></div>
+  <div class="section-wrap">
+    <div class="section-title">📊 Wellness Assessment Results</div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-card-accent teal"></div><div class="metric-card-body"><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent emerald"></div><div class="metric-card-body"><div class="metric-label">BMI <span style="color:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};font-size:8pt;">(${results.bmiCategory})</span></div><div class="metric-note">Body Mass Index</div><div class="metric-value">${results.bmi.toFixed(1)}</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent cyan"></div><div class="metric-card-body"><div class="metric-label">BMR</div><div class="metric-note">Calories burned at rest</div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent blue"></div><div class="metric-card-body"><div class="metric-label">TDEE</div><div class="metric-note">Calories to maintain weight</div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent indigo"></div><div class="metric-card-body"><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 18 kg body weight</div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent violet"></div><div class="metric-card-body"><div class="metric-label">Daily Footsteps</div><div class="metric-note">1 kg body = 110 footsteps</div><div class="metric-value">${results.footsteps}</div></div></div>
+      <div class="metric-card" style="grid-column:1/-1;"><div class="metric-card-accent amber"></div><div class="metric-card-body"><div class="metric-label">Daily Exercise Duration</div><div class="metric-note">Based on activity level</div><div class="metric-value">${results.exerciseMinutes}</div></div></div>
+    </div>
+  </div>
 
+  <div class="section-wrap">
   ${idealBodyMeasurementsHtml}
 
-  <div class="section-title">Weight Goal</div>
+  <div class="section-title">🎯 Weight Goal</div>
   ${weightGoalHtml}
 
   ${timelineHtml}
@@ -1091,42 +1333,23 @@ function generatePDF(
 
   ${foodsToAvoidHtml}
 
-  <div class="referral-section">
-    <div style="text-align:center;">
-      <div class="referral-badge">
-        <svg viewBox="0 0 24 24" fill="white" style="width:12px;height:12px;flex-shrink:0;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-        REFER 2 FRIENDS
-      </div>
-    </div>
-    <div class="referral-title">💚 Sharing is Caring</div>
-    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
-    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
-    <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}`)}" class="ref-btn-wa">
-        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Share on WhatsApp
-      </a>
-      <button type="button" onclick="var el=document.getElementById('ref-copy-input');el.select();document.execCommand('copy');this.textContent='✓ Link Copied!';this.style.background='rgba(255,255,255,0.25)';" class="ref-btn-copy" style="cursor:pointer;border:none;">
-        <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-        Copy My Referral Link
-      </button>
-    </div>
-    <input id="ref-copy-input" type="text" readonly value="${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}" style="opacity:0;position:absolute;left:-9999px;width:1px;height:1px;" />
-    <a href="${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}" class="ref-link-box" style="display:block;text-decoration:none;" target="_blank">${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}</a>
-    <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
+  ${referralSection}
   </div>
 
+  <!-- Premium Footer CTA -->
   <div class="footer">
-    <div style="margin-bottom:6px;font-size:10pt;font-weight:700;">HN Coach &nbsp;|&nbsp; Personalized Wellness Coaching</div>
-    <div style="margin-bottom:12px;background:rgba(0,0,0,0.25);border-radius:16px;padding:18px 20px;border:2px solid rgba(37,211,102,0.5);box-shadow:0 0 0 6px rgba(37,211,102,0.12);">
-      <div style="font-size:11pt;font-weight:800;color:#d1fae5;margin-bottom:10px;letter-spacing:0.2px;">&#127775; Ready to transform your health? Your coach is waiting!</div>
-      <a href="${waUrl}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#128C7E 0%,#25D366 100%);color:#fff;padding:14px 32px;border-radius:30px;text-decoration:none;font-size:14pt;font-weight:900;box-shadow:0 4px 20px rgba(37,211,102,0.55),0 0 0 4px rgba(37,211,102,0.18);letter-spacing:0.2px;border:2px solid rgba(255,255,255,0.25);">
+    <div class="footer-gold-line"></div>
+    <div class="footer-cta-text">🌟 Ready to Transform Your Health?</div>
+    <div class="footer-sub">Your personal wellness coach is just one message away. Send this report and get a FREE personalised consultation!</div>
+    <div>
+      <a href="${waUrl}" class="footer-wa-btn">
         <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        &#128293; Send This Report &amp; Get FREE Consultation &#128293;
+        🔥 Send This Report &amp; Get FREE Consultation 🔥
       </a>
     </div>
-    <div style="font-size:8pt;opacity:0.85;">Consult HN Coach for personalized advice.</div>
+    <div class="footer-brand">HN Coach · Personalised Wellness Coaching · Consult HN Coach for personalised advice.</div>
   </div>
+
 </div>
 </body>
 </html>`;
@@ -1319,13 +1542,13 @@ function WellnessAssessment() {
               delay: 0.08 + i * 0.07,
               ease: "easeOut",
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 select-none"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap flex-shrink-0 select-none"
             style={{
-              background: "linear-gradient(135deg, #f0fdf9 0%, #dcfce7 100%)",
+              background: "linear-gradient(135deg, #ffffff 0%, #f0fdf9 100%)",
               border: "1.5px solid #6ee7b7",
               color: "#065f46",
               boxShadow:
-                "0 2px 8px rgba(13,148,136,0.12), inset 0 1px 0 rgba(255,255,255,0.8)",
+                "0 3px 12px rgba(13,148,136,0.15), inset 0 1px 0 rgba(255,255,255,1)",
               letterSpacing: "0.01em",
             }}
           >
@@ -1342,38 +1565,69 @@ function WellnessAssessment() {
       >
         <Card
           data-ocid="assessment.form"
-          className="shadow-xl border-0 overflow-hidden"
+          className="shadow-2xl border-0 overflow-hidden"
           style={{
-            background: "linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%)",
+            background: "#ffffff",
             boxShadow:
-              "0 0 0 1.5px #6ee7b7, 0 8px 40px oklch(0.5 0.145 196 / 0.12)",
+              "0 0 0 1.5px #6ee7b7, 0 12px 48px oklch(0.5 0.145 196 / 0.14), inset 0 1px 0 rgba(255,255,255,0.9)",
           }}
         >
-          {/* Top accent bar */}
-          <div
-            className="w-full h-1"
-            style={{
-              background:
-                "linear-gradient(90deg, #0d9488 0%, #10b981 50%, #059669 100%)",
-            }}
-          />
-          <CardContent className="pt-6 space-y-8">
+          {/* Certificate header strip */}
+          <div className="cert-header-strip w-full px-6 py-4 flex items-center gap-3">
+            {/* Shield/cert icon */}
+            <div
+              className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{
+                background: "rgba(255,255,255,0.18)",
+                border: "1.5px solid rgba(255,255,255,0.35)",
+              }}
+            >
+              <ShieldCheck className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div
+                className="text-white font-black text-base sm:text-lg leading-tight tracking-tight"
+                style={{ textShadow: "0 1px 6px rgba(0,0,0,0.2)" }}
+              >
+                Your Free Wellness Assessment Report
+              </div>
+              <div className="text-emerald-100/80 text-xs font-semibold mt-0.5 tracking-wide">
+                Personalised · Science-backed · Instant download
+              </div>
+            </div>
+            <div className="flex-shrink-0 text-right hidden sm:block">
+              <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest">
+                Powered by
+              </div>
+              <div className="text-white/90 text-xs font-extrabold tracking-wide">
+                HN COACH
+              </div>
+            </div>
+          </div>
+          <CardContent
+            className="pt-6 pb-7 space-y-8"
+            style={{ background: "#ffffff" }}
+          >
             {/* ── Section 1: Personal Details ──────────────────────── */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span
-                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-black flex-shrink-0"
                   style={{
-                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    background: "linear-gradient(135deg, #0d9488, #047857)",
                     boxShadow:
-                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                      "0 0 0 3px rgba(13,148,136,0.22), 0 3px 12px rgba(13,148,136,0.4)",
+                    border: "2px solid rgba(255,255,255,0.5)",
                   }}
                 >
                   1
                 </span>
-                <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Personal Details
-                </h3>
+                <div className="flex items-center gap-2 flex-1">
+                  <User className="w-4 h-4 text-primary flex-shrink-0" />
+                  <h3 className="font-display font-bold text-base text-foreground tracking-tight">
+                    Personal Details
+                  </h3>
+                </div>
               </div>
 
               {/* Full Name */}
@@ -1479,20 +1733,22 @@ function WellnessAssessment() {
             </div>
 
             {/* Step divider 1→2 */}
-            <div className="flex items-center gap-3 py-1">
-              <div className="w-4 flex-shrink-0 flex justify-center">
-                <div
-                  className="w-0.5 h-6 rounded-full"
-                  style={{
-                    background: "linear-gradient(to bottom, #6ee7b7, #0d9488)",
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-3 py-0.5">
               <div
                 className="flex-1 h-px"
                 style={{
                   background:
-                    "linear-gradient(90deg, #6ee7b7 0%, transparent 100%)",
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
+                }}
+              />
+              <span className="step-divider-pill flex-shrink-0">
+                Step 1 → Step 2
+              </span>
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
                 }}
               />
             </div>
@@ -1501,18 +1757,22 @@ function WellnessAssessment() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span
-                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-black flex-shrink-0"
                   style={{
-                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    background: "linear-gradient(135deg, #0d9488, #047857)",
                     boxShadow:
-                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                      "0 0 0 3px rgba(13,148,136,0.22), 0 3px 12px rgba(13,148,136,0.4)",
+                    border: "2px solid rgba(255,255,255,0.5)",
                   }}
                 >
                   2
                 </span>
-                <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Body Metrics
-                </h3>
+                <div className="flex items-center gap-2 flex-1">
+                  <Activity className="w-4 h-4 text-primary flex-shrink-0" />
+                  <h3 className="font-display font-bold text-base text-foreground tracking-tight">
+                    Body Metrics
+                  </h3>
+                </div>
               </div>
 
               {/* Height */}
@@ -1655,20 +1915,22 @@ function WellnessAssessment() {
             </div>
 
             {/* Step divider 2→3 */}
-            <div className="flex items-center gap-3 py-1">
-              <div className="w-4 flex-shrink-0 flex justify-center">
-                <div
-                  className="w-0.5 h-6 rounded-full"
-                  style={{
-                    background: "linear-gradient(to bottom, #6ee7b7, #0d9488)",
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-3 py-0.5">
               <div
                 className="flex-1 h-px"
                 style={{
                   background:
-                    "linear-gradient(90deg, #6ee7b7 0%, transparent 100%)",
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
+                }}
+              />
+              <span className="step-divider-pill flex-shrink-0">
+                Step 2 → Step 3
+              </span>
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
                 }}
               />
             </div>
@@ -1677,21 +1939,25 @@ function WellnessAssessment() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span
-                  className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-black flex-shrink-0"
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-black flex-shrink-0"
                   style={{
-                    background: "linear-gradient(135deg, #0d9488, #059669)",
+                    background: "linear-gradient(135deg, #0d9488, #047857)",
                     boxShadow:
-                      "0 0 0 3px rgba(13,148,136,0.18), 0 2px 8px rgba(13,148,136,0.35)",
+                      "0 0 0 3px rgba(13,148,136,0.22), 0 3px 12px rgba(13,148,136,0.4)",
+                    border: "2px solid rgba(255,255,255,0.5)",
                   }}
                 >
                   3
                 </span>
-                <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Referral{" "}
-                  <span className="text-destructive font-normal text-sm">
-                    (Required)
-                  </span>
-                </h3>
+                <div className="flex items-center gap-2 flex-1">
+                  <Share2 className="w-4 h-4 text-primary flex-shrink-0" />
+                  <h3 className="font-display font-bold text-base text-foreground tracking-tight">
+                    Referral{" "}
+                    <span className="text-destructive font-normal text-sm">
+                      (Required)
+                    </span>
+                  </h3>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label
@@ -1762,7 +2028,7 @@ function WellnessAssessment() {
               )}
               <Button
                 data-ocid="assessment.submit_button"
-                className={`w-full h-14 text-base font-black tracking-wide border-0 text-white transition-all duration-200 ${allFilled && !isGenerating ? "cta-shimmer hover:scale-[1.01] active:scale-[0.99]" : ""}`}
+                className={`w-full h-16 text-lg font-black tracking-wide border-0 text-white transition-all duration-200 rounded-xl ${allFilled && !isGenerating ? "cta-shimmer hover:scale-[1.01] active:scale-[0.99]" : ""}`}
                 style={
                   !allFilled || isGenerating
                     ? {
@@ -1785,7 +2051,11 @@ function WellnessAssessment() {
                   </>
                 ) : (
                   <>
-                    <FileText className="w-5 h-5 mr-2" />
+                    {allFilled ? (
+                      <Download className="w-5 h-5 mr-2" />
+                    ) : (
+                      <FileText className="w-5 h-5 mr-2" />
+                    )}
                     Get Your Free Wellness Assessment Report
                   </>
                 )}
