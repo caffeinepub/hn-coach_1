@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +17,6 @@ import {
   MapPin,
   Phone,
   Ruler,
-  Target,
   User,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -61,6 +59,8 @@ interface UnifiedFormData {
   activityLevel: string;
   // Goals (multiple selection)
   goals: string[];
+  // Referral
+  invitedBy: string;
 }
 
 // ── Calculations ───────────────────────────────────────────────────────────────
@@ -330,6 +330,233 @@ function getHealthRisks(bmi: number): HealthRisk[] {
 
 // ── (HealthRiskAwareness only used in PDF now — removed from page render) ──────
 
+// ── Ideal Body Measurements Calculator ────────────────────────────────────────
+interface IdealMeasurements {
+  chest: { cm: number; inch: number };
+  waist: { cm: number; inch: number };
+  hips: { cm: number; inch: number };
+}
+
+function computeIdealMeasurements(
+  heightCm: number,
+  gender: string,
+): IdealMeasurements {
+  // Based on standard fitness / anthropometric guidelines
+  // Male: chest ≈ height × 0.535, waist ≈ height × 0.447, hips ≈ height × 0.543
+  // Female: chest ≈ height × 0.525, waist ≈ height × 0.415, hips ≈ height × 0.565
+  let chestCm: number;
+  let waistCm: number;
+  let hipsCm: number;
+  if (gender === "male") {
+    chestCm = Math.round(heightCm * 0.535);
+    waistCm = Math.round(heightCm * 0.447);
+    hipsCm = Math.round(heightCm * 0.543);
+  } else {
+    chestCm = Math.round(heightCm * 0.525);
+    waistCm = Math.round(heightCm * 0.415);
+    hipsCm = Math.round(heightCm * 0.565);
+  }
+  const toInch = (cm: number) => Math.round((cm / 2.54) * 10) / 10;
+  return {
+    chest: { cm: chestCm, inch: toInch(chestCm) },
+    waist: { cm: waistCm, inch: toInch(waistCm) },
+    hips: { cm: hipsCm, inch: toInch(hipsCm) },
+  };
+}
+
+// ── Foods to Avoid Helper ──────────────────────────────────────────────────────
+interface FoodToAvoid {
+  food: string;
+  reason: string;
+  icon: string;
+}
+
+function getFoodsToAvoid(goals: string[]): FoodToAvoid[] {
+  const allFoods: FoodToAvoid[] = [
+    {
+      icon: "🍟",
+      food: "Deep Fried Foods",
+      reason:
+        "High in trans fats, causes inflammation and promotes fat storage around the belly.",
+    },
+    {
+      icon: "🥤",
+      food: "Sugary Drinks & Sodas",
+      reason:
+        "Liquid calories spike insulin rapidly and promote fat gain without satiety.",
+    },
+    {
+      icon: "🍰",
+      food: "Refined Sugar & Sweets",
+      reason:
+        "Triggers fat storage hormones (insulin), leads to energy crashes and cravings.",
+    },
+    {
+      icon: "🍞",
+      food: "White Bread & Maida Products",
+      reason:
+        "Causes blood sugar spikes and drops, low nutritional value, promotes belly fat.",
+    },
+    {
+      icon: "🧀",
+      food: "Processed Cheese & Dairy",
+      reason:
+        "High in sodium and saturated fats, contributes to belly fat and water retention.",
+    },
+    {
+      icon: "🍟",
+      food: "Chips, Namkeen & Wafers",
+      reason:
+        "Empty calories loaded with addictive salt and hidden trans fats, zero nutrition.",
+    },
+    {
+      icon: "🍺",
+      food: "Alcohol",
+      reason:
+        "Stops fat burning completely, adds empty calories, disrupts sleep and recovery.",
+    },
+    {
+      icon: "🌭",
+      food: "Processed & Packaged Meats",
+      reason:
+        "Preservatives, sodium, and nitrates are harmful to metabolism and muscle synthesis.",
+    },
+    {
+      icon: "🍦",
+      food: "Ice Cream & Frozen Desserts",
+      reason:
+        "High sugar + fat combination triggers maximum fat storage response in the body.",
+    },
+    {
+      icon: "☕",
+      food: "Excess Caffeine & Energy Drinks",
+      reason:
+        "Disrupts cortisol balance, promotes belly fat accumulation when overconsumed.",
+    },
+    {
+      icon: "🥐",
+      food: "Packaged Biscuits & Cookies",
+      reason:
+        "Hidden trans fats, excess sugar, and refined flour with minimal nutritional value.",
+    },
+    {
+      icon: "🍕",
+      food: "Fast Food Burgers & Pizza",
+      reason:
+        "Extreme calorie density with low nutrients, loaded with sodium and saturated fat.",
+    },
+    {
+      icon: "🫙",
+      food: "Canned & Packaged Foods",
+      reason:
+        "High sodium, preservatives, and hidden sugars that spike insulin and cause bloating.",
+    },
+    {
+      icon: "🍫",
+      food: "Milk Chocolate & Candy",
+      reason:
+        "Pure sugar with minimal nutrients, causes rapid insulin spikes and fat storage.",
+    },
+  ];
+
+  const hasWeightLoss = goals.some((g) =>
+    ["weight_loss", "fat_loss", "belly_fat_loss"].includes(g),
+  );
+  const hasMuscleGain = goals.includes("muscle_gain");
+  const hasWeightGain = goals.includes("weight_gain");
+  const hasEnergy = goals.includes("energy_stamina");
+
+  let selected: FoodToAvoid[];
+
+  if (hasWeightLoss && hasMuscleGain) {
+    // Fat loss + muscle gain: avoid sugar, fried, alcohol, processed
+    selected = [
+      allFoods[0], // Deep Fried
+      allFoods[1], // Sugary Drinks
+      allFoods[2], // Refined Sugar
+      allFoods[6], // Alcohol
+      allFoods[7], // Processed Meats
+      allFoods[5], // Chips
+      allFoods[3], // White Bread
+      allFoods[10], // Packaged Biscuits
+      allFoods[8], // Ice Cream
+      allFoods[11], // Fast Food
+    ];
+  } else if (hasWeightLoss) {
+    // Weight/fat loss focus
+    selected = [
+      allFoods[0], // Deep Fried
+      allFoods[1], // Sugary Drinks
+      allFoods[2], // Refined Sugar
+      allFoods[3], // White Bread
+      allFoods[4], // Processed Cheese
+      allFoods[5], // Chips
+      allFoods[8], // Ice Cream
+      allFoods[9], // Excess Caffeine
+      allFoods[11], // Fast Food
+      allFoods[12], // Canned Foods
+    ];
+  } else if (hasMuscleGain) {
+    // Muscle gain: avoid alcohol, sugar, processed meats, energy-draining foods
+    selected = [
+      allFoods[6], // Alcohol
+      allFoods[7], // Processed Meats
+      allFoods[2], // Refined Sugar
+      allFoods[1], // Sugary Drinks
+      allFoods[9], // Excess Caffeine
+      allFoods[0], // Deep Fried
+      allFoods[10], // Packaged Biscuits
+      allFoods[3], // White Bread
+      allFoods[12], // Canned Foods
+      allFoods[13], // Milk Chocolate
+    ];
+  } else if (hasWeightGain) {
+    // Weight gain: avoid appetite-suppressing, low-calorie fillers
+    selected = [
+      allFoods[6], // Alcohol (disrupts appetite)
+      allFoods[9], // Excess Caffeine
+      allFoods[1], // Diet/Sugary Drinks (no nutrition)
+      allFoods[5], // Chips (low calorie quality)
+      allFoods[12], // Canned Foods (low calorie density)
+      allFoods[0], // Deep Fried (poor quality calories)
+      allFoods[7], // Processed Meats
+      allFoods[2], // Refined Sugar (energy crashes)
+      allFoods[10], // Packaged Biscuits
+      allFoods[13], // Milk Chocolate
+    ];
+  } else if (hasEnergy) {
+    // Energy & stamina: avoid energy-draining, blood sugar spiking foods
+    selected = [
+      allFoods[1], // Sugary Drinks
+      allFoods[2], // Refined Sugar
+      allFoods[3], // White Bread
+      allFoods[6], // Alcohol
+      allFoods[9], // Excess Caffeine
+      allFoods[0], // Deep Fried
+      allFoods[5], // Chips
+      allFoods[11], // Fast Food
+      allFoods[10], // Packaged Biscuits
+      allFoods[8], // Ice Cream
+    ];
+  } else {
+    // Default: general top 10 unhealthy foods
+    selected = [
+      allFoods[0],
+      allFoods[1],
+      allFoods[2],
+      allFoods[3],
+      allFoods[5],
+      allFoods[6],
+      allFoods[7],
+      allFoods[8],
+      allFoods[11],
+      allFoods[12],
+    ];
+  }
+
+  return selected.slice(0, 10);
+}
+
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
 function generatePDF(
   name: string,
@@ -341,11 +568,17 @@ function generatePDF(
   weight: string,
   goals: string[],
   results: AssessmentResults,
+  gender: string,
+  invitedBy: string,
 ) {
   const macros = computeMacros(
     results.idealWeight,
     results.tdee,
     Number.parseFloat(weight),
+  );
+  const idealMeasurements = computeIdealMeasurements(
+    Number.parseFloat(height),
+    gender,
   );
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -541,6 +774,85 @@ function generatePDF(
   </div>
   `;
 
+  // Foods to Avoid HTML
+  const foodsToAvoidList = getFoodsToAvoid(goals);
+  const foodCardsHtml = foodsToAvoidList
+    .map(
+      (f) => `
+    <div class="avoid-card">
+      <div class="avoid-icon">${f.icon}</div>
+      <div class="avoid-content">
+        <div class="avoid-name">${f.food}</div>
+        <div class="avoid-reason">${f.reason}</div>
+      </div>
+    </div>`,
+    )
+    .join("");
+
+  const foodsToAvoidHtml = `
+  <div class="section-title avoid-header">&#9888; Foods to Avoid to Achieve Your Goals</div>
+  <div class="avoid-grid">
+    ${foodCardsHtml}
+  </div>
+  <div class="avoid-note">&#128161; Avoiding these foods combined with your personalised nutrition plan above will accelerate your goal achievement. Contact HN Coach for a custom meal plan tailored to your specific goals and body type.</div>
+  `;
+
+  // Ideal Body Measurements HTML
+  const bodyImgUrl =
+    gender === "male"
+      ? `${window.location.origin}/assets/generated/male-body-measurements-transparent.dim_300x500.png`
+      : `${window.location.origin}/assets/generated/female-body-measurements-transparent.dim_300x500.png`;
+
+  const chestLabel = gender === "female" ? "Breast / Chest" : "Chest";
+  const idealBodyMeasurementsHtml = `
+  <div class="section-title body-measure-section" style="color:#1d4ed8;border-bottom-color:#1d4ed8;">&#128101; Ideal Body Measurements — Based on Your Height</div>
+  <div class="body-measure-wrap">
+    <div class="body-img-col">
+      <img src="${bodyImgUrl}" alt="${gender} body" class="body-img" />
+      <div class="body-gender-badge ${gender}">${gender === "male" ? "&#9794; Male" : "&#9792; Female"}</div>
+    </div>
+    <div class="body-measure-cards">
+      <div class="measure-card chest">
+        <div class="measure-icon chest">&#128084;</div>
+        <div style="flex:1;">
+          <div class="measure-label chest">${chestLabel}</div>
+          <div class="measure-values">
+            <span class="measure-val-primary">${idealMeasurements.chest.inch}"</span><span class="measure-val-unit">inches</span>
+            <span class="measure-val-sep">|</span>
+            <span class="measure-val-secondary">${idealMeasurements.chest.cm} cm</span>
+          </div>
+          <div class="measure-note-inline">Ideal chest circumference for your height</div>
+        </div>
+      </div>
+      <div class="measure-card waist">
+        <div class="measure-icon waist">&#128091;</div>
+        <div style="flex:1;">
+          <div class="measure-label waist">Waist</div>
+          <div class="measure-values">
+            <span class="measure-val-primary">${idealMeasurements.waist.inch}"</span><span class="measure-val-unit">inches</span>
+            <span class="measure-val-sep">|</span>
+            <span class="measure-val-secondary">${idealMeasurements.waist.cm} cm</span>
+          </div>
+          <div class="measure-note-inline">Ideal waist circumference for your height</div>
+        </div>
+      </div>
+      <div class="measure-card hips">
+        <div class="measure-icon hips">&#128100;</div>
+        <div style="flex:1;">
+          <div class="measure-label hips">Hips</div>
+          <div class="measure-values">
+            <span class="measure-val-primary">${idealMeasurements.hips.inch}"</span><span class="measure-val-unit">inches</span>
+            <span class="measure-val-sep">|</span>
+            <span class="measure-val-secondary">${idealMeasurements.hips.cm} cm</span>
+          </div>
+          <div class="measure-note-inline">Ideal hip circumference for your height</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="body-measure-disclaimer">&#9432; Ideal measurements are calculated based on standard anthropometric proportionality guidelines. Individual variation is natural — these are reference ranges. Consult HN Coach for personalised body composition guidance.</div>
+  `;
+
   const weightDiffLabel =
     Math.abs(weightDiff) <= 1
       ? "At Ideal Weight ✅"
@@ -668,6 +980,42 @@ function generatePDF(
   .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
   .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
+  /* Ideal Body Measurements */
+  .body-measure-section { margin: 20px 0 6px; }
+  .body-measure-wrap { display: flex; gap: 20px; align-items: flex-start; }
+  .body-img-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .body-img { width: 130px; border-radius: 12px; object-fit: contain; }
+  .body-gender-badge { font-size: 8pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 12px; border-radius: 20px; }
+  .body-gender-badge.male { background: #0d9488; color: #fff; }
+  .body-gender-badge.female { background: #ec4899; color: #fff; }
+  .body-measure-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .measure-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 2px solid; }
+  .measure-card.chest { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; }
+  .measure-card.waist { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
+  .measure-card.hips { background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%); border-color: #d8b4fe; }
+  .measure-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18pt; flex-shrink: 0; }
+  .measure-icon.chest { background: #bfdbfe; }
+  .measure-icon.waist { background: #bbf7d0; }
+  .measure-icon.hips { background: #e9d5ff; }
+  .measure-label { font-size: 8pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .measure-label.chest { color: #1d4ed8; }
+  .measure-label.waist { color: #15803d; }
+  .measure-label.hips { color: #7c3aed; }
+  .measure-values { display: flex; gap: 10px; align-items: baseline; }
+  .measure-val-primary { font-size: 15pt; font-weight: 900; color: #1f2937; line-height: 1; }
+  .measure-val-unit { font-size: 8pt; font-weight: 600; color: #6b7280; }
+  .measure-val-sep { font-size: 9pt; color: #d1d5db; }
+  .measure-val-secondary { font-size: 11pt; font-weight: 700; color: #374151; }
+  .measure-note-inline { font-size: 7.5pt; color: #9ca3af; font-style: italic; margin-top: 2px; }
+  .body-measure-disclaimer { font-size: 7.5pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; }
+  .avoid-header { color: #dc2626 !important; border-bottom-color: #dc2626 !important; }
+  .avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .avoid-card { display: flex; align-items: flex-start; gap: 10px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecaca; border-radius: 8px; padding: 10px 12px; }
+  .avoid-icon { font-size: 20pt; flex-shrink: 0; line-height: 1; }
+  .avoid-content { flex: 1; }
+  .avoid-name { font-size: 9pt; font-weight: 800; color: #991b1b; margin-bottom: 2px; }
+  .avoid-reason { font-size: 7.5pt; color: #6b7280; font-style: italic; line-height: 1.3; }
+  .avoid-note { background: #fff1f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; font-size: 8pt; color: #991b1b; font-style: italic; margin-top: 4px; line-height: 1.5; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -710,10 +1058,12 @@ function generatePDF(
         <div class="personal-row"><span>Age:</span><span>${age} years</span></div>
         <div class="personal-row"><span>City:</span><span>${city}</span></div>
         <div class="personal-row"><span>WhatsApp:</span><span>${whatsapp}</span></div>
+        <div class="personal-row"><span>Invited By:</span><span>${invitedBy || "—"}</span></div>
       </div>
       <div>
         <div class="personal-row"><span>Height:</span><span>${height} cm</span></div>
         <div class="personal-row"><span>Weight:</span><span>${weight} kg</span></div>
+        <div class="personal-row"><span>Gender:</span><span>${gender === "male" ? "Male" : "Female"}</span></div>
         <div class="personal-row"><span>Occupation:</span><span>${occupation}</span></div>
         <div class="personal-row"><span>Goal(s):</span><span>${goalsLabel}</span></div>
       </div>
@@ -729,6 +1079,8 @@ function generatePDF(
   <div class="metric-row"><div><div class="metric-label">Daily Footsteps</div><div class="metric-note">1 kg body = 110 footsteps</div></div><div class="metric-value">${results.footsteps}</div></div>
   <div class="metric-row"><div><div class="metric-label">Daily Exercise Duration</div><div class="metric-note">Based on activity level</div></div><div class="metric-value">${results.exerciseMinutes}</div></div>
 
+  ${idealBodyMeasurementsHtml}
+
   <div class="section-title">Weight Goal</div>
   ${weightGoalHtml}
 
@@ -737,6 +1089,8 @@ function generatePDF(
   ${healthRiskHtml}
 
   ${macroNutrientsHtml}
+
+  ${foodsToAvoidHtml}
 
   <div class="referral-section">
     <div style="text-align:center;">
@@ -764,10 +1118,11 @@ function generatePDF(
 
   <div class="footer">
     <div style="margin-bottom:6px;font-size:10pt;font-weight:700;">HN Coach &nbsp;|&nbsp; Personalized Wellness Coaching</div>
-    <div style="margin-bottom:8px;">
-      <a href="${waUrl}" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:8px 18px;border-radius:20px;text-decoration:none;font-size:9.5pt;font-weight:700;box-shadow:0 2px 10px rgba(37,211,102,0.4);">
-        <svg viewBox="0 0 24 24" fill="white" style="width:16px;height:16px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Send This Report &amp; Get FREE Consultation
+    <div style="margin-bottom:12px;background:rgba(0,0,0,0.25);border-radius:16px;padding:18px 20px;border:2px solid rgba(37,211,102,0.5);box-shadow:0 0 0 6px rgba(37,211,102,0.12);">
+      <div style="font-size:11pt;font-weight:800;color:#d1fae5;margin-bottom:10px;letter-spacing:0.2px;">&#127775; Ready to transform your health? Your coach is waiting!</div>
+      <a href="${waUrl}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#128C7E 0%,#25D366 100%);color:#fff;padding:14px 32px;border-radius:30px;text-decoration:none;font-size:14pt;font-weight:900;box-shadow:0 4px 20px rgba(37,211,102,0.55),0 0 0 4px rgba(37,211,102,0.18);letter-spacing:0.2px;border:2px solid rgba(255,255,255,0.25);">
+        <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        &#128293; Send This Report &amp; Get FREE Consultation &#128293;
       </a>
     </div>
     <div style="font-size:8pt;opacity:0.85;">Consult HN Coach for personalized advice.</div>
@@ -799,8 +1154,9 @@ const EMPTY_FORM: UnifiedFormData = {
   heightIn: "",
   weight: "",
   gender: "",
-  activityLevel: "",
+  activityLevel: "moderately_active",
   goals: [],
+  invitedBy: "",
 };
 
 function WellnessAssessment() {
@@ -814,15 +1170,6 @@ function WellnessAssessment() {
     (field: keyof UnifiedFormData) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
-
-  const toggleGoal = (value: string) => {
-    setForm((prev) => ({
-      ...prev,
-      goals: prev.goals.includes(value)
-        ? prev.goals.filter((g) => g !== value)
-        : [...prev.goals, value],
-    }));
-  };
 
   const heightCm =
     form.heightMode === "ft"
@@ -843,8 +1190,7 @@ function WellnessAssessment() {
     Number(heightCm) > 0 &&
     form.weight.trim() &&
     form.gender &&
-    form.activityLevel &&
-    form.goals.length > 0;
+    form.invitedBy.trim();
 
   const handleGenerateReport = () => {
     const results = computeResults({
@@ -868,6 +1214,8 @@ function WellnessAssessment() {
         form.weight,
         form.goals,
         results,
+        form.gender,
+        form.invitedBy,
       );
 
       // Notify coach on WhatsApp with full report details
@@ -1173,116 +1521,69 @@ function WellnessAssessment() {
                 />
               </div>
 
-              {/* Gender + Activity Level */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80">
-                    Gender <span className="text-destructive">*</span>
-                  </Label>
-                  <Select value={form.gender} onValueChange={set("gender")}>
-                    <SelectTrigger
-                      data-ocid="assessment.gender.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-foreground/80">
-                    Activity Level <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={form.activityLevel}
-                    onValueChange={set("activityLevel")}
+              {/* Gender */}
+              <div className="space-y-1.5">
+                <Label className="text-sm font-medium text-foreground/80">
+                  Gender <span className="text-destructive">*</span>
+                </Label>
+                <Select value={form.gender} onValueChange={set("gender")}>
+                  <SelectTrigger
+                    data-ocid="assessment.gender.select"
+                    className="h-11"
                   >
-                    <SelectTrigger
-                      data-ocid="assessment.activity.select"
-                      className="h-11"
-                    >
-                      <SelectValue placeholder="How active?" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sedentary">Sedentary</SelectItem>
-                      <SelectItem value="lightly_active">
-                        Lightly Active
-                      </SelectItem>
-                      <SelectItem value="moderately_active">
-                        Moderately Active
-                      </SelectItem>
-                      <SelectItem value="very_active">Very Active</SelectItem>
-                      <SelectItem value="extra_active">Extra Active</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
             <Separator />
 
-            {/* ── Section 3: Your Goal ───────────────────────────────── */}
+            {/* ── Section 3: Who Invited You ────────────────────────── */}
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
                 <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                  <Target className="w-3.5 h-3.5 text-primary" />
+                  <User className="w-3.5 h-3.5 text-primary" />
                 </span>
                 <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                  Your Goal
+                  Referral
                 </h3>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-foreground/80">
-                    Select Your Goal(s){" "}
-                    <span className="text-destructive">*</span>
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    Select one or more goals
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {(
-                    [
-                      ["weight_loss", "Weight Loss"],
-                      ["fat_loss", "Fat Loss"],
-                      ["belly_fat_loss", "Belly Fat Loss"],
-                      ["muscle_gain", "Muscle Gain"],
-                      ["weight_gain", "Weight Gain"],
-                      ["weight_maintain", "Weight Maintain"],
-                      ["energy_stamina", "Increase Energy & Stamina"],
-                    ] as [string, string][]
-                  ).map(([value, label], index) => (
-                    <label
-                      key={value}
-                      htmlFor={`goal-${value}`}
-                      className="flex items-center gap-2 p-2.5 rounded-lg border border-border/60 hover:border-primary/40 hover:bg-primary/5 cursor-pointer transition-all"
-                    >
-                      <Checkbox
-                        id={`goal-${value}`}
-                        checked={form.goals.includes(value)}
-                        onCheckedChange={() => toggleGoal(value)}
-                        data-ocid={`assessment.goal.${index + 1}.checkbox`}
-                      />
-                      <span className="text-sm font-medium text-foreground/80">
-                        {label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-                {form.goals.length > 0 && (
-                  <p className="text-xs text-primary font-medium mt-1">
-                    Selected:{" "}
-                    {form.goals.map((g) => GOAL_LABELS[g] || g).join(", ")}
-                  </p>
-                )}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="f-invited-by"
+                  className="text-sm font-medium text-foreground/80"
+                >
+                  Who Invited You? <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="f-invited-by"
+                  data-ocid="assessment.invitedby.input"
+                  type="text"
+                  placeholder="e.g. Friend's name, Instagram, WhatsApp, Google…"
+                  value={form.invitedBy}
+                  onChange={setInput("invitedBy")}
+                  className="h-11"
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Let us know how you found us.
+                </p>
               </div>
             </div>
 
             <Separator />
+
+            {/* ── Mandatory notice ───────────────────────────────────── */}
+            <p className="text-xs text-center text-muted-foreground font-medium">
+              <span className="text-destructive font-bold">*</span> All fields
+              are mandatory. Filling in all details is required to generate your
+              free wellness report.
+            </p>
 
             {/* ── CTA ────────────────────────────────────────────────── */}
             <div className="space-y-3">
