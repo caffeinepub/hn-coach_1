@@ -152,7 +152,7 @@ function computeResults(
 
 // ── Macronutrient Calculator ───────────────────────────────────────────────────
 interface MacroNeeds {
-  protein: number; // grams/day — 35% of TDEE calories / 4
+  protein: number; // grams/day — 1.2g per kg of body weight
   fat: number; // grams/day — 25% of BMR calories / 9
   carbs: number; // grams/day — 40% of TDEE calories / 4
   fibre: number; // grams/day — ICMR: 0.5g/kg body weight, min 25g, max 40g
@@ -164,7 +164,7 @@ function computeMacros(
   bodyWeight: number,
   bmr: number,
 ): MacroNeeds {
-  const protein = Math.round((tdee * 0.35) / 4); // 35% of TDEE calories from protein (Global Nutrition Philosophy)
+  const protein = Math.round(bodyWeight * 1.2); // 1.2g per kg of body weight
   const fat = Math.round((bmr * 0.25) / 9); // 25% of BMR calories from fat (Global Nutrition Philosophy)
   const carbs = Math.round((tdee * 0.4) / 4); // 40% of TDEE calories from carbs (Global Nutrition Philosophy)
   const fibre = Math.min(40, Math.max(25, Math.round(bodyWeight * 0.5))); // ICMR 0.5g/kg, 25–40g range
@@ -728,7 +728,7 @@ function generatePDF(
       <div class="macro-content">
         <div class="macro-badge protein-badge">PROTEIN</div>
         <div class="macro-value">${macros.protein}g<span class="macro-unit">/day</span></div>
-        <div class="macro-formula">35% of Ideal Weight (${results.idealWeight.toFixed(1)} kg)</div>
+        <div class="macro-formula">1.2g × ${weight} kg body weight</div>
         <div class="macro-desc">Builds &amp; repairs muscles, supports immunity and hormones.</div>
       </div>
     </div>
@@ -766,7 +766,7 @@ function generatePDF(
       </div>
     </div>
   </div>
-  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 35% of TDEE; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
+  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.2g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
   <div class="macro-coach-cta">
     <div class="macro-coach-title">&#127807; Want a Personalised Diet Plan Based on Your Numbers?</div>
     <div class="macro-coach-desc">These are your personalised daily nutrition targets. For a custom meal plan, food timings, and ongoing coaching designed specifically for your goals, get in touch with HN Coach today.</div>
