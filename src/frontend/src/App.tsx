@@ -25,6 +25,247 @@ import {
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
+// ── Translations ───────────────────────────────────────────────────────────────
+type Lang = "en" | "hi";
+
+const translations = {
+  en: {
+    // Header
+    freeWellnessAssessment: "Wellness Assessment",
+    // Welcome back banner
+    welcomeBack: "Welcome back",
+    lastReportReady: "Your last report is ready to re-download.",
+    downloadAgainFree: "Download My Report Again",
+    generateNewReport: "Generate a New Report",
+    noPaymentNeeded: "No payment needed to re-download your last report.",
+    paymentRequiredForNew: "Rs. 1 payment required to generate a new report.",
+    reportSavedOn: "Report saved on",
+    calcBasedOn: "Calculations based on guidelines by these organisations",
+    // Tagline
+    tagline: "💪 Eat all the snacks or look like a snack. 💪",
+    // FOMO
+    fomoHeading:
+      "🔥 Enroll in Our Personal Coaching Program TODAY — Get 10% OFF!",
+    fomoDownload: "⚡ Download your",
+    fomoFreeNow: "report for Rs. 1 NOW!",
+    fomoExpires: "Offer expires in:",
+    fomoSpots: "Only a few spots left!",
+    fomoCta: "Claim My 10% Discount Now",
+    // Section heading
+    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 1",
+    sectionDesc:
+      "Fill in your details once and instantly download your personalised wellness report — only Rs. 1.",
+    // Trust badges
+    trustPrivate: "100% Private & Secure",
+    trustClients: "Trusted by 1000+ Clients",
+    trustFree: "Just Rs. 1 — Worth Rs. 499",
+    trustInstant: "Instant Download",
+    // Card header
+    cardTitle: "Your Wellness Assessment Report",
+    cardSub: "Personalised · Science-backed · Rs. 1 only",
+    cardPowered: "Powered by",
+    // Step 1
+    step1Label: "Personal Details",
+    fieldName: "Full Name",
+    fieldNamePlaceholder: "e.g. Priya Sharma",
+    fieldAge: "Age (years)",
+    fieldAgePlaceholder: "e.g. 30",
+    fieldCity: "City",
+    fieldCityPlaceholder: "e.g. Mumbai",
+    fieldWhatsapp: "WhatsApp No.",
+    fieldWhatsappPlaceholder: "e.g. +91 98765 43210",
+    fieldOccupation: "Occupation",
+    fieldOccupationPlaceholder: "e.g. Software Engineer, Teacher, Homemaker",
+    // Step dividers
+    step1to2: "Step 1 → Step 2",
+    step2to3: "Step 2 → Step 3",
+    // Step 2
+    step2Label: "Body Metrics",
+    fieldHeight: "Height",
+    heightCm: "cm",
+    heightFtIn: "ft / in",
+    fieldFeet: "Feet",
+    fieldInches: "Inches",
+    heightCmPlaceholder: "e.g. 165",
+    heightFtPlaceholder: "e.g. 5",
+    heightInPlaceholder: "e.g. 6",
+    fieldWeight: "Weight (kg)",
+    fieldWeightPlaceholder: "e.g. 70",
+    fieldGender: "Gender",
+    genderSelect: "Select gender",
+    genderMale: "Male",
+    genderFemale: "Female",
+    // Step 3
+    step3Label: "Referral",
+    step3Required: "(Required)",
+    fieldInvitedBy: "Who Invited You?",
+    fieldInvitedByPlaceholder:
+      "e.g. Friend's name, Instagram, WhatsApp, Google…",
+    referredByText: "Referred by",
+    tipLabel: "Tip:",
+    tipText:
+      "If you got a referral link from a friend, their name is already filled in for you!",
+    // Mandatory notice
+    mandatoryNotice:
+      "* All fields are mandatory. Filling in all details is required to generate your wellness report.",
+    // CTA
+    fillAllFields: "Fill in all fields above to generate your report.",
+    generatingReport: "Opening Payment…",
+    ctaButton: "Pay Rs. 1 & Download My Report",
+    ctaDisclaimer: "Secure payment · Rs. 1 only · Instant personalised report",
+    // Referral section
+    refer2Friends: "Refer 2 Friends",
+    sharingIsCaring: "💚 Sharing is Caring",
+    referralShareDesc:
+      "Share your personal link — when a friend opens it, their form shows your name as referrer automatically!",
+    friend1: "Friend 1",
+    friend2: "Friend 2",
+    tag2Friends:
+      "Tag 2 friends who deserve to know their wellness score today!",
+    shareWhatsapp: "Share on WhatsApp",
+    copyLink: "Copy My Referral Link",
+    linkCopied: "✓ Link Copied!",
+    hashtags: "#WellnessForAll · #SharingIsCaring",
+    // 30-day guarantee
+    surpriseOffer: "🎉 Surprise Offer",
+    guarantee: "✅ 30 Days Money Back Guarantee",
+    guaranteeDesc:
+      "We are so confident in our coaching program that we offer a full 30-day money back guarantee. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked.",
+    guaranteeCommit:
+      "Your health transformation is our commitment. Zero risk. 100% results focused.",
+    guaranteeCta: "Contact HN Coach — Start Today",
+    // Join team
+    exclusiveOpp: "Exclusive Opportunity",
+    joinTeamTitle: "Join Our Team & Become a Certified Wellness Coach",
+    joinTeamDesc:
+      "We are looking for passionate, driven individuals who believe in the power of health and wellness. As an HN Coach partner, you will have the opportunity to transform lives, spread health awareness, and build a meaningful income — all on your own terms.",
+    joinTeamEarn:
+      "🌟 Start earning while doing what you love — helping people live healthier, happier lives.",
+    joinTeamCta: 'Send "START" to Join Now',
+    // Badge above form
+    freeWellnessReport: "Wellness Report — Rs. 1",
+    // Download again
+    downloadAgain: "Download Report Again",
+  },
+  hi: {
+    // Header
+    freeWellnessAssessment: "स्वास्थ्य मूल्यांकन",
+    // Welcome back banner
+    welcomeBack: "वापस आए!",
+    lastReportReady: "आपकी पिछली रिपोर्ट फिर से डाउनलोड करने के लिए तैयार है।",
+    downloadAgainFree: "मेरी रिपोर्ट फिर से डाउनलोड करें",
+    generateNewReport: "नई रिपोर्ट बनाएं",
+    noPaymentNeeded: "पिछली रिपोर्ट दोबारा डाउनलोड करने के लिए भुगतान की जरूरत नहीं।",
+    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹1 भुगतान जरूरी है।",
+    reportSavedOn: "रिपोर्ट सेव हुई",
+    calcBasedOn: "इन संस्थाओं के दिशानिर्देशों पर आधारित गणना",
+    // Tagline
+    tagline: "💪 सभी खाना खाओ या खाने जैसे दिखो। 💪",
+    // FOMO
+    fomoHeading: "🔥 आज हमारे पर्सनल कोचिंग प्रोग्राम में जुड़ें — 10% छूट पाएं!",
+    fomoDownload: "⚡ अपनी",
+    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹1 में!",
+    fomoExpires: "ऑफर समाप्त होगा:",
+    fomoSpots: "सीमित सीटें बची हैं!",
+    fomoCta: "अभी 10% छूट पाएं",
+    // Section heading
+    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹1",
+    sectionDesc:
+      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹1 में।",
+    // Trust badges
+    trustPrivate: "100% निजी और सुरक्षित",
+    trustClients: "1000+ लोगों का भरोसा",
+    trustFree: "सिर्फ ₹1 — कीमत ₹499",
+    trustInstant: "तुरंत डाउनलोड",
+    // Card header
+    cardTitle: "आपकी वेलनेस असेसमेंट रिपोर्ट",
+    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹1",
+    cardPowered: "द्वारा संचालित",
+    // Step 1
+    step1Label: "व्यक्तिगत जानकारी",
+    fieldName: "पूरा नाम",
+    fieldNamePlaceholder: "जैसे: प्रिया शर्मा",
+    fieldAge: "उम्र (साल)",
+    fieldAgePlaceholder: "जैसे: 30",
+    fieldCity: "शहर",
+    fieldCityPlaceholder: "जैसे: मुंबई",
+    fieldWhatsapp: "व्हाट्सएप नंबर",
+    fieldWhatsappPlaceholder: "जैसे: +91 98765 43210",
+    fieldOccupation: "पेशा",
+    fieldOccupationPlaceholder: "जैसे: इंजीनियर, शिक्षक, गृहिणी",
+    // Step dividers
+    step1to2: "चरण 1 → चरण 2",
+    step2to3: "चरण 2 → चरण 3",
+    // Step 2
+    step2Label: "शारीरिक माप",
+    fieldHeight: "ऊंचाई",
+    heightCm: "सेमी",
+    heightFtIn: "फीट / इंच",
+    fieldFeet: "फीट",
+    fieldInches: "इंच",
+    heightCmPlaceholder: "जैसे: 165",
+    heightFtPlaceholder: "जैसे: 5",
+    heightInPlaceholder: "जैसे: 6",
+    fieldWeight: "वजन (किलो)",
+    fieldWeightPlaceholder: "जैसे: 70",
+    fieldGender: "लिंग",
+    genderSelect: "लिंग चुनें",
+    genderMale: "पुरुष",
+    genderFemale: "महिला",
+    // Step 3
+    step3Label: "रेफरल",
+    step3Required: "(जरूरी)",
+    fieldInvitedBy: "आपको किसने बुलाया?",
+    fieldInvitedByPlaceholder: "जैसे: दोस्त का नाम, इंस्टाग्राम, व्हाट्सएप, गूगल…",
+    referredByText: "द्वारा रेफर किया गया",
+    tipLabel: "सुझाव:",
+    tipText:
+      "अगर आपको किसी दोस्त का रेफरल लिंक मिला है, तो उनका नाम पहले से भरा होगा!",
+    // Mandatory notice
+    mandatoryNotice:
+      "* सभी जानकारी भरना जरूरी है। आपकी वेलनेस रिपोर्ट बनाने के लिए सभी विवरण आवश्यक हैं।",
+    // CTA
+    fillAllFields: "अपनी रिपोर्ट बनाने के लिए ऊपर सभी जानकारी भरें।",
+    generatingReport: "भुगतान खुल रहा है…",
+    ctaButton: "₹1 में भुगतान करें और रिपोर्ट डाउनलोड करें",
+    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹1 · तुरंत व्यक्तिगत रिपोर्ट",
+    // Referral section
+    refer2Friends: "2 दोस्तों को रेफर करें",
+    sharingIsCaring: "💚 शेयरिंग ही केयरिंग है",
+    referralShareDesc:
+      "अपना लिंक शेयर करें — जब दोस्त खोलेगा तो उनके फॉर्म में आपका नाम अपने आप भर जाएगा!",
+    friend1: "दोस्त 1",
+    friend2: "दोस्त 2",
+    tag2Friends: "उन 2 दोस्तों को टैग करें जो आज अपना वेलनेस स्कोर जानना चाहते हैं!",
+    shareWhatsapp: "व्हाट्सएप पर शेयर करें",
+    copyLink: "मेरा रेफरल लिंक कॉपी करें",
+    linkCopied: "✓ लिंक कॉपी हो गया!",
+    hashtags: "#सबकीसेहत · #शेयरिंगहीकेयरिंग",
+    // 30-day guarantee
+    surpriseOffer: "🎉 खास ऑफर",
+    guarantee: "✅ 30 दिन मनी बैक गारंटी",
+    guaranteeDesc:
+      "हम अपने कोचिंग प्रोग्राम पर इतना भरोसा करते हैं कि 30 दिन की पूरी मनी बैक गारंटी देते हैं। अगर 30 दिन में आप संतुष्ट नहीं हैं, तो हम पूरा पैसा वापस कर देंगे — बिना किसी सवाल के।",
+    guaranteeCommit:
+      "आपका स्वास्थ्य बदलना हमारी जिम्मेदारी है। कोई जोखिम नहीं। 100% नतीजों पर ध्यान।",
+    guaranteeCta: "HN Coach से संपर्क करें — आज शुरू करें",
+    // Join team
+    exclusiveOpp: "खास मौका",
+    joinTeamTitle: "हमारी टीम से जुड़ें और वेलनेस कोच बनें",
+    joinTeamDesc:
+      "हम ऐसे लोगों की तलाश में हैं जो स्वास्थ्य और वेलनेस में विश्वास रखते हैं। HN Coach पार्टनर के रूप में आप लोगों की जिंदगी बदल सकते हैं, स्वास्थ्य के बारे में जागरूकता फैला सकते हैं और अच्छी कमाई कर सकते हैं।",
+    joinTeamEarn:
+      "🌟 जो काम आपको पसंद है वो करते हुए कमाई शुरू करें — लोगों को स्वस्थ और खुशहाल जीवन जीने में मदद करें।",
+    joinTeamCta: '"START" भेजकर जुड़ें',
+    // Badge above form
+    freeWellnessReport: "वेलनेस रिपोर्ट — ₹1",
+    // Download again
+    downloadAgain: "रिपोर्ट फिर से डाउनलोड करें",
+  },
+} as const;
+
+type Translations = (typeof translations)[Lang];
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface AssessmentResults {
   idealWeight: number;
@@ -870,7 +1111,7 @@ function generatePDF(
 
   const referredByLine = invitedBy ? `\n• Referred By: ${invitedBy}` : "";
   const waMsg = encodeURIComponent(
-    `Hi HN Coach! 👋 I just downloaded my *Free Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a *FREE Consultation*. Can you please help me? 🙏`,
+    `Hi HN Coach! 👋 I just downloaded my *Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a consultation. Can you please help me? 🙏`,
   );
   const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
@@ -884,10 +1125,10 @@ function generatePDF(
       </div>
     </div>
     <div class="referral-title">💚 Sharing is Caring</div>
-    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>FREE Wellness Assessment Report</strong></div>
+    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>Wellness Assessment Report</strong></div>
     <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just got my FREE Wellness Assessment Report from HN Coach. Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${name}`)}" class="ref-btn-wa">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${name}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </a>
@@ -1247,7 +1488,7 @@ function generatePDF(
     </div>
     <div class="header-brand">
       <h1>HN Coach</h1>
-      <div class="header-brand-sub">Free Wellness Assessment Report</div>
+      <div class="header-brand-sub">Wellness Assessment Report</div>
       <div class="header-brand-date">GENERATED ON: ${today.toUpperCase()}</div>
     </div>
     <div class="header-orgs">
@@ -1341,11 +1582,11 @@ function generatePDF(
   <div class="footer">
     <div class="footer-gold-line"></div>
     <div class="footer-cta-text">🌟 Ready to Transform Your Health?</div>
-    <div class="footer-sub">Your personal wellness coach is just one message away. Send this report and get a FREE personalised consultation!</div>
+    <div class="footer-sub">Your personal wellness coach is just one message away. Send this report and get a personalised consultation!</div>
     <div>
       <a href="${waUrl}" class="footer-wa-btn">
         <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        🔥 Send This Report &amp; Get FREE Consultation 🔥
+        🔥 Send This Report &amp; Get Your Consultation 🔥
       </a>
     </div>
     <div class="footer-brand">HN Coach · Personalised Wellness Coaching · Consult HN Coach for personalised advice.</div>
@@ -1365,7 +1606,54 @@ function generatePDF(
   }, 600);
 }
 
+// ── Local Storage Persistence ──────────────────────────────────────────────────
+interface SavedReport {
+  form: UnifiedFormData;
+  results: AssessmentResults;
+  heightCm: string;
+  savedAt: string;
+}
+
+const LS_KEY = "hncoach_last_report";
+
+function loadSavedReport(): SavedReport | null {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as SavedReport;
+  } catch {
+    return null;
+  }
+}
+
+function saveReport(
+  form: UnifiedFormData,
+  results: AssessmentResults,
+  heightCm: string,
+) {
+  try {
+    const data: SavedReport = {
+      form,
+      results,
+      heightCm,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function clearSavedReport() {
+  localStorage.removeItem(LS_KEY);
+}
+
 // ── Wellness Assessment (Single Unified Form) ──────────────────────────────────
+interface WellnessAssessmentProps {
+  lang: Lang;
+  t: Translations;
+}
+
 const EMPTY_FORM: UnifiedFormData = {
   fullName: "",
   age: "",
@@ -1383,7 +1671,10 @@ const EMPTY_FORM: UnifiedFormData = {
   invitedBy: "",
 };
 
-function WellnessAssessment() {
+function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
+  const [savedReport, setSavedReport] = useState<SavedReport | null>(() =>
+    loadSavedReport(),
+  );
   const [referralLocked] = useState<boolean>(() => {
     const params = new URLSearchParams(window.location.search);
     return !!params.get("ref");
@@ -1397,9 +1688,27 @@ function WellnessAssessment() {
       : EMPTY_FORM;
   });
   const [isGenerating, setIsGenerating] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [copied, setCopied] = useState(false);
   const referralRef = useRef<HTMLDivElement>(null);
+  const lastResultsRef = useRef<{
+    results: AssessmentResults;
+    heightCm: string;
+  } | null>(null);
+
+  // Load Razorpay script on mount
+  useEffect(() => {
+    if ((window as unknown as Record<string, unknown>).Razorpay) return;
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      // cleanup not strictly needed but safe
+    };
+  }, []);
 
   const set = (field: keyof UnifiedFormData) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -1430,7 +1739,7 @@ function WellnessAssessment() {
     form.gender &&
     form.invitedBy.trim();
 
-  const handleGenerateReport = () => {
+  const handlePayAndDownload = () => {
     const results = computeResults({
       weight: form.weight,
       height: heightCm,
@@ -1440,52 +1749,125 @@ function WellnessAssessment() {
     });
     if (!results) return;
 
-    setIsGenerating(true);
-    setTimeout(() => {
-      generatePDF(
-        form.fullName,
-        form.age,
-        form.city,
-        form.whatsapp,
-        form.occupation,
-        heightCm,
-        form.weight,
-        form.goals,
-        results,
-        form.gender,
-        form.invitedBy,
-      );
+    // Save results for "Download Again"
+    lastResultsRef.current = { results, heightCm };
 
-      // Notify coach on WhatsApp with full report details
-      const goalsLabel =
-        form.goals.map((g) => GOAL_LABELS[g] || g).join(", ") ||
-        "Not specified";
-      const weightDiff = Number.parseFloat(form.weight) - results.idealWeight;
-      const absWeightDiff = Math.abs(weightDiff).toFixed(1);
-      const weightGoalText =
-        Math.abs(weightDiff) <= 1
-          ? "✅ At Ideal Weight"
-          : weightDiff > 0
-            ? `⚠️ Need to LOSE ${absWeightDiff} kg`
-            : `↑ Need to GAIN ${absWeightDiff} kg`;
-
-      const referredByLine = form.invitedBy
-        ? `\n• Referred By: ${form.invitedBy}`
-        : "";
-      const coachMsg = encodeURIComponent(
-        `🔔 *NEW WELLNESS REPORT DOWNLOADED*\n\n👤 *Client Details*\n• Name: ${form.fullName}\n• Age: ${form.age} yrs | City: ${form.city}\n• WhatsApp: ${form.whatsapp}\n• Occupation: ${form.occupation}\n• Height: ${heightCm} cm | Weight: ${form.weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n📊 *Assessment Results*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightGoalText}\n\n📅 Downloaded on: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}\n\n_Please follow up with this client for a FREE consultation._`,
-      );
-      window.open(`https://wa.me/919155348866?text=${coachMsg}`, "_blank");
-
-      setIsGenerating(false);
-      setShowReferral(true);
+    const razorpayWindow = window as unknown as Record<string, unknown>;
+    if (!razorpayWindow.Razorpay) {
+      // Script not loaded yet — fallback: generate directly
+      setIsGenerating(true);
       setTimeout(() => {
-        referralRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
+        generatePDF(
+          form.fullName,
+          form.age,
+          form.city,
+          form.whatsapp,
+          form.occupation,
+          heightCm,
+          form.weight,
+          form.goals,
+          results,
+          form.gender,
+          form.invitedBy,
+        );
+        notifyCoach(results);
+        saveReport(form, results, heightCm);
+        setSavedReport({
+          form,
+          results,
+          heightCm,
+          savedAt: new Date().toISOString(),
         });
-      }, 400);
-    }, 200);
+        setIsGenerating(false);
+        setPaymentSuccess(true);
+        setShowReferral(true);
+        setTimeout(() => {
+          referralRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 400);
+      }, 200);
+      return;
+    }
+
+    setIsPaymentLoading(true);
+
+    const options = {
+      key: "rzp_live_SNoVPUAavv60C9",
+      amount: 100, // Rs. 1 in paise
+      currency: "INR",
+      name: "HN Coach",
+      description: "Wellness Assessment Report",
+      handler: (_response: Record<string, string>) => {
+        generatePDF(
+          form.fullName,
+          form.age,
+          form.city,
+          form.whatsapp,
+          form.occupation,
+          heightCm,
+          form.weight,
+          form.goals,
+          results,
+          form.gender,
+          form.invitedBy,
+        );
+        notifyCoach(results);
+        saveReport(form, results, heightCm);
+        setSavedReport({
+          form,
+          results,
+          heightCm,
+          savedAt: new Date().toISOString(),
+        });
+        setPaymentSuccess(true);
+        setIsPaymentLoading(false);
+        setShowReferral(true);
+        setTimeout(() => {
+          referralRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 400);
+      },
+      modal: {
+        ondismiss: () => setIsPaymentLoading(false),
+      },
+      prefill: {
+        name: form.fullName,
+        contact: form.whatsapp,
+      },
+      theme: { color: "#0d9488" },
+    };
+
+    const RazorpayConstructor = razorpayWindow.Razorpay as new (
+      opts: typeof options,
+    ) => { open: () => void };
+    const rzp = new RazorpayConstructor(options);
+    rzp.open();
+  };
+
+  const notifyCoach = (results: AssessmentResults) => {
+    // Notify coach on WhatsApp with full report details
+    const goalsLabel =
+      form.goals.map((g) => GOAL_LABELS[g] || g).join(", ") || "Not specified";
+    const weightDiff = Number.parseFloat(form.weight) - results.idealWeight;
+    const absWeightDiff = Math.abs(weightDiff).toFixed(1);
+    const weightGoalText =
+      Math.abs(weightDiff) <= 1
+        ? "✅ At Ideal Weight"
+        : weightDiff > 0
+          ? `⚠️ Need to LOSE ${absWeightDiff} kg`
+          : `↑ Need to GAIN ${absWeightDiff} kg`;
+
+    const referredByLine = form.invitedBy
+      ? `\n• Referred By: ${form.invitedBy}`
+      : "";
+    const coachMsg = encodeURIComponent(
+      `🔔 *NEW WELLNESS REPORT DOWNLOADED*\n\n👤 *Client Details*\n• Name: ${form.fullName}\n• Age: ${form.age} yrs | City: ${form.city}\n• WhatsApp: ${form.whatsapp}\n• Occupation: ${form.occupation}\n• Height: ${heightCm} cm | Weight: ${form.weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n📊 *Assessment Results*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightGoalText}\n\n📅 Downloaded on: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}`,
+    );
+    window.open(`https://wa.me/919155348866?text=${coachMsg}`, "_blank");
   };
 
   const referralLink = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(form.fullName || "friend")}`;
@@ -1502,13 +1884,21 @@ function WellnessAssessment() {
       ? `\n\n📌 Referred By: ${form.fullName}`
       : "";
     const msg = encodeURIComponent(
-      `Hi! I just got my FREE Wellness Assessment Report from HN Coach. It's amazing! Get yours here: ${referralLink}${referrerTag}`,
+      `Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralLink}${referrerTag}`,
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");
   };
 
+  const hindiFont =
+    lang === "hi" ? "'Noto Sans Devanagari', sans-serif" : undefined;
+
   return (
-    <section className="w-full" aria-label="Wellness Assessment">
+    <section
+      className="w-full"
+      aria-label="Wellness Assessment"
+      lang={lang === "hi" ? "hi" : undefined}
+      style={hindiFont ? { fontFamily: hindiFont } : undefined}
+    >
       {/* Section heading */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -1518,16 +1908,151 @@ function WellnessAssessment() {
       >
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
           <FileText className="w-3.5 h-3.5" />
-          Free Wellness Report
+          {t.freeWellnessReport}
         </div>
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground leading-tight">
-          Get Your Free Wellness Assessment Report
+          {t.sectionTitle}
         </h2>
         <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">
-          Fill in your details once and instantly download your personalised
-          wellness report — completely free.
+          {t.sectionDesc}
         </p>
       </motion.div>
+
+      {/* ── Welcome Back Banner ───────────────────────────────────── */}
+      {savedReport !== null && !paymentSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          data-ocid="welcome.panel"
+          className="mb-6 rounded-2xl overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)",
+            boxShadow:
+              "0 8px 32px rgba(6,78,59,0.35), 0 0 0 2px rgba(110,231,183,0.25)",
+          }}
+        >
+          {/* Top accent bar */}
+          <div
+            className="h-1 w-full"
+            style={{
+              background:
+                "linear-gradient(90deg, #f59e0b, #fde68a 50%, #f59e0b)",
+            }}
+          />
+          <div className="px-5 py-5">
+            <div className="flex items-start gap-4">
+              {/* Icon */}
+              <div
+                className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{
+                  background: "rgba(255,255,255,0.12)",
+                  border: "1.5px solid rgba(255,255,255,0.25)",
+                }}
+              >
+                👋
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3
+                  className="text-white font-black text-lg leading-tight mb-1"
+                  style={{ textShadow: "0 1px 6px rgba(0,0,0,0.3)" }}
+                >
+                  {t.welcomeBack}, {savedReport.form.fullName}! 👋
+                </h3>
+                <p className="text-emerald-100 text-sm font-semibold mb-1">
+                  {t.lastReportReady}
+                </p>
+                <p className="text-emerald-200/60 text-xs">
+                  {t.reportSavedOn}:{" "}
+                  {new Date(savedReport.savedAt).toLocaleDateString(
+                    lang === "hi" ? "hi-IN" : "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              {/* Download Again — free */}
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  data-ocid="welcome.download_again.button"
+                  onClick={() => {
+                    generatePDF(
+                      savedReport.form.fullName,
+                      savedReport.form.age,
+                      savedReport.form.city,
+                      savedReport.form.whatsapp,
+                      savedReport.form.occupation,
+                      savedReport.heightCm,
+                      savedReport.form.weight,
+                      savedReport.form.goals,
+                      savedReport.results,
+                      savedReport.form.gender,
+                      savedReport.form.invitedBy,
+                    );
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    color: "#fff",
+                    boxShadow: "0 4px 16px rgba(16,185,129,0.4)",
+                  }}
+                >
+                  <Download className="w-4 h-4 flex-shrink-0" />
+                  {t.downloadAgainFree}
+                </button>
+                <p className="text-emerald-200/60 text-xs text-center italic">
+                  🔒 {t.noPaymentNeeded}
+                </p>
+              </div>
+
+              {/* Generate New Report — requires Rs. 1 payment */}
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  data-ocid="welcome.generate_new.button"
+                  onClick={() => {
+                    clearSavedReport();
+                    setSavedReport(null);
+                    setForm({ ...EMPTY_FORM, invitedBy: form.invitedBy });
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:brightness-125 active:scale-[0.98]"
+                  style={{
+                    background: "rgba(255,255,255,0.08)",
+                    color: "#d1fae5",
+                    border: "1.5px solid rgba(255,255,255,0.25)",
+                  }}
+                >
+                  <FileText className="w-4 h-4 flex-shrink-0" />
+                  {t.generateNewReport}
+                  <span
+                    className="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-bold"
+                    style={{
+                      background: "rgba(245,158,11,0.25)",
+                      color: "#fbbf24",
+                      border: "1px solid rgba(245,158,11,0.4)",
+                    }}
+                  >
+                    Rs. 1
+                  </span>
+                </button>
+                <p className="text-amber-300/70 text-xs text-center italic">
+                  💳 {t.paymentRequiredForNew}
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Trust Badges ──────────────────────────────────────────── */}
       <div
@@ -1535,10 +2060,10 @@ function WellnessAssessment() {
         aria-label="Trust signals"
       >
         {[
-          { icon: "🔒", label: "100% Private & Secure" },
-          { icon: "✅", label: "Trusted by 1000+ Clients" },
-          { icon: "🆓", label: "Completely Free Report" },
-          { icon: "⚡", label: "Instant Download" },
+          { icon: "🔒", label: t.trustPrivate },
+          { icon: "✅", label: t.trustClients },
+          { icon: "🏷️", label: t.trustFree },
+          { icon: "⚡", label: t.trustInstant },
         ].map((badge, i) => (
           <motion.span
             key={badge.label}
@@ -1596,15 +2121,15 @@ function WellnessAssessment() {
                 className="text-white font-black text-base sm:text-lg leading-tight tracking-tight"
                 style={{ textShadow: "0 1px 6px rgba(0,0,0,0.2)" }}
               >
-                Your Free Wellness Assessment Report
+                {t.cardTitle}
               </div>
               <div className="text-emerald-100/80 text-xs font-semibold mt-0.5 tracking-wide">
-                Personalised · Science-backed · Instant download
+                {t.cardSub}
               </div>
             </div>
             <div className="flex-shrink-0 text-right hidden sm:block">
               <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest">
-                Powered by
+                {t.cardPowered}
               </div>
               <div className="text-white/90 text-xs font-extrabold tracking-wide">
                 HN COACH
@@ -1632,7 +2157,7 @@ function WellnessAssessment() {
                 <div className="flex items-center gap-2 flex-1">
                   <User className="w-4 h-4 text-primary flex-shrink-0" />
                   <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                    Personal Details
+                    {t.step1Label}
                   </h3>
                 </div>
               </div>
@@ -1643,13 +2168,13 @@ function WellnessAssessment() {
                   htmlFor="f-name"
                   className="text-sm font-medium text-foreground/80"
                 >
-                  Full Name <span className="text-destructive">*</span>
+                  {t.fieldName} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="f-name"
                   data-ocid="assessment.name.input"
                   type="text"
-                  placeholder="e.g. Priya Sharma"
+                  placeholder={t.fieldNamePlaceholder}
                   value={form.fullName}
                   onChange={setInput("fullName")}
                   className="h-11"
@@ -1663,13 +2188,13 @@ function WellnessAssessment() {
                     htmlFor="f-age"
                     className="text-sm font-medium text-foreground/80"
                   >
-                    Age (years) <span className="text-destructive">*</span>
+                    {t.fieldAge} <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="f-age"
                     data-ocid="assessment.age.input"
                     type="number"
-                    placeholder="e.g. 30"
+                    placeholder={t.fieldAgePlaceholder}
                     value={form.age}
                     onChange={setInput("age")}
                     className="h-11"
@@ -1680,7 +2205,7 @@ function WellnessAssessment() {
                     htmlFor="f-city"
                     className="text-sm font-medium text-foreground/80"
                   >
-                    City <span className="text-destructive">*</span>
+                    {t.fieldCity} <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
@@ -1688,7 +2213,7 @@ function WellnessAssessment() {
                       id="f-city"
                       data-ocid="assessment.city.input"
                       type="text"
-                      placeholder="e.g. Mumbai"
+                      placeholder={t.fieldCityPlaceholder}
                       value={form.city}
                       onChange={setInput("city")}
                       className="h-11 pl-9"
@@ -1703,7 +2228,7 @@ function WellnessAssessment() {
                   htmlFor="f-whatsapp"
                   className="text-sm font-medium text-foreground/80"
                 >
-                  WhatsApp No. <span className="text-destructive">*</span>
+                  {t.fieldWhatsapp} <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
@@ -1711,7 +2236,7 @@ function WellnessAssessment() {
                     id="f-whatsapp"
                     data-ocid="assessment.whatsapp.input"
                     type="tel"
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder={t.fieldWhatsappPlaceholder}
                     value={form.whatsapp}
                     onChange={setInput("whatsapp")}
                     className="h-11 pl-9"
@@ -1725,13 +2250,14 @@ function WellnessAssessment() {
                   htmlFor="f-occupation"
                   className="text-sm font-medium text-foreground/80"
                 >
-                  Occupation <span className="text-destructive">*</span>
+                  {t.fieldOccupation}{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="f-occupation"
                   data-ocid="assessment.occupation.input"
                   type="text"
-                  placeholder="e.g. Software Engineer, Teacher, Homemaker"
+                  placeholder={t.fieldOccupationPlaceholder}
                   value={form.occupation}
                   onChange={setInput("occupation")}
                   className="h-11"
@@ -1749,7 +2275,7 @@ function WellnessAssessment() {
                 }}
               />
               <span className="step-divider-pill flex-shrink-0">
-                Step 1 → Step 2
+                {t.step1to2}
               </span>
               <div
                 className="flex-1 h-px"
@@ -1777,7 +2303,7 @@ function WellnessAssessment() {
                 <div className="flex items-center gap-2 flex-1">
                   <Activity className="w-4 h-4 text-primary flex-shrink-0" />
                   <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                    Body Metrics
+                    {t.step2Label}
                   </h3>
                 </div>
               </div>
@@ -1787,7 +2313,7 @@ function WellnessAssessment() {
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium text-foreground/80 flex items-center gap-1.5">
                     <Ruler className="w-3.5 h-3.5 text-primary" />
-                    Height <span className="text-destructive">*</span>
+                    {t.fieldHeight} <span className="text-destructive">*</span>
                   </Label>
                   {/* Toggle cm / ft+in */}
                   <div className="flex rounded-lg overflow-hidden border border-border text-xs font-semibold">
@@ -1803,7 +2329,7 @@ function WellnessAssessment() {
                           : "bg-background text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      cm
+                      {t.heightCm}
                     </button>
                     <button
                       type="button"
@@ -1817,7 +2343,7 @@ function WellnessAssessment() {
                           : "bg-background text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      ft / in
+                      {t.heightFtIn}
                     </button>
                   </div>
                 </div>
@@ -1826,7 +2352,7 @@ function WellnessAssessment() {
                     id="f-height"
                     data-ocid="assessment.height.input"
                     type="number"
-                    placeholder="e.g. 165"
+                    placeholder={t.heightCmPlaceholder}
                     value={form.height}
                     onChange={setInput("height")}
                     className="h-11"
@@ -1838,13 +2364,13 @@ function WellnessAssessment() {
                         htmlFor="f-height-ft"
                         className="text-xs text-muted-foreground"
                       >
-                        Feet
+                        {t.fieldFeet}
                       </Label>
                       <Input
                         id="f-height-ft"
                         data-ocid="assessment.height.ft.input"
                         type="number"
-                        placeholder="e.g. 5"
+                        placeholder={t.heightFtPlaceholder}
                         min={1}
                         max={8}
                         value={form.heightFt}
@@ -1857,13 +2383,13 @@ function WellnessAssessment() {
                         htmlFor="f-height-in"
                         className="text-xs text-muted-foreground"
                       >
-                        Inches
+                        {t.fieldInches}
                       </Label>
                       <Input
                         id="f-height-in"
                         data-ocid="assessment.height.in.input"
                         type="number"
-                        placeholder="e.g. 6"
+                        placeholder={t.heightInPlaceholder}
                         min={0}
                         max={11}
                         value={form.heightIn}
@@ -1888,13 +2414,13 @@ function WellnessAssessment() {
                   htmlFor="f-weight"
                   className="text-sm font-medium text-foreground/80"
                 >
-                  Weight (kg) <span className="text-destructive">*</span>
+                  {t.fieldWeight} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="f-weight"
                   data-ocid="assessment.weight.input"
                   type="number"
-                  placeholder="e.g. 70"
+                  placeholder={t.fieldWeightPlaceholder}
                   value={form.weight}
                   onChange={setInput("weight")}
                   className="h-11"
@@ -1904,18 +2430,18 @@ function WellnessAssessment() {
               {/* Gender */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-foreground/80">
-                  Gender <span className="text-destructive">*</span>
+                  {t.fieldGender} <span className="text-destructive">*</span>
                 </Label>
                 <Select value={form.gender} onValueChange={set("gender")}>
                   <SelectTrigger
                     data-ocid="assessment.gender.select"
                     className="h-11"
                   >
-                    <SelectValue placeholder="Select gender" />
+                    <SelectValue placeholder={t.genderSelect} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="male">{t.genderMale}</SelectItem>
+                    <SelectItem value="female">{t.genderFemale}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1931,7 +2457,7 @@ function WellnessAssessment() {
                 }}
               />
               <span className="step-divider-pill flex-shrink-0">
-                Step 2 → Step 3
+                {t.step2to3}
               </span>
               <div
                 className="flex-1 h-px"
@@ -1959,9 +2485,9 @@ function WellnessAssessment() {
                 <div className="flex items-center gap-2 flex-1">
                   <Share2 className="w-4 h-4 text-primary flex-shrink-0" />
                   <h3 className="font-display font-bold text-base text-foreground tracking-tight">
-                    Referral{" "}
+                    {t.step3Label}{" "}
                     <span className="text-destructive font-normal text-sm">
-                      (Required)
+                      {t.step3Required}
                     </span>
                   </h3>
                 </div>
@@ -1971,7 +2497,7 @@ function WellnessAssessment() {
                   htmlFor={referralLocked ? undefined : "f-invited-by"}
                   className="text-sm font-medium text-foreground/80"
                 >
-                  Who Invited You? <span className="text-destructive">*</span>
+                  {t.fieldInvitedBy} <span className="text-destructive">*</span>
                 </Label>
                 {referralLocked ? (
                   <div
@@ -1985,7 +2511,7 @@ function WellnessAssessment() {
                   >
                     <span className="text-green-600 text-base">✓</span>
                     <span>
-                      Referred by <strong>{form.invitedBy}</strong>
+                      {t.referredByText} <strong>{form.invitedBy}</strong>
                     </span>
                   </div>
                 ) : (
@@ -1993,7 +2519,7 @@ function WellnessAssessment() {
                     id="f-invited-by"
                     data-ocid="assessment.invitedby.input"
                     type="text"
-                    placeholder="e.g. Friend's name, Instagram, WhatsApp, Google…"
+                    placeholder={t.fieldInvitedByPlaceholder}
                     value={form.invitedBy}
                     onChange={setInput("invitedBy")}
                     className="h-11"
@@ -2011,8 +2537,7 @@ function WellnessAssessment() {
                   >
                     <span className="text-base leading-none mt-0.5">💡</span>
                     <span>
-                      <strong>Tip:</strong> If you got a referral link from a
-                      friend, their name is already filled in for you!
+                      <strong>{t.tipLabel}</strong> {t.tipText}
                     </span>
                   </div>
                 )}
@@ -2021,23 +2546,43 @@ function WellnessAssessment() {
 
             {/* ── Mandatory notice ───────────────────────────────────── */}
             <p className="text-xs text-center text-muted-foreground font-medium">
-              <span className="text-destructive font-bold">*</span> All fields
-              are mandatory. Filling in all details is required to generate your
-              free wellness report.
+              {t.mandatoryNotice}
             </p>
+
+            {/* ── Price Offer Strip ───────────────────────────────────── */}
+            <div
+              className="flex items-center justify-center gap-3 py-3 px-4 rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, #dcfce7, #f0fdf4)",
+                border: "2px solid #16a34a",
+              }}
+            >
+              <span className="text-xl font-black text-red-500 line-through">
+                Rs. 499
+              </span>
+              <span
+                className="text-2xl font-black"
+                style={{ color: "#16a34a" }}
+              >
+                Just Rs. 1
+              </span>
+              <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+                99% OFF
+              </span>
+            </div>
 
             {/* ── CTA ────────────────────────────────────────────────── */}
             <div className="space-y-3 pt-1">
               {!allFilled && (
                 <p className="text-center text-xs text-muted-foreground">
-                  Fill in all fields above to generate your free report.
+                  {t.fillAllFields}
                 </p>
               )}
               <Button
                 data-ocid="assessment.submit_button"
-                className={`w-full h-16 text-lg font-black tracking-wide border-0 text-white transition-all duration-200 rounded-xl ${allFilled && !isGenerating ? "cta-shimmer hover:scale-[1.01] active:scale-[0.99]" : ""}`}
+                className={`w-full h-16 text-lg font-black tracking-wide border-0 text-white transition-all duration-200 rounded-xl ${allFilled && !isPaymentLoading && !isGenerating ? "cta-shimmer hover:scale-[1.01] active:scale-[0.99]" : ""}`}
                 style={
-                  !allFilled || isGenerating
+                  !allFilled || isPaymentLoading || isGenerating
                     ? {
                         background: "oklch(0.72 0.04 192)",
                         color: "white",
@@ -2048,13 +2593,13 @@ function WellnessAssessment() {
                           "0 6px 24px rgba(13,148,136,0.45), 0 2px 8px rgba(0,0,0,0.12)",
                       }
                 }
-                onClick={handleGenerateReport}
-                disabled={!allFilled || isGenerating}
+                onClick={handlePayAndDownload}
+                disabled={!allFilled || isPaymentLoading || isGenerating}
               >
-                {isGenerating ? (
+                {isPaymentLoading || isGenerating ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Generating Your Report…
+                    {t.generatingReport}
                   </>
                 ) : (
                   <>
@@ -2063,10 +2608,39 @@ function WellnessAssessment() {
                     ) : (
                       <FileText className="w-5 h-5 mr-2" />
                     )}
-                    Get Your Free Wellness Assessment Report
+                    {t.ctaButton}
                   </>
                 )}
               </Button>
+
+              {/* Download Again button — shown after successful payment */}
+              {paymentSuccess && lastResultsRef.current && (
+                <button
+                  type="button"
+                  data-ocid="assessment.download.secondary_button"
+                  onClick={() => {
+                    if (!lastResultsRef.current) return;
+                    generatePDF(
+                      form.fullName,
+                      form.age,
+                      form.city,
+                      form.whatsapp,
+                      form.occupation,
+                      lastResultsRef.current.heightCm,
+                      form.weight,
+                      form.goals,
+                      lastResultsRef.current.results,
+                      form.gender,
+                      form.invitedBy,
+                    );
+                  }}
+                  className="w-full h-12 rounded-xl border-2 border-teal-500 text-teal-700 font-bold text-base flex items-center justify-center gap-2 hover:bg-teal-50 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  {t.downloadAgain}
+                </button>
+              )}
+
               <div className="flex items-center justify-center gap-1.5">
                 <span className="text-xs" aria-hidden="true">
                   🔒
@@ -2075,7 +2649,7 @@ function WellnessAssessment() {
                   className="text-center text-xs font-medium"
                   style={{ color: "oklch(0.46 0.022 196)" }}
                 >
-                  No spam · No payment · Instant free personalised report
+                  {t.ctaDisclaimer}
                 </p>
               </div>
             </div>
@@ -2102,15 +2676,14 @@ function WellnessAssessment() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/25 rounded-full px-4 py-1.5 text-xs font-black text-white uppercase tracking-widest mb-4">
               <Share2 className="w-3.5 h-3.5" />
-              Refer 2 Friends
+              {t.refer2Friends}
             </div>
 
             <h3 className="text-2xl font-black text-white mb-1">
-              💚 Sharing is Caring
+              {t.sharingIsCaring}
             </h3>
             <p className="text-emerald-100 font-semibold text-sm mb-1">
-              Share your personal link — when a friend opens it, their form
-              shows your name as referrer automatically!
+              {t.referralShareDesc}
             </p>
 
             {/* Help 2 Friends progress visualization */}
@@ -2137,7 +2710,7 @@ function WellnessAssessment() {
                   🧑
                 </motion.div>
                 <span className="text-emerald-100 text-xs font-bold tracking-wide">
-                  Friend 1
+                  {t.friend1}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-1 self-start mt-4">
@@ -2175,12 +2748,12 @@ function WellnessAssessment() {
                   🧑
                 </motion.div>
                 <span className="text-emerald-100 text-xs font-bold tracking-wide">
-                  Friend 2
+                  {t.friend2}
                 </span>
               </div>
             </div>
             <p className="text-emerald-100/75 text-xs mb-5 font-medium">
-              Tag 2 friends who deserve to know their wellness score today!
+              {t.tag2Friends}
             </p>
 
             {/* Referral link display — click to copy */}
@@ -2225,7 +2798,7 @@ function WellnessAssessment() {
                 >
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
-                Share on WhatsApp
+                {t.shareWhatsapp}
               </button>
 
               <button
@@ -2244,12 +2817,12 @@ function WellnessAssessment() {
                 }}
               >
                 <Copy className="w-4 h-4" />
-                {copied ? "✓ Link Copied!" : "Copy My Referral Link"}
+                {copied ? t.linkCopied : t.copyLink}
               </button>
             </div>
 
             <p className="text-emerald-200/50 text-xs mt-5 italic">
-              #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring
+              {t.hashtags}
             </p>
           </div>
         </motion.div>
@@ -2260,6 +2833,9 @@ function WellnessAssessment() {
 
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
+  const [lang, setLang] = useState<Lang>("en");
+  const t = translations[lang];
+
   // Read referrer from URL param (e.g. ?ref=Rahul)
   const urlReferrer = (() => {
     const params = new URLSearchParams(window.location.search);
@@ -2308,9 +2884,13 @@ export default function App() {
                 background: "linear-gradient(90deg, #0d9488, #059669)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                fontFamily:
+                  lang === "hi"
+                    ? "'Noto Sans Devanagari', sans-serif"
+                    : undefined,
               }}
             >
-              Free Wellness Assessment
+              {t.freeWellnessAssessment}
             </p>
           </div>
           {/* Organisation logos */}
@@ -2347,12 +2927,86 @@ export default function App() {
                 </span>
               </div>
             </div>
-            <p className="text-[8px] text-muted-foreground italic text-right leading-tight max-w-[120px]">
-              Calculations based on guidelines by these organisations
+            <p
+              className="text-[8px] text-muted-foreground italic text-right leading-tight max-w-[120px]"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.calcBasedOn}
             </p>
           </div>
         </div>
       </header>
+
+      {/* Language Toggle Bar */}
+      <div
+        className="w-full flex justify-center items-center py-2.5 px-4"
+        style={{
+          background: "linear-gradient(135deg, #f0fdf9 0%, #ecfdf5 100%)",
+          borderBottom: "1px solid #a7f3d0",
+        }}
+      >
+        <div
+          className="inline-flex items-center rounded-full overflow-hidden shadow-sm"
+          style={{
+            border: "2px solid #059669",
+            background: "#fff",
+          }}
+          aria-label="Language switcher"
+        >
+          <button
+            type="button"
+            data-ocid="lang.en.toggle"
+            onClick={() => setLang("en")}
+            className="px-5 py-2 text-sm font-bold transition-all duration-200 flex items-center gap-1.5"
+            style={{
+              background:
+                lang === "en"
+                  ? "linear-gradient(135deg, #0d9488, #059669)"
+                  : "transparent",
+              color: lang === "en" ? "#fff" : "#374151",
+              borderRight: "1.5px solid #a7f3d0",
+            }}
+            aria-pressed={lang === "en"}
+          >
+            🇬🇧 English
+          </button>
+          <button
+            type="button"
+            data-ocid="lang.hi.toggle"
+            onClick={() => setLang("hi")}
+            className="px-5 py-2 text-sm font-bold transition-all duration-200 flex items-center gap-1.5"
+            style={{
+              background:
+                lang === "hi"
+                  ? "linear-gradient(135deg, #0d9488, #059669)"
+                  : "transparent",
+              color: lang === "hi" ? "#fff" : "#374151",
+              fontFamily: "'Noto Sans Devanagari', sans-serif",
+            }}
+            aria-pressed={lang === "hi"}
+          >
+            🇮🇳 हिंदी
+          </button>
+        </div>
+      </div>
+
+      {/* Top Offer Banner */}
+      <div className="w-full bg-gradient-to-r from-green-900 to-emerald-700 py-2.5 px-4 text-center flex flex-wrap items-center justify-center gap-2">
+        <span className="text-white/70 text-sm line-through">Rs. 499</span>
+        <span className="text-yellow-300 font-black text-lg">
+          Just Rs. 1 Today!
+        </span>
+        <span className="bg-yellow-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded-full">
+          LIMITED OFFER
+        </span>
+        <span className="text-white/80 text-xs">
+          Get your personalised Wellness Assessment Report
+        </span>
+      </div>
 
       {/* Hero Tagline */}
       <motion.div
@@ -2381,9 +3035,13 @@ export default function App() {
               textShadow:
                 "0 2px 16px rgba(0,0,0,0.45), 0 0 32px rgba(167,243,208,0.25)",
               lineHeight: 1.25,
+              fontFamily:
+                lang === "hi"
+                  ? "'Noto Sans Devanagari', sans-serif"
+                  : undefined,
             }}
           >
-            💪 Eat all the snacks or look like a snack. 💪
+            {t.tagline}
           </p>
         </div>
       </motion.div>
@@ -2414,24 +3072,27 @@ export default function App() {
             }}
           />
           <div className="relative px-5 py-5 text-center">
-            <p className="text-xl sm:text-2xl font-bold text-white leading-snug drop-shadow-md">
-              🔥 Enroll in Our Personal Coaching Program TODAY — Get{" "}
-              <span
-                className="text-yellow-200"
-                style={{
-                  textShadow: "0 0 12px rgba(253,224,71,0.8)",
-                  fontSize: "inherit",
-                }}
-              >
-                10% OFF!
-              </span>
+            <p
+              className="text-xl sm:text-2xl font-bold text-white leading-snug drop-shadow-md"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.fomoHeading}
             </p>
-            <p className="text-sm sm:text-base text-yellow-100 mt-1.5 font-semibold flex flex-wrap items-center justify-center gap-2">
-              <span>⚡ Download your</span>
-              <span className="text-white font-extrabold">
-                FREE report NOW!
-              </span>
-              <span>Offer expires in:</span>
+            <p
+              className="text-sm sm:text-base text-yellow-100 mt-1.5 font-semibold flex flex-wrap items-center justify-center gap-2"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              <span>{t.fomoDownload}</span>
+              <span className="text-white font-extrabold">{t.fomoFreeNow}</span>
+              <span>{t.fomoExpires}</span>
               <span
                 className="inline-flex items-center gap-1 px-3 py-0.5 rounded-lg font-extrabold text-lg tracking-widest tabular-nums"
                 style={{
@@ -2450,9 +3111,7 @@ export default function App() {
               >
                 ⏱ {countdownMins}:{countdownSecs}
               </span>
-              <span className="text-yellow-200 font-bold">
-                Only a few spots left!
-              </span>
+              <span className="text-yellow-200 font-bold">{t.fomoSpots}</span>
             </p>
             <a
               href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I want to enroll and claim my 10% discount!${referrerSuffix}`)}`}
@@ -2472,7 +3131,7 @@ export default function App() {
               >
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
-              Claim My 10% Discount Now
+              {t.fomoCta}
             </a>
           </div>
         </motion.div>
@@ -2489,7 +3148,7 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
-        <WellnessAssessment />
+        <WellnessAssessment lang={lang} t={t} />
       </main>
 
       {/* 30 Days Money Back Guarantee Surprise */}
@@ -2530,26 +3189,33 @@ export default function App() {
                 letterSpacing: "0.1em",
               }}
             >
-              🎉 Surprise Offer
+              {t.surpriseOffer}
             </motion.div>
             <h2
               className="text-3xl sm:text-4xl font-black text-amber-900 mb-3 leading-tight"
               style={{ textShadow: "0 2px 8px rgba(120,53,15,0.15)" }}
             >
-              ✅ 30 Days Money Back Guarantee
+              {t.guarantee}
             </h2>
-            <p className="text-amber-800 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed mb-5">
-              We are so confident in our coaching program that we offer a{" "}
-              <span className="text-amber-900 font-extrabold underline decoration-amber-500">
-                full 30-day money back guarantee.
-              </span>{" "}
-              If you are not completely satisfied with your results within 30
-              days, we will refund your investment —{" "}
-              <em>no questions asked.</em>
+            <p
+              className="text-amber-800 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed mb-5"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.guaranteeDesc}
             </p>
-            <p className="text-amber-700 text-sm font-medium mb-6">
-              Your health transformation is our commitment. Zero risk. 100%
-              results focused.
+            <p
+              className="text-amber-700 text-sm font-medium mb-6"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.guaranteeCommit}
             </p>
             <a
               href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach! I want to know more about the 30 Days Money Back Guarantee coaching program.${referrerSuffix}`)}`}
@@ -2571,7 +3237,7 @@ export default function App() {
               >
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
-              Contact HN Coach — Start Today
+              {t.guaranteeCta}
             </a>
           </div>
         </motion.div>
@@ -2597,32 +3263,41 @@ export default function App() {
                 letterSpacing: "0.12em",
               }}
             >
-              Exclusive Opportunity
+              {t.exclusiveOpp}
             </div>
             <h2
               className="text-2xl sm:text-3xl font-extrabold text-white mb-3 leading-tight"
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
             >
-              Join Our Team &amp; Become a{" "}
               <span
-                style={{
-                  background: "linear-gradient(90deg, #fbbf24, #f59e0b)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
+                style={
+                  lang === "hi"
+                    ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                    : undefined
+                }
               >
-                Certified Wellness Coach
+                {t.joinTeamTitle}
               </span>
             </h2>
-            <p className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-3">
-              We are looking for passionate, driven individuals who believe in
-              the power of health and wellness. As an HN Coach partner, you will
-              have the opportunity to transform lives, spread health awareness,
-              and build a meaningful income — all on your own terms.
+            <p
+              className="text-gray-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-3"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.joinTeamDesc}
             </p>
-            <p className="text-yellow-300 font-semibold text-sm sm:text-base mb-5">
-              🌟 Start earning while doing what you love — helping people live
-              healthier, happier lives.
+            <p
+              className="text-yellow-300 font-semibold text-sm sm:text-base mb-5"
+              style={
+                lang === "hi"
+                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
+                  : undefined
+              }
+            >
+              {t.joinTeamEarn}
             </p>
             <a
               href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I am interested in joining your team as a Wellness Coach.${referrerSuffix}`)}`}
@@ -2643,7 +3318,7 @@ export default function App() {
               >
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
-              Send "START" to Join Now
+              {t.joinTeamCta}
             </a>
           </div>
 
