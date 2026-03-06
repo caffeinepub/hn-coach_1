@@ -104,7 +104,7 @@ const translations = {
     referredByText: "Referred by",
     tipLabel: "Tip:",
     tipText:
-      "If you got a referral link from a friend, their name is already filled in for you!",
+      "If you got a referral link from a friend, their WhatsApp number is already filled in for you!",
     // Mandatory notice
     mandatoryNotice:
       "* All fields are mandatory. Filling in all details is required to generate your wellness report.",
@@ -117,7 +117,7 @@ const translations = {
     refer2Friends: "Refer 2 Friends",
     sharingIsCaring: "💚 Sharing is Caring",
     referralShareDesc:
-      "Share your personal link — when a friend opens it, their form shows your name as referrer automatically!",
+      "Share your personal link — when a friend opens it, their form shows your WhatsApp number as referrer automatically!",
     friend1: "Friend 1",
     friend2: "Friend 2",
     tag2Friends:
@@ -220,7 +220,7 @@ const translations = {
     referredByText: "द्वारा रेफर किया गया",
     tipLabel: "सुझाव:",
     tipText:
-      "अगर आपको किसी दोस्त का रेफरल लिंक मिला है, तो उनका नाम पहले से भरा होगा!",
+      "अगर आपको किसी दोस्त का रेफरल लिंक मिला है, तो उनका नंबर पहले से भरा होगा!",
     // Mandatory notice
     mandatoryNotice:
       "* सभी जानकारी भरना जरूरी है। आपकी वेलनेस रिपोर्ट बनाने के लिए सभी विवरण आवश्यक हैं।",
@@ -233,7 +233,7 @@ const translations = {
     refer2Friends: "2 दोस्तों को रेफर करें",
     sharingIsCaring: "💚 शेयरिंग ही केयरिंग है",
     referralShareDesc:
-      "अपना लिंक शेयर करें — जब दोस्त खोलेगा तो उनके फॉर्म में आपका नाम अपने आप भर जाएगा!",
+      "अपना लिंक शेयर करें — जब दोस्त खोलेगा तो उनके फॉर्म में आपका व्हाट्सएप नंबर अपने आप भर जाएगा!",
     friend1: "दोस्त 1",
     friend2: "दोस्त 2",
     tag2Friends: "उन 2 दोस्तों को टैग करें जो आज अपना वेलनेस स्कोर जानना चाहते हैं!",
@@ -802,6 +802,65 @@ function getFoodsToAvoid(goals: string[]): FoodToAvoid[] {
   return selected.slice(0, 10);
 }
 
+// ── Wellness Score Calculator ──────────────────────────────────────────────────
+function computeWellnessScore(
+  results: AssessmentResults,
+  weight: number,
+): { score: number; label: string; color: string; ringColor: string } {
+  let score = 0;
+
+  // BMI component (0-30 pts)
+  if (results.bmi >= 18.5 && results.bmi < 25) score += 30;
+  else if (results.bmi >= 17 && results.bmi < 27) score += 20;
+  else if (results.bmi >= 15 && results.bmi < 30) score += 10;
+
+  // Water intake proxy — normal BMI gets full water score
+  if (results.bmi >= 18.5 && results.bmi < 25) score += 20;
+  else if (results.bmi >= 17 && results.bmi < 27) score += 12;
+  else score += 6;
+
+  // BMR relative health (0-20 pts)
+  const bmrPerKg = results.bmr / weight;
+  if (bmrPerKg >= 22) score += 20;
+  else if (bmrPerKg >= 18) score += 15;
+  else score += 8;
+
+  // Steps component (0-15 pts)
+  const stepsNum = weight * 110;
+  if (stepsNum >= 8000) score += 15;
+  else if (stepsNum >= 5000) score += 10;
+  else score += 5;
+
+  // Exercise component (0-15 pts)
+  score += 12;
+
+  const label =
+    score >= 80
+      ? "Excellent"
+      : score >= 60
+        ? "Good"
+        : score >= 40
+          ? "Average"
+          : "Needs Improvement";
+  const color =
+    score >= 80
+      ? "#16a34a"
+      : score >= 60
+        ? "#0d9488"
+        : score >= 40
+          ? "#d97706"
+          : "#dc2626";
+  const ringColor =
+    score >= 80
+      ? "#22c55e"
+      : score >= 60
+        ? "#2dd4bf"
+        : score >= 40
+          ? "#fbbf24"
+          : "#f87171";
+  return { score, label, color, ringColor };
+}
+
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
 function generatePDF(
   name: string,
@@ -1008,16 +1067,6 @@ function generatePDF(
     </div>
   </div>
   <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.2g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
-  <div class="macro-coach-cta">
-    <div class="macro-coach-title">&#127807; Want a Personalised Diet Plan Based on Your Numbers?</div>
-    <div class="macro-coach-desc">These are your personalised daily nutrition targets. For a custom meal plan, food timings, and ongoing coaching designed specifically for your goals, get in touch with HN Coach today.</div>
-    <a href="https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach! I downloaded my Wellness Report and I want a personalised diet plan based on my nutrition targets. Can you help me?${invitedBy ? `\n\n📌 Referred By: ${invitedBy}` : ""}`)}" class="macro-coach-btn">&#128172; Contact HN Coach for Personalised Diet Plan &amp; Coaching</a>
-  </div>
-  <div class="guarantee-box">
-    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
-    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
-    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
-  </div>
   `;
 
   // Foods to Avoid HTML
@@ -1113,9 +1162,16 @@ function generatePDF(
   const waMsg = encodeURIComponent(
     `Hi HN Coach! 👋 I just downloaded my *Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a consultation. Can you please help me? 🙏`,
   );
-  const waUrl = `https://wa.me/919155348866?text=${waMsg}`;
 
-  const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(name)}`;
+  // If invitedBy looks like a phone number (7+ digits), use it as the target; otherwise fallback to coach
+  const isPhoneNumber = /^\+?[\d\s\-]{7,}$/.test(invitedBy.trim());
+  const targetNumber = isPhoneNumber
+    ? invitedBy.trim().replace(/[\s\-+]/g, "")
+    : "919155348866";
+  const waUrl = `https://wa.me/${targetNumber}?text=${waMsg}`;
+
+  // Referral link uses the person's own WhatsApp number as the ref param
+  const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(whatsapp || name)}`;
   const referralSection = `
   <div class="referral-section">
     <div style="text-align:center;">
@@ -1128,7 +1184,7 @@ function generatePDF(
     <div class="referral-subtitle">Refer 2 friends and help them get their <strong>Wellness Assessment Report</strong></div>
     <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${name}`)}" class="ref-btn-wa">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </a>
@@ -1141,6 +1197,11 @@ function generatePDF(
     <a href="${referralPageUrl}" class="ref-link-box" style="display:block;text-decoration:none;" target="_blank">${referralPageUrl}</a>
     <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
   </div>`;
+
+  const wellnessScore = computeWellnessScore(
+    results,
+    Number.parseFloat(weight),
+  );
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -1156,50 +1217,51 @@ function generatePDF(
   .header-main {
     background: linear-gradient(135deg, #064e3b 0%, #0d9488 45%, #059669 75%, #047857 100%);
     color: #fff;
-    padding: 22px 26px 18px;
+    padding: 14px 20px;
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
+    align-items: center;
+    gap: 14px;
   }
   .header-logo-ring {
     flex-shrink: 0;
-    width: 84px;
-    height: 84px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
-    padding: 3px;
+    padding: 2px;
     background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.25));
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.3);
   }
   .header-logo {
-    width: 78px;
-    height: 78px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255,255,255,0.4);
     display: block;
   }
   .header-logo-fallback {
-    width: 78px;
-    height: 78px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
     border: 2px solid rgba(255,255,255,0.4);
     background: rgba(255,255,255,0.18);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24pt;
+    font-size: 18pt;
     font-weight: 900;
     color: #fff;
   }
   .header-brand { flex: 1; min-width: 0; }
-  .header-brand h1 { font-size: 26pt; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 2px 12px rgba(0,0,0,0.25); line-height: 1; }
-  .header-brand-sub { font-size: 10.5pt; font-weight: 700; opacity: 0.9; margin-top: 4px; letter-spacing: 0.3px; }
-  .header-brand-date { font-size: 7.5pt; opacity: 0.65; margin-top: 6px; font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
-  .header-orgs { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-  .org-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 4px 9px; }
-  .org-badge-img { width: 20px; height: 20px; border-radius: 3px; background: #fff; object-fit: contain; flex-shrink: 0; }
-  .org-badge-label { font-size: 7pt; font-weight: 700; color: rgba(255,255,255,0.92); line-height: 1.2; }
-  .org-note { font-size: 6pt; color: rgba(255,255,255,0.6); text-align: right; margin-top: 2px; font-style: italic; max-width: 120px; line-height: 1.3; }
+  .header-brand h1 { font-size: 20pt; font-weight: 900; letter-spacing: -0.3px; text-shadow: 0 2px 8px rgba(0,0,0,0.25); line-height: 1.1; }
+  .header-brand-sub { font-size: 9pt; font-weight: 700; opacity: 0.9; margin-top: 2px; letter-spacing: 0.3px; }
+  .header-brand-date { font-size: 7pt; opacity: 0.65; margin-top: 3px; font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+  .header-orgs { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 14px; }
+  .header-orgs-inner { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .org-logos-row { display: flex; align-items: center; gap: 5px; }
+  .org-badge-img { width: 24px; height: 24px; border-radius: 4px; background: #fff; object-fit: contain; flex-shrink: 0; padding: 1px; }
+  .org-badge-label { display: none; }
+  .org-note { font-size: 6.5pt; color: rgba(255,255,255,0.7); text-align: right; margin-top: 3px; font-style: italic; max-width: 140px; line-height: 1.3; }
 
   /* Gold accent line under header */
   .header-gold-line { height: 3px; background: linear-gradient(90deg, #f59e0b, #fde68a, #f59e0b); }
@@ -1475,6 +1537,17 @@ function generatePDF(
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
   }
+  /* ── WELLNESS SCORE ─────────────────────────────────────── */
+  .wellness-score-section { display:flex; align-items:center; gap:20px; margin:16px 24px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:14px; padding:16px 20px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
+  .ws-ring-wrap { flex-shrink:0; width:100px; height:100px; position:relative; }
+  .ws-content { flex:1; }
+  .ws-label { font-size:13pt; font-weight:900; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px; }
+  .ws-title { font-size:10pt; font-weight:700; color:#374151; margin-bottom:4px; }
+  .ws-desc { font-size:8pt; color:#6b7280; line-height:1.4; margin-bottom:10px; }
+  .ws-bar-wrap { display:flex; align-items:center; gap:8px; }
+  .ws-bar-bg { flex:1; height:8px; background:#e5e7eb; border-radius:4px; overflow:hidden; }
+  .ws-bar-fill { height:100%; border-radius:4px; }
+  .ws-bar-pct { font-size:9pt; font-weight:800; min-width:32px; }
 </style>
 </head>
 <body>
@@ -1492,19 +1565,14 @@ function generatePDF(
       <div class="header-brand-date">GENERATED ON: ${today.toUpperCase()}</div>
     </div>
     <div class="header-orgs">
-      <div class="org-badge">
-        <img src="${window.location.origin}/assets/generated/who-logo-transparent.dim_200x200.png" alt="WHO" class="org-badge-img" />
-        <div class="org-badge-label">World Health<br/>Organization</div>
+      <div class="header-orgs-inner">
+        <div class="org-logos-row">
+          <img src="${window.location.origin}/assets/generated/who-logo-transparent.dim_200x200.png" alt="WHO" class="org-badge-img" title="World Health Organization" />
+          <img src="${window.location.origin}/assets/generated/icmr-logo-transparent.dim_200x200.png" alt="ICMR" class="org-badge-img" title="Indian Council of Medical Research" />
+          <img src="${window.location.origin}/assets/generated/ida-logo-transparent.dim_200x200.png" alt="IDA" class="org-badge-img" title="Indian Dietetic Association" />
+        </div>
+        <div class="org-note">Calculations based on guidelines<br/>by these organisations</div>
       </div>
-      <div class="org-badge">
-        <img src="${window.location.origin}/assets/generated/icmr-logo-transparent.dim_200x200.png" alt="ICMR" class="org-badge-img" />
-        <div class="org-badge-label">Indian Council of<br/>Medical Research</div>
-      </div>
-      <div class="org-badge">
-        <img src="${window.location.origin}/assets/generated/ida-logo-transparent.dim_200x200.png" alt="IDA" class="org-badge-img" />
-        <div class="org-badge-label">Indian Dietetic<br/>Association</div>
-      </div>
-      <div class="org-note">* Calculations based on guidelines by these organisations</div>
     </div>
   </div>
   <div class="header-gold-line"></div>
@@ -1520,6 +1588,33 @@ function generatePDF(
     <div class="cert-prepared">Prepared Exclusively For</div>
     <div class="cert-name">${name}</div>
     <div class="cert-sub">Your personalised wellness data is ready · Based on WHO &amp; ICMR guidelines</div>
+  </div>
+
+  <!-- Wellness Score -->
+  <div class="wellness-score-section">
+    <div class="ws-ring-wrap">
+      <svg viewBox="0 0 120 120" style="width:100px;height:100px;transform:rotate(-90deg);display:block;">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="${wellnessScore.ringColor}" stroke-width="10"
+          stroke-dasharray="${Math.round((2 * Math.PI * 52 * wellnessScore.score) / 100)} 999"
+          stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1;">
+        <div style="font-size:22pt;font-weight:900;color:${wellnessScore.color};line-height:1;">${wellnessScore.score}</div>
+        <div style="font-size:7pt;color:#6b7280;margin-top:2px;">/100</div>
+      </div>
+    </div>
+    <div class="ws-content">
+      <div class="ws-label" style="color:${wellnessScore.color};">${wellnessScore.label}</div>
+      <div class="ws-title">Your Wellness Score</div>
+      <div class="ws-desc">Based on your BMI, BMR, hydration, steps and exercise data — calculated per WHO/ICMR standards.</div>
+      <div class="ws-bar-wrap">
+        <div class="ws-bar-bg">
+          <div class="ws-bar-fill" style="width:${wellnessScore.score}%;background:${wellnessScore.ringColor};"></div>
+        </div>
+        <span class="ws-bar-pct" style="color:${wellnessScore.color};">${wellnessScore.score}%</span>
+      </div>
+    </div>
   </div>
 
   <!-- Personal Details with watermark -->
@@ -1574,6 +1669,12 @@ function generatePDF(
   ${macroNutrientsHtml}
 
   ${foodsToAvoidHtml}
+
+  <div class="guarantee-box">
+    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
+    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
+    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
+  </div>
 
   ${referralSection}
   </div>
@@ -1870,7 +1971,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
     window.open(`https://wa.me/919155348866?text=${coachMsg}`, "_blank");
   };
 
-  const referralLink = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(form.fullName || "friend")}`;
+  const referralLink = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(form.whatsapp || "friend")}`;
 
   const copyReferralLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
@@ -1880,8 +1981,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
   };
 
   const shareOnWhatsApp = () => {
-    const referrerTag = form.fullName
-      ? `\n\n📌 Referred By: ${form.fullName}`
+    const referrerTag = form.whatsapp
+      ? `\n\n📌 Referred By: ${form.whatsapp}`
       : "";
     const msg = encodeURIComponent(
       `Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralLink}${referrerTag}`,
@@ -2841,26 +2942,9 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     return params.get("ref") || "";
   })();
-  const referrerSuffix = urlReferrer
+  const _referrerSuffix = urlReferrer
     ? `\n\n📌 *Referred By:* ${urlReferrer}`
     : "";
-
-  // FOMO countdown: starts at 5 minutes (300 seconds)
-  const [countdown, setCountdown] = useState(300);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(id);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-  const countdownMins = String(Math.floor(countdown / 60)).padStart(2, "0");
-  const countdownSecs = String(countdown % 60).padStart(2, "0");
 
   return (
     <div className="min-h-screen flex flex-col bg-background page-mesh">
@@ -3046,102 +3130,11 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* FOMO Offer Banner */}
-      <div className="w-full max-w-4xl mx-auto px-4 pt-4">
-        <motion.div
-          data-ocid="fomo.offer.banner"
-          initial={{ opacity: 0, y: -16, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-2xl"
-          style={{
-            background:
-              "linear-gradient(135deg, #dc2626 0%, #ea580c 45%, #f59e0b 100%)",
-            boxShadow:
-              "0 0 0 2px rgba(251,191,36,0.5), 0 8px 32px rgba(220,38,38,0.4)",
-            animation: "fomoPulse 2s ease-in-out infinite",
-          }}
-        >
-          {/* Animated border glow */}
-          <div
-            className="absolute inset-0 rounded-2xl"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%, rgba(255,255,255,0.08) 100%)",
-              pointerEvents: "none",
-            }}
-          />
-          <div className="relative px-5 py-5 text-center">
-            <p
-              className="text-xl sm:text-2xl font-bold text-white leading-snug drop-shadow-md"
-              style={
-                lang === "hi"
-                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
-                  : undefined
-              }
-            >
-              {t.fomoHeading}
-            </p>
-            <p
-              className="text-sm sm:text-base text-yellow-100 mt-1.5 font-semibold flex flex-wrap items-center justify-center gap-2"
-              style={
-                lang === "hi"
-                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
-                  : undefined
-              }
-            >
-              <span>{t.fomoDownload}</span>
-              <span className="text-white font-extrabold">{t.fomoFreeNow}</span>
-              <span>{t.fomoExpires}</span>
-              <span
-                className="inline-flex items-center gap-1 px-3 py-0.5 rounded-lg font-extrabold text-lg tracking-widest tabular-nums"
-                style={{
-                  background: countdown <= 60 ? "#dc2626" : "#fefce8",
-                  color: countdown <= 60 ? "#fff" : "#7c2d12",
-                  boxShadow:
-                    countdown <= 60
-                      ? "0 0 12px rgba(220,38,38,0.7)"
-                      : "0 0 8px rgba(253,224,71,0.6)",
-                  minWidth: "5.5rem",
-                  justifyContent: "center",
-                  transition: "background 0.3s, box-shadow 0.3s",
-                }}
-                aria-live="polite"
-                aria-label={`${countdownMins} minutes ${countdownSecs} seconds remaining`}
-              >
-                ⏱ {countdownMins}:{countdownSecs}
-              </span>
-              <span className="text-yellow-200 font-bold">{t.fomoSpots}</span>
-            </p>
-            <a
-              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I want to enroll and claim my 10% discount!${referrerSuffix}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-4 px-6 py-3 rounded-full font-bold text-sm text-gray-900 transition-all duration-200 hover:brightness-110 active:scale-95 hover:scale-105 shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #fde047 0%, #fbbf24 100%)",
-                boxShadow: "0 4px 16px rgba(251,191,36,0.5)",
-              }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-                style={{ width: 18, height: 18, flexShrink: 0 }}
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {t.fomoCta}
-            </a>
-          </div>
-        </motion.div>
-      </div>
-
       {/* Banner */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-5">
         <img
-          src="/assets/uploads/IMG_20260304_203219-1.jpg"
-          alt="20 Days Complete Wellness Transformation Program"
+          src="/assets/uploads/IMG-20260306-WA0009-1.jpg"
+          alt="HN Coach Wellness Transformation"
           className="w-full rounded-2xl shadow-md object-cover"
         />
       </div>
@@ -3217,28 +3210,6 @@ export default function App() {
             >
               {t.guaranteeCommit}
             </p>
-            <a
-              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach! I want to know more about the 30 Days Money Back Guarantee coaching program.${referrerSuffix}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-ocid="guarantee.cta.primary_button"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-base transition-all duration-200 hover:brightness-110 hover:scale-105 active:scale-95 shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #0d9488 0%, #059669 100%)",
-                color: "#fff",
-                boxShadow: "0 4px 20px rgba(13,148,136,0.4)",
-              }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                style={{ width: 18, height: 18, flexShrink: 0 }}
-                aria-hidden="true"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {t.guaranteeCta}
-            </a>
           </div>
         </motion.div>
       </div>
@@ -3299,27 +3270,6 @@ export default function App() {
             >
               {t.joinTeamEarn}
             </p>
-            <a
-              href={`https://wa.me/919155348866?text=${encodeURIComponent(`Hi HN Coach, I am interested in joining your team as a Wellness Coach.${referrerSuffix}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-ocid="join.team.primary_button"
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-full font-bold text-gray-900 text-sm transition-all duration-200 hover:brightness-110 hover:scale-105 active:scale-95 shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #fde047 0%, #fbbf24 100%)",
-                boxShadow: "0 4px 20px rgba(251,191,36,0.5)",
-              }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                style={{ width: 18, height: 18, flexShrink: 0 }}
-                aria-hidden="true"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {t.joinTeamCta}
-            </a>
           </div>
 
           {/* Image */}
