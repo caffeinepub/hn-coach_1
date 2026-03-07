@@ -89,25 +89,66 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface DownloadRecord {
+    occupation: string;
+    city: string;
+    name: string;
+    invitedBy: string;
+    whatsapp: string;
+    timestamp: bigint;
+}
 export interface backendInterface {
-    ping(): Promise<string>;
+    getCount(): Promise<bigint>;
+    getRecords(from: bigint | null, take: bigint | null): Promise<Array<DownloadRecord>>;
+    recordDownload(name: string, whatsapp: string, city: string, occupation: string, invitedBy: string, timestamp: bigint): Promise<bigint>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async ping(): Promise<string> {
+    async getCount(): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.ping();
+                const result = await this.actor.getCount();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.ping();
+            const result = await this.actor.getCount();
             return result;
         }
     }
+    async getRecords(arg0: bigint | null, arg1: bigint | null): Promise<Array<DownloadRecord>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getRecords(to_candid_opt_n1(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n1(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getRecords(to_candid_opt_n1(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async recordDownload(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: bigint): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.recordDownload(arg0, arg1, arg2, arg3, arg4, arg5);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.recordDownload(arg0, arg1, arg2, arg3, arg4, arg5);
+            return result;
+        }
+    }
+}
+function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+    return value === null ? candid_none() : candid_some(value);
 }
 export interface CreateActorOptions {
     agent?: Agent;

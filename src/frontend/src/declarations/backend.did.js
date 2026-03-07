@@ -8,14 +8,54 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const DownloadRecord = IDL.Record({
+  'occupation' : IDL.Text,
+  'city' : IDL.Text,
+  'name' : IDL.Text,
+  'invitedBy' : IDL.Text,
+  'whatsapp' : IDL.Text,
+  'timestamp' : IDL.Int,
+});
+
 export const idlService = IDL.Service({
-  'ping' : IDL.Func([], [IDL.Text], ['query']),
+  'getCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'getRecords' : IDL.Func(
+      [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
+      [IDL.Vec(DownloadRecord)],
+      ['query'],
+    ),
+  'recordDownload' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Int],
+      [IDL.Int],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  return IDL.Service({ 'ping' : IDL.Func([], [IDL.Text], ['query']) });
+  const DownloadRecord = IDL.Record({
+    'occupation' : IDL.Text,
+    'city' : IDL.Text,
+    'name' : IDL.Text,
+    'invitedBy' : IDL.Text,
+    'whatsapp' : IDL.Text,
+    'timestamp' : IDL.Int,
+  });
+  
+  return IDL.Service({
+    'getCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'getRecords' : IDL.Func(
+        [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat)],
+        [IDL.Vec(DownloadRecord)],
+        ['query'],
+      ),
+    'recordDownload' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Int],
+        [IDL.Int],
+        [],
+      ),
+  });
 };
 
 export const init = ({ IDL }) => { return []; };

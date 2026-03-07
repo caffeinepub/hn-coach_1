@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import {
   Activity,
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
   Copy,
   Download,
   FileText,
@@ -18,12 +21,16 @@ import {
   MapPin,
   Phone,
   Ruler,
+  Search,
   Share2,
   ShieldCheck,
+  Table,
+  TreePine,
   User,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { createActorWithConfig } from "./config";
 
 // ── Translations ───────────────────────────────────────────────────────────────
 type Lang = "en" | "hi";
@@ -38,7 +45,7 @@ const translations = {
     downloadAgainFree: "Download My Report Again",
     generateNewReport: "Generate a New Report",
     noPaymentNeeded: "No payment needed to re-download your last report.",
-    paymentRequiredForNew: "Rs. 1 payment required to generate a new report.",
+    paymentRequiredForNew: "Rs. 10 payment required to generate a new report.",
     reportSavedOn: "Report saved on",
     calcBasedOn: "Calculations based on guidelines by these organisations",
     // Tagline
@@ -47,22 +54,22 @@ const translations = {
     fomoHeading:
       "🔥 Enroll in Our Personal Coaching Program TODAY — Get 10% OFF!",
     fomoDownload: "⚡ Download your",
-    fomoFreeNow: "report for Rs. 1 NOW!",
+    fomoFreeNow: "report for Rs. 10 NOW!",
     fomoExpires: "Offer expires in:",
     fomoSpots: "Only a few spots left!",
     fomoCta: "Claim My 10% Discount Now",
     // Section heading
-    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 1",
+    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 10",
     sectionDesc:
-      "Fill in your details once and instantly download your personalised wellness report — only Rs. 1.",
+      "Fill in your details once and instantly download your personalised wellness report — only Rs. 10.",
     // Trust badges
     trustPrivate: "100% Private & Secure",
     trustClients: "Trusted by 1000+ Clients",
-    trustFree: "Just Rs. 1 — Worth Rs. 499",
+    trustFree: "Just Rs. 10 — Worth Rs. 499",
     trustInstant: "Instant Download",
     // Card header
     cardTitle: "Your Wellness Assessment Report",
-    cardSub: "Personalised · Science-backed · Rs. 1 only",
+    cardSub: "Personalised · Science-backed · Rs. 10 only",
     cardPowered: "Powered by",
     // Step 1
     step1Label: "Personal Details",
@@ -111,8 +118,8 @@ const translations = {
     // CTA
     fillAllFields: "Fill in all fields above to generate your report.",
     generatingReport: "Opening Payment…",
-    ctaButton: "Pay Rs. 1 & Download My Report",
-    ctaDisclaimer: "Secure payment · Rs. 1 only · Instant personalised report",
+    ctaButton: "Pay Rs. 10 & Download My Report",
+    ctaDisclaimer: "Secure payment · Rs. 10 only · Instant personalised report",
     // Referral section
     refer2Friends: "Refer 2 Friends",
     sharingIsCaring: "💚 Sharing is Caring",
@@ -143,7 +150,7 @@ const translations = {
       "🌟 Start earning while doing what you love — helping people live healthier, happier lives.",
     joinTeamCta: 'Send "START" to Join Now',
     // Badge above form
-    freeWellnessReport: "Wellness Report — Rs. 1",
+    freeWellnessReport: "Wellness Report — Rs. 10",
     // Download again
     downloadAgain: "Download Report Again",
   },
@@ -156,7 +163,7 @@ const translations = {
     downloadAgainFree: "मेरी रिपोर्ट फिर से डाउनलोड करें",
     generateNewReport: "नई रिपोर्ट बनाएं",
     noPaymentNeeded: "पिछली रिपोर्ट दोबारा डाउनलोड करने के लिए भुगतान की जरूरत नहीं।",
-    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹1 भुगतान जरूरी है।",
+    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹10 भुगतान जरूरी है।",
     reportSavedOn: "रिपोर्ट सेव हुई",
     calcBasedOn: "इन संस्थाओं के दिशानिर्देशों पर आधारित गणना",
     // Tagline
@@ -164,22 +171,22 @@ const translations = {
     // FOMO
     fomoHeading: "🔥 आज हमारे पर्सनल कोचिंग प्रोग्राम में जुड़ें — 10% छूट पाएं!",
     fomoDownload: "⚡ अपनी",
-    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹1 में!",
+    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹10 में!",
     fomoExpires: "ऑफर समाप्त होगा:",
     fomoSpots: "सीमित सीटें बची हैं!",
     fomoCta: "अभी 10% छूट पाएं",
     // Section heading
-    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹1",
+    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹10",
     sectionDesc:
-      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹1 में।",
+      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹10 में।",
     // Trust badges
     trustPrivate: "100% निजी और सुरक्षित",
     trustClients: "1000+ लोगों का भरोसा",
-    trustFree: "सिर्फ ₹1 — कीमत ₹499",
+    trustFree: "सिर्फ ₹10 — कीमत ₹499",
     trustInstant: "तुरंत डाउनलोड",
     // Card header
     cardTitle: "आपकी वेलनेस असेसमेंट रिपोर्ट",
-    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹1",
+    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹10",
     cardPowered: "द्वारा संचालित",
     // Step 1
     step1Label: "व्यक्तिगत जानकारी",
@@ -227,8 +234,8 @@ const translations = {
     // CTA
     fillAllFields: "अपनी रिपोर्ट बनाने के लिए ऊपर सभी जानकारी भरें।",
     generatingReport: "भुगतान खुल रहा है…",
-    ctaButton: "₹1 में भुगतान करें और रिपोर्ट डाउनलोड करें",
-    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹1 · तुरंत व्यक्तिगत रिपोर्ट",
+    ctaButton: "₹10 में भुगतान करें और रिपोर्ट डाउनलोड करें",
+    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹10 · तुरंत व्यक्तिगत रिपोर्ट",
     // Referral section
     refer2Friends: "2 दोस्तों को रेफर करें",
     sharingIsCaring: "💚 शेयरिंग ही केयरिंग है",
@@ -258,7 +265,7 @@ const translations = {
       "🌟 जो काम आपको पसंद है वो करते हुए कमाई शुरू करें — लोगों को स्वस्थ और खुशहाल जीवन जीने में मदद करें।",
     joinTeamCta: '"START" भेजकर जुड़ें',
     // Badge above form
-    freeWellnessReport: "वेलनेस रिपोर्ट — ₹1",
+    freeWellnessReport: "वेलनेस रिपोर्ट — ₹10",
     // Download again
     downloadAgain: "रिपोर्ट फिर से डाउनलोड करें",
   },
@@ -1174,6 +1181,10 @@ function generatePDF(
   const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(whatsapp || name)}`;
   const referralSection = `
   <div class="referral-section">
+    <div style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;padding:10px 16px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:11pt;font-weight:800;color:#fff;font-style:italic;line-height:1.5;">🌍 This is a Social Health Awareness Mission</div>
+      <div style="font-size:9.5pt;color:rgba(255,255,255,0.9);margin-top:3px;">Join us and make India aware about Wellness.</div>
+    </div>
     <div style="text-align:center;">
       <div class="referral-badge">
         <svg viewBox="0 0 24 24" fill="white" style="width:12px;height:12px;flex-shrink:0;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
@@ -1873,6 +1884,19 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
         );
         notifyCoach(results);
         saveReport(form, results, heightCm);
+        // Record download in backend (fire and forget)
+        createActorWithConfig()
+          .then((actor) =>
+            actor.recordDownload(
+              form.fullName,
+              form.whatsapp,
+              form.city,
+              form.occupation,
+              form.invitedBy,
+              BigInt(Date.now()) * BigInt(1_000_000),
+            ),
+          )
+          .catch(() => {});
         setSavedReport({
           form,
           results,
@@ -1896,7 +1920,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
 
     const options = {
       key: "rzp_live_SNoVPUAavv60C9",
-      amount: 100, // Rs. 1 in paise
+      amount: 1000, // Rs. 10 in paise
       currency: "INR",
       name: "HN Coach",
       description: "Wellness Assessment Report",
@@ -1916,6 +1940,19 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
         );
         notifyCoach(results);
         saveReport(form, results, heightCm);
+        // Record download in backend (fire and forget)
+        createActorWithConfig()
+          .then((actor) =>
+            actor.recordDownload(
+              form.fullName,
+              form.whatsapp,
+              form.city,
+              form.occupation,
+              form.invitedBy,
+              BigInt(Date.now()) * BigInt(1_000_000),
+            ),
+          )
+          .catch(() => {});
         setSavedReport({
           form,
           results,
@@ -1985,7 +2022,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
       ? `\n\n📌 Referred By: ${form.whatsapp}`
       : "";
     const msg = encodeURIComponent(
-      `Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralLink}${referrerTag}`,
+      `Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 10! Get yours here: ${referralLink}${referrerTag}`,
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");
   };
@@ -2116,7 +2153,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                 </p>
               </div>
 
-              {/* Generate New Report — requires Rs. 1 payment */}
+              {/* Generate New Report — requires Rs. 10 payment */}
               <div className="flex flex-col gap-1.5">
                 <button
                   type="button"
@@ -2143,7 +2180,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                       border: "1px solid rgba(245,158,11,0.4)",
                     }}
                   >
-                    Rs. 1
+                    Rs. 10
                   </span>
                 </button>
                 <p className="text-amber-300/70 text-xs text-center italic">
@@ -2665,7 +2702,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                 className="text-2xl font-black"
                 style={{ color: "#16a34a" }}
               >
-                Just Rs. 1
+                Just Rs. 10
               </span>
               <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
                 99% OFF
@@ -2774,6 +2811,25 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           }}
         >
           <div className="px-5 py-7 text-center">
+            {/* Mission Banner */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="mb-5 rounded-xl px-4 py-3 mx-auto max-w-lg"
+              style={{
+                background: "rgba(255,255,255,0.12)",
+                border: "1.5px solid rgba(255,255,255,0.35)",
+              }}
+            >
+              <p className="text-white font-extrabold italic text-sm sm:text-base leading-snug">
+                🌍 This is a Social Health Awareness Mission
+              </p>
+              <p className="text-emerald-100/90 text-xs sm:text-sm mt-1 font-medium">
+                Join us and make India aware about Wellness.
+              </p>
+            </motion.div>
+
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/25 rounded-full px-4 py-1.5 text-xs font-black text-white uppercase tracking-widest mb-4">
               <Share2 className="w-3.5 h-3.5" />
@@ -2932,10 +2988,624 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
   );
 }
 
+// ── Admin Dashboard ────────────────────────────────────────────────────────────
+interface DownloadRecord {
+  name: string;
+  whatsapp: string;
+  city: string;
+  occupation: string;
+  invitedBy: string;
+  timestamp: bigint;
+}
+
+interface TreeNode {
+  record: DownloadRecord;
+  children: TreeNode[];
+}
+
+function buildTree(records: DownloadRecord[]): {
+  roots: TreeNode[];
+  orphans: TreeNode[];
+} {
+  const byWhatsapp = new Map<string, DownloadRecord>();
+  for (const r of records) {
+    if (r.whatsapp) byWhatsapp.set(r.whatsapp.replace(/\s/g, ""), r);
+  }
+
+  const nodeMap = new Map<DownloadRecord, TreeNode>();
+  for (const r of records) {
+    nodeMap.set(r, { record: r, children: [] });
+  }
+
+  const roots: TreeNode[] = [];
+  const orphans: TreeNode[] = [];
+
+  for (const r of records) {
+    const node = nodeMap.get(r)!;
+    const inviter = r.invitedBy?.replace(/\s/g, "");
+    if (!inviter || !byWhatsapp.has(inviter)) {
+      if (!inviter) roots.push(node);
+      else orphans.push(node);
+    } else {
+      const parentRecord = byWhatsapp.get(inviter)!;
+      const parentNode = nodeMap.get(parentRecord);
+      if (parentNode) parentNode.children.push(node);
+    }
+  }
+
+  return { roots: [...roots, ...orphans], orphans: [] };
+}
+
+function TreeNodeCard({
+  node,
+  depth = 0,
+}: {
+  node: TreeNode;
+  depth?: number;
+}) {
+  const [expanded, setExpanded] = useState(depth < 2);
+  const r = node.record;
+  const date = new Date(
+    Number(r.timestamp / BigInt(1_000_000)),
+  ).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+  return (
+    <div
+      className={`${depth > 0 ? "ml-6 border-l-2 border-emerald-200 pl-3" : ""}`}
+    >
+      <div
+        className="flex items-start gap-3 p-3 rounded-xl mb-2 group cursor-pointer transition-all hover:shadow-md"
+        style={{
+          background:
+            depth === 0
+              ? "linear-gradient(135deg, #f0fdf4, #ecfdf5)"
+              : depth === 1
+                ? "linear-gradient(135deg, #f0fdfa, #ccfbf1)"
+                : "#f8fafc",
+          border: `1.5px solid ${depth === 0 ? "#86efac" : depth === 1 ? "#5eead4" : "#e2e8f0"}`,
+        }}
+        onClick={() => node.children.length > 0 && setExpanded((e) => !e)}
+        onKeyDown={(e) => {
+          if (
+            (e.key === "Enter" || e.key === " ") &&
+            node.children.length > 0
+          ) {
+            e.preventDefault();
+            setExpanded((prev) => !prev);
+          }
+        }}
+        role={node.children.length > 0 ? "button" : undefined}
+        tabIndex={node.children.length > 0 ? 0 : undefined}
+        aria-expanded={node.children.length > 0 ? expanded : undefined}
+        data-ocid={`admin.tree.item.${depth + 1}`}
+      >
+        {/* Expand icon */}
+        <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+          {node.children.length > 0 ? (
+            expanded ? (
+              <ChevronDown className="w-4 h-4 text-emerald-600" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-emerald-600" />
+            )
+          ) : (
+            <div className="w-2 h-2 rounded-full bg-emerald-300 mx-auto" />
+          )}
+        </div>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-sm text-gray-800 truncate">
+              {r.name || "—"}
+            </span>
+            {node.children.length > 0 && (
+              <span
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black"
+                style={{
+                  background: "linear-gradient(135deg, #0d9488, #059669)",
+                  color: "#fff",
+                }}
+              >
+                {node.children.length} referred
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+            <span className="text-xs text-gray-500">
+              📱 {r.whatsapp || "—"}
+            </span>
+            <span className="text-xs text-gray-500">📍 {r.city || "—"}</span>
+            <span className="text-xs text-gray-400 italic">📅 {date}</span>
+          </div>
+          {r.invitedBy && (
+            <div className="text-[11px] text-teal-600 font-medium mt-0.5">
+              Invited by: {r.invitedBy}
+            </div>
+          )}
+        </div>
+      </div>
+      {expanded && node.children.length > 0 && (
+        <div>
+          {node.children.map((child, i) => (
+            <TreeNodeCard
+              key={`${child.record.whatsapp}-${i}`}
+              node={child}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminDashboard() {
+  const [password, setPassword] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [records, setRecords] = useState<DownloadRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
+
+  const handleLogin = () => {
+    if (password === "hncoach2024") {
+      setLoggedIn(true);
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!loggedIn) return;
+    setLoading(true);
+    createActorWithConfig()
+      .then((actor) => actor.getRecords(null, null))
+      .then((data) => {
+        setRecords(
+          data.map((r) => ({
+            name: r.name,
+            whatsapp: r.whatsapp,
+            city: r.city,
+            occupation: r.occupation,
+            invitedBy: r.invitedBy,
+            timestamp: r.timestamp,
+          })),
+        );
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [loggedIn]);
+
+  const filtered = records.filter((r) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      r.name.toLowerCase().includes(q) ||
+      r.whatsapp.toLowerCase().includes(q) ||
+      r.city.toLowerCase().includes(q) ||
+      r.invitedBy.toLowerCase().includes(q)
+    );
+  });
+
+  const uniqueReferrers = new Set(
+    records.map((r) => r.invitedBy?.replace(/\s/g, "")).filter((v) => !!v),
+  ).size;
+  const directCount = records.filter((r) => !r.invitedBy?.trim()).length;
+
+  const downloadCSV = () => {
+    const header = "Name,WhatsApp,City,Occupation,Invited By,Date\n";
+    const rows = records
+      .map((r) => {
+        const date = new Date(
+          Number(r.timestamp / BigInt(1_000_000)),
+        ).toLocaleDateString("en-IN");
+        return [r.name, r.whatsapp, r.city, r.occupation, r.invitedBy, date]
+          .map((v) => `"${(v || "").replace(/"/g, '""')}"`)
+          .join(",");
+      })
+      .join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hn-coach-referrals-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const { roots } = buildTree(filtered);
+
+  if (!loggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45 }}
+          className="w-full max-w-sm"
+        >
+          <Card
+            className="shadow-2xl border-0"
+            style={{
+              background: "#fff",
+              boxShadow:
+                "0 0 0 1.5px #a7f3d0, 0 20px 60px rgba(13,148,136,0.15)",
+            }}
+          >
+            <div
+              className="px-6 pt-6 pb-3 text-center rounded-t-xl"
+              style={{
+                background: "linear-gradient(135deg, #064e3b 0%, #0d9488 100%)",
+              }}
+            >
+              <div className="text-3xl mb-2">🔐</div>
+              <h1 className="text-white font-black text-xl">Admin Access</h1>
+              <p className="text-emerald-100/80 text-sm mt-1">
+                HN Coach Referral Dashboard
+              </p>
+            </div>
+            <CardContent className="pt-6 pb-6 space-y-4">
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="admin-password"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  Admin Password
+                </Label>
+                <Input
+                  id="admin-password"
+                  data-ocid="admin.password.input"
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError(false);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                  className={`h-11 ${passwordError ? "border-red-400 ring-red-200" : ""}`}
+                />
+                {passwordError && (
+                  <p
+                    className="text-xs text-red-500 font-medium"
+                    data-ocid="admin.password.error_state"
+                  >
+                    ✗ Incorrect password. Please try again.
+                  </p>
+                )}
+              </div>
+              <Button
+                data-ocid="admin.login.primary_button"
+                onClick={handleLogin}
+                className="w-full h-11 font-bold text-sm"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0d9488 0%, #059669 100%)",
+                  border: "none",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(13,148,136,0.4)",
+                }}
+              >
+                <ShieldCheck className="w-4 h-4 mr-2" />
+                Login to Dashboard
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="min-h-screen bg-gray-50"
+      style={{ fontFamily: "'Segoe UI', system-ui, sans-serif" }}
+    >
+      {/* Admin Header */}
+      <div
+        className="sticky top-0 z-40 shadow-sm"
+        style={{
+          background: "linear-gradient(135deg, #064e3b 0%, #0d9488 100%)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button
+            type="button"
+            data-ocid="admin.back.button"
+            onClick={() => {
+              window.location.href = window.location.pathname;
+            }}
+            className="flex items-center gap-1.5 text-emerald-100 hover:text-white text-sm font-semibold transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to App
+          </button>
+          <div className="flex-1 text-center">
+            <h1 className="text-white font-black text-lg">
+              HN Coach · Referral Admin
+            </h1>
+          </div>
+          <button
+            type="button"
+            data-ocid="admin.csv.download_button"
+            onClick={downloadCSV}
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-sm font-bold px-3 py-1.5 rounded-lg transition-colors border border-white/25"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {loading ? (
+          <div
+            className="flex items-center justify-center py-20"
+            data-ocid="admin.loading_state"
+          >
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mr-3" />
+            <span className="text-gray-500 font-medium">
+              Loading referral data…
+            </span>
+          </div>
+        ) : (
+          <>
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                {
+                  label: "Total Downloads",
+                  value: records.length,
+                  color: "#0d9488",
+                  bg: "#f0fdf4",
+                  border: "#a7f3d0",
+                  icon: "📥",
+                },
+                {
+                  label: "Unique Referrers",
+                  value: uniqueReferrers,
+                  color: "#7c3aed",
+                  bg: "#faf5ff",
+                  border: "#c4b5fd",
+                  icon: "👥",
+                },
+                {
+                  label: "Direct (No Referral)",
+                  value: directCount,
+                  color: "#0891b2",
+                  bg: "#f0f9ff",
+                  border: "#7dd3fc",
+                  icon: "🎯",
+                },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl p-4 text-center shadow-sm"
+                  style={{
+                    background: stat.bg,
+                    border: `1.5px solid ${stat.border}`,
+                  }}
+                  data-ocid="admin.stats.card"
+                >
+                  <div className="text-2xl mb-1">{stat.icon}</div>
+                  <div
+                    className="text-3xl font-black"
+                    style={{ color: stat.color }}
+                  >
+                    {stat.value}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-500 mt-1">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Search + View Toggle */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  data-ocid="admin.search.search_input"
+                  placeholder="Search by name, WhatsApp, city…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
+                />
+              </div>
+              <div
+                className="flex rounded-xl overflow-hidden border border-gray-200 shadow-sm"
+                aria-label="View mode"
+              >
+                <button
+                  type="button"
+                  data-ocid="admin.tree.toggle"
+                  onClick={() => setViewMode("tree")}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all"
+                  style={{
+                    background:
+                      viewMode === "tree"
+                        ? "linear-gradient(135deg, #0d9488, #059669)"
+                        : "#fff",
+                    color: viewMode === "tree" ? "#fff" : "#374151",
+                  }}
+                >
+                  <TreePine className="w-4 h-4" />
+                  Tree View
+                </button>
+                <button
+                  type="button"
+                  data-ocid="admin.table.toggle"
+                  onClick={() => setViewMode("table")}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all border-l border-gray-200"
+                  style={{
+                    background:
+                      viewMode === "table"
+                        ? "linear-gradient(135deg, #0d9488, #059669)"
+                        : "#fff",
+                    color: viewMode === "table" ? "#fff" : "#374151",
+                  }}
+                >
+                  <Table className="w-4 h-4" />
+                  Table View
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            {filtered.length === 0 ? (
+              <div
+                className="text-center py-16 rounded-2xl bg-white border border-gray-100 shadow-sm"
+                data-ocid="admin.records.empty_state"
+              >
+                <div className="text-4xl mb-3">🔍</div>
+                <p className="text-gray-500 font-semibold">
+                  {searchQuery
+                    ? "No results match your search."
+                    : "No download records yet."}
+                </p>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="mt-3 text-sm text-emerald-600 font-bold hover:underline"
+                  >
+                    Clear search
+                  </button>
+                )}
+              </div>
+            ) : viewMode === "tree" ? (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <TreePine className="w-5 h-5 text-emerald-600" />
+                  <h2 className="font-black text-gray-800 text-base">
+                    Referral Tree
+                  </h2>
+                  <span className="text-xs text-gray-400 font-medium ml-auto">
+                    {filtered.length} records · click nodes to expand
+                  </span>
+                </div>
+                <div className="space-y-1" data-ocid="admin.tree.panel">
+                  {roots.map((node, i) => (
+                    <TreeNodeCard
+                      key={`root-${node.record.whatsapp}-${i}`}
+                      node={node}
+                      depth={0}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                data-ocid="admin.records.table"
+              >
+                <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
+                  <Table className="w-5 h-5 text-emerald-600" />
+                  <h2 className="font-black text-gray-800 text-base">
+                    All Records
+                  </h2>
+                  <span className="text-xs text-gray-400 font-medium ml-auto">
+                    {filtered.length} records
+                  </span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr
+                        className="text-left text-xs font-extrabold uppercase tracking-wider text-gray-500"
+                        style={{ background: "#f8fafc" }}
+                      >
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">WhatsApp</th>
+                        <th className="px-4 py-3">City</th>
+                        <th className="px-4 py-3">Occupation</th>
+                        <th className="px-4 py-3">Invited By</th>
+                        <th className="px-4 py-3">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((r, i) => {
+                        const date = new Date(
+                          Number(r.timestamp / BigInt(1_000_000)),
+                        ).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        });
+                        const rowKey = `${r.whatsapp || "anon"}-${String(r.timestamp)}-${i}`;
+                        return (
+                          <tr
+                            key={rowKey}
+                            className="border-t border-gray-50 hover:bg-emerald-50/40 transition-colors"
+                            data-ocid={`admin.records.row.${i + 1}`}
+                          >
+                            <td className="px-4 py-3 font-semibold text-gray-800">
+                              {r.name || "—"}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                              {r.whatsapp || "—"}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600">
+                              {r.city || "—"}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600">
+                              {r.occupation || "—"}
+                            </td>
+                            <td className="px-4 py-3">
+                              {r.invitedBy ? (
+                                <span
+                                  className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
+                                  style={{
+                                    background:
+                                      "linear-gradient(135deg, #dcfce7, #d1fae5)",
+                                    color: "#065f46",
+                                    border: "1px solid #86efac",
+                                  }}
+                                >
+                                  {r.invitedBy}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 text-xs italic">
+                                  Direct
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-gray-500 text-xs">
+                              {date}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
   const t = translations[lang];
+
+  // Check for admin mode
+  const isAdmin =
+    new URLSearchParams(window.location.search).get("admin") === "1";
+  if (isAdmin) {
+    return <AdminDashboard />;
+  }
 
   // Read referrer from URL param (e.g. ?ref=Rahul)
   const urlReferrer = (() => {
@@ -3082,7 +3752,7 @@ export default function App() {
       <div className="w-full bg-gradient-to-r from-green-900 to-emerald-700 py-2.5 px-4 text-center flex flex-wrap items-center justify-center gap-2">
         <span className="text-white/70 text-sm line-through">Rs. 499</span>
         <span className="text-yellow-300 font-black text-lg">
-          Just Rs. 1 Today!
+          Just Rs. 10 Today!
         </span>
         <span className="bg-yellow-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded-full">
           LIMITED OFFER

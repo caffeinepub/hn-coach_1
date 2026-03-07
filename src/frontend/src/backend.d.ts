@@ -7,6 +7,16 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface DownloadRecord {
+    occupation: string;
+    city: string;
+    name: string;
+    invitedBy: string;
+    whatsapp: string;
+    timestamp: bigint;
+}
 export interface backendInterface {
-    ping(): Promise<string>;
+    getCount(): Promise<bigint>;
+    getRecords(from: bigint | null, take: bigint | null): Promise<Array<DownloadRecord>>;
+    recordDownload(name: string, whatsapp: string, city: string, occupation: string, invitedBy: string, timestamp: bigint): Promise<bigint>;
 }
