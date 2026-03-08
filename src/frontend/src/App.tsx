@@ -19,6 +19,7 @@ import {
   FileText,
   Loader2,
   MapPin,
+  Moon,
   Phone,
   Ruler,
   Search,
@@ -86,6 +87,7 @@ const translations = {
     // Step dividers
     step1to2: "Step 1 → Step 2",
     step2to3: "Step 2 → Step 3",
+    step3to4: "Step 3 → Step 4",
     // Step 2
     step2Label: "Body Metrics",
     fieldHeight: "Height",
@@ -102,7 +104,13 @@ const translations = {
     genderSelect: "Select gender",
     genderMale: "Male",
     genderFemale: "Female",
-    // Step 3
+    // Step 3 — Sleep Schedule
+    step3SleepLabel: "Sleep Schedule",
+    fieldBedtime: "Your Present Bedtime",
+    fieldBedtimePlaceholder: "e.g. 11:00 PM",
+    fieldWakeUp: "Your Present Wake-Up Time",
+    fieldWakeUpPlaceholder: "e.g. 6:00 AM",
+    // Step 4 — Referral
     step3Label: "Referral",
     step3Required: "(Required)",
     fieldInvitedBy: "Who Invited You?",
@@ -203,6 +211,7 @@ const translations = {
     // Step dividers
     step1to2: "चरण 1 → चरण 2",
     step2to3: "चरण 2 → चरण 3",
+    step3to4: "चरण 3 → चरण 4",
     // Step 2
     step2Label: "शारीरिक माप",
     fieldHeight: "ऊंचाई",
@@ -219,7 +228,13 @@ const translations = {
     genderSelect: "लिंग चुनें",
     genderMale: "पुरुष",
     genderFemale: "महिला",
-    // Step 3
+    // Step 3 — Sleep Schedule
+    step3SleepLabel: "नींद का समय",
+    fieldBedtime: "आपका सोने का समय",
+    fieldBedtimePlaceholder: "जैसे: रात 11:00 बजे",
+    fieldWakeUp: "आपका उठने का समय",
+    fieldWakeUpPlaceholder: "जैसे: सुबह 6:00 बजे",
+    // Step 4 — Referral
     step3Label: "रेफरल",
     step3Required: "(जरूरी)",
     fieldInvitedBy: "आपको किसने बुलाया?",
@@ -310,6 +325,9 @@ interface UnifiedFormData {
   activityLevel: string;
   // Goals (multiple selection)
   goals: string[];
+  // Sleep schedule
+  bedtime: string; // HH:MM 24h format from <input type="time">
+  wakeUpTime: string; // HH:MM 24h format from <input type="time">
   // Referral
   invitedBy: string;
 }
@@ -868,6 +886,144 @@ function computeWellnessScore(
   return { score, label, color, ringColor };
 }
 
+// ── Time Helpers ───────────────────────────────────────────────────────────────
+
+/** Parse "HH:MM" (24h) string to { hours, minutes } */
+function parseTime24(
+  timeStr: string,
+): { hours: number; minutes: number } | null {
+  if (!timeStr) return null;
+  const parts = timeStr.split(":");
+  if (parts.length !== 2) return null;
+  const h = Number.parseInt(parts[0], 10);
+  const m = Number.parseInt(parts[1], 10);
+  if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59)
+    return null;
+  return { hours: h, minutes: m };
+}
+
+/** Convert "HH:MM" (24h) to "h:MM AM/PM" */
+function formatTo12h(timeStr: string): string {
+  if (!timeStr) return "—";
+  const parsed = parseTime24(timeStr);
+  if (!parsed) return "—";
+  const { hours, minutes } = parsed;
+  const period = hours >= 12 ? "PM" : "AM";
+  const h12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  const mm = String(minutes).padStart(2, "0");
+  return `${h12}:${mm} ${period}`;
+}
+
+interface SleepData {
+  totalHours: number;
+  totalMinutes: number;
+  displayText: string;
+  whoMessage: string;
+  whoCategory: "danger" | "warning" | "optimal" | "excessive";
+}
+
+function computeSleepData(bedtime: string, wakeUpTime: string): SleepData {
+  const bed = parseTime24(bedtime);
+  const wakeUp = parseTime24(wakeUpTime);
+
+  if (!bed || !wakeUp) {
+    return {
+      totalHours: 0,
+      totalMinutes: 0,
+      displayText: "—",
+      whoMessage: "Please enter valid sleep times.",
+      whoCategory: "warning",
+    };
+  }
+
+  const bedMinutes = bed.hours * 60 + bed.minutes;
+  const wakeMinutes = wakeUp.hours * 60 + wakeUp.minutes;
+
+  // If wake time <= bed time, person sleeps past midnight
+  let diffMinutes = wakeMinutes - bedMinutes;
+  if (diffMinutes <= 0) {
+    diffMinutes += 24 * 60;
+  }
+
+  const totalHours = Math.floor(diffMinutes / 60);
+  const totalMinutes = diffMinutes % 60;
+  const displayText = `${totalHours} hour${totalHours !== 1 ? "s" : ""} ${totalMinutes} min${totalMinutes !== 1 ? "s" : ""}`;
+
+  let whoMessage: string;
+  let whoCategory: SleepData["whoCategory"];
+
+  if (totalHours < 6) {
+    whoCategory = "danger";
+    whoMessage =
+      "⚠️ Severely Insufficient Sleep — WHO recommends 7–9 hours for adults. Chronic sleep deprivation increases risk of obesity, diabetes, heart disease, and weakened immunity. Consult HN Coach to improve sleep habits.";
+  } else if (totalHours < 7) {
+    whoCategory = "warning";
+    whoMessage =
+      "⚠️ Below Recommended Sleep — You are slightly below the WHO recommended 7–9 hours. Aim to sleep 30–60 minutes earlier to reach optimal sleep duration.";
+  } else if (totalHours <= 9) {
+    whoCategory = "optimal";
+    whoMessage =
+      "✅ Optimal Sleep Duration — Excellent! You are within the WHO recommended 7–9 hours of sleep for adults. Good sleep supports metabolism, immunity, and mental health.";
+  } else {
+    whoCategory = "excessive";
+    whoMessage =
+      "ℹ️ Excessive Sleep Duration — Sleeping more than 9 hours regularly may indicate underlying health conditions. WHO recommends 7–9 hours for most adults.";
+  }
+
+  return { totalHours, totalMinutes, displayText, whoMessage, whoCategory };
+}
+
+interface DietTimetable {
+  breakfast: { from: string; to: string };
+  lunch: { from: string; to: string };
+  dinner: { from: string; to: string };
+}
+
+function addMinutesToTime(
+  baseHours: number,
+  baseMinutes: number,
+  addMinutes: number,
+): string {
+  const totalMinutes = baseHours * 60 + baseMinutes + addMinutes;
+  const h = Math.floor(totalMinutes / 60) % 24;
+  const m = totalMinutes % 60;
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+function computeDietTimetable(wakeUpTime: string): DietTimetable {
+  const wakeUp = parseTime24(wakeUpTime);
+
+  if (!wakeUp) {
+    return {
+      breakfast: { from: "—", to: "—" },
+      lunch: { from: "—", to: "—" },
+      dinner: { from: "—", to: "—" },
+    };
+  }
+
+  const { hours, minutes } = wakeUp;
+  // Breakfast: 2–3 hours after wake-up
+  const bfFromH = hours + 2;
+  const bfFrom = addMinutesToTime(bfFromH, minutes, 0);
+  const bfTo = addMinutesToTime(bfFromH, minutes, 60);
+
+  // Lunch: 5–6 hours after breakfast start
+  const lunchFrom = addMinutesToTime(bfFromH, minutes, 5 * 60);
+  const lunchTo = addMinutesToTime(bfFromH, minutes, 6 * 60);
+
+  // Dinner: 5–6 hours after lunch start
+  const dinnerFrom = addMinutesToTime(bfFromH + 5, minutes, 0);
+  const dinnerTo = addMinutesToTime(bfFromH + 5, minutes, 60);
+
+  return {
+    breakfast: { from: bfFrom, to: bfTo },
+    lunch: { from: lunchFrom, to: lunchTo },
+    dinner: { from: dinnerFrom, to: dinnerTo },
+  };
+}
+
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
 function generatePDF(
   name: string,
@@ -881,6 +1037,8 @@ function generatePDF(
   results: AssessmentResults,
   gender: string,
   invitedBy: string,
+  bedtime: string,
+  wakeUpTime: string,
 ) {
   const macros = computeMacros(
     results.idealWeight,
@@ -892,6 +1050,8 @@ function generatePDF(
     Number.parseFloat(height),
     gender,
   );
+  const sleepData = computeSleepData(bedtime, wakeUpTime);
+  const dietTimetable = computeDietTimetable(wakeUpTime);
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "long",
@@ -1074,6 +1234,71 @@ function generatePDF(
     </div>
   </div>
   <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.2g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
+  `;
+
+  // Sleep & Recovery Section HTML
+  const origin = window.location.origin;
+  const sleepImgUrl =
+    gender === "male"
+      ? `${origin}/assets/generated/sleep-male-icon-transparent.dim_200x200.png`
+      : `${origin}/assets/generated/sleep-female-icon-transparent.dim_200x200.png`;
+
+  const sleepSectionHtml = `
+  <div class="section-title sleep-header">&#127769; Sleep &amp; Recovery Analysis — WHO Guidelines</div>
+  <div class="sleep-section">
+    <div class="sleep-summary-row">
+      <img src="${sleepImgUrl}" alt="Sleep" class="sleep-img" />
+      <div class="sleep-data">
+        <div class="sleep-hours-badge">${sleepData.displayText}</div>
+        <div class="sleep-bedtime-row">
+          <span class="sleep-chip">Bedtime</span>
+          <span class="sleep-time-val">${formatTo12h(bedtime)}</span>
+          &nbsp;&#8594;&nbsp;
+          <span class="sleep-chip">Wake Up</span>
+          <span class="sleep-time-val">${formatTo12h(wakeUpTime)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="sleep-who-msg ${sleepData.whoCategory}">${sleepData.whoMessage}</div>
+  </div>
+  `;
+
+  // Diet Timetable Section HTML
+  const dietTimetableHtml = `
+  <div class="section-title diet-tt-header">&#127869; Your Personalised Diet Timetable</div>
+  <div class="diet-tt-grid">
+    <div class="diet-tt-card breakfast-card">
+      <div class="diet-tt-icon-wrap breakfast-icon-bg">
+        <img src="${origin}/assets/generated/meal-breakfast-icon-transparent.dim_200x200.png" alt="Breakfast" class="diet-tt-icon" />
+      </div>
+      <div class="diet-tt-content">
+        <div class="diet-tt-badge breakfast-badge">BREAKFAST</div>
+        <div class="diet-tt-time">${dietTimetable.breakfast.from} &#8211; ${dietTimetable.breakfast.to}</div>
+        <div class="diet-tt-tip">2&#8211;3 hours after waking up. Best time to fuel your metabolism with a wholesome meal.</div>
+      </div>
+    </div>
+    <div class="diet-tt-card lunch-card">
+      <div class="diet-tt-icon-wrap lunch-icon-bg">
+        <img src="${origin}/assets/generated/meal-lunch-icon-transparent.dim_200x200.png" alt="Lunch" class="diet-tt-icon" />
+      </div>
+      <div class="diet-tt-content">
+        <div class="diet-tt-badge lunch-badge">LUNCH</div>
+        <div class="diet-tt-time">${dietTimetable.lunch.from} &#8211; ${dietTimetable.lunch.to}</div>
+        <div class="diet-tt-tip">5&#8211;6 hours after breakfast. Have your largest meal of the day for maximum energy.</div>
+      </div>
+    </div>
+    <div class="diet-tt-card dinner-card">
+      <div class="diet-tt-icon-wrap dinner-icon-bg">
+        <img src="${origin}/assets/generated/meal-dinner-icon-transparent.dim_200x200.png" alt="Dinner" class="diet-tt-icon" />
+      </div>
+      <div class="diet-tt-content">
+        <div class="diet-tt-badge dinner-badge">DINNER</div>
+        <div class="diet-tt-time">${dietTimetable.dinner.from} &#8211; ${dietTimetable.dinner.to}</div>
+        <div class="diet-tt-tip">5&#8211;6 hours after lunch. Keep dinner light and finish at least 2 hours before bedtime.</div>
+      </div>
+    </div>
+  </div>
+  <div class="diet-tt-note">&#9889; Following this personalised meal schedule supports your metabolism, stabilises blood sugar, and improves energy levels throughout the day. Contact HN Coach for a personalised diet plan.</div>
   `;
 
   // Foods to Avoid HTML
@@ -1544,6 +1769,43 @@ function generatePDF(
   .avoid-name { font-size: 9pt; font-weight: 800; color: #991b1b; margin-bottom: 2px; }
   .avoid-reason { font-size: 7.5pt; color: #6b7280; font-style: italic; line-height: 1.3; }
   .avoid-note { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #991b1b; font-style: italic; margin-top: 4px; line-height: 1.5; }
+  /* ── SLEEP & RECOVERY ──────────────────────────────────────── */
+  .sleep-header { color: #1e40af !important; }
+  .sleep-header::before { background: linear-gradient(to bottom, #3b82f6, #1d4ed8) !important; }
+  .sleep-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%); border: 1.5px solid #93c5fd; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
+  .sleep-summary-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .sleep-img { width: 80px; height: 80px; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,0.7); padding: 4px; border: 1px solid #bfdbfe; flex-shrink: 0; }
+  .sleep-data { flex: 1; }
+  .sleep-hours-badge { font-size: 20pt; font-weight: 900; color: #1e40af; margin-bottom: 6px; line-height: 1; }
+  .sleep-bedtime-row { display: flex; align-items: center; gap: 4px; font-size: 9pt; flex-wrap: wrap; }
+  .sleep-chip { font-size: 7pt; font-weight: 700; color: #1e40af; background: rgba(59,130,246,0.15); padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .sleep-time-val { font-size: 10pt; font-weight: 800; color: #1e3a8a; }
+  .sleep-who-msg { border-radius: 8px; padding: 10px 14px; font-size: 9.5pt; font-weight: 600; line-height: 1.5; }
+  .sleep-who-msg.optimal { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-left: 4px solid #16a34a; color: #14532d; }
+  .sleep-who-msg.warning { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #fcd34d; border-left: 4px solid #f59e0b; color: #78350f; }
+  .sleep-who-msg.danger { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1.5px solid #fecaca; border-left: 4px solid #dc2626; color: #7f1d1d; }
+  .sleep-who-msg.excessive { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1.5px solid #93c5fd; border-left: 4px solid #3b82f6; color: #1e3a8a; }
+  /* ── DIET TIMETABLE ────────────────────────────────────────── */
+  .diet-tt-header { color: #b45309 !important; }
+  .diet-tt-header::before { background: linear-gradient(to bottom, #f59e0b, #d97706) !important; }
+  .diet-tt-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+  .diet-tt-card { display: flex; align-items: flex-start; gap: 14px; border-radius: 12px; padding: 14px 16px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .breakfast-card { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a; }
+  .lunch-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
+  .dinner-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; }
+  .diet-tt-icon-wrap { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .breakfast-icon-bg { background: rgba(245,158,11,0.15); }
+  .lunch-icon-bg { background: rgba(22,163,74,0.15); }
+  .dinner-icon-bg { background: rgba(59,130,246,0.15); }
+  .diet-tt-icon { width: 48px; height: 48px; object-fit: contain; }
+  .diet-tt-content { flex: 1; }
+  .diet-tt-badge { display: inline-block; font-size: 7pt; font-weight: 800; letter-spacing: 0.8px; border-radius: 12px; padding: 2px 9px; margin-bottom: 5px; text-transform: uppercase; }
+  .breakfast-badge { background: #f59e0b; color: #fff; }
+  .lunch-badge { background: #16a34a; color: #fff; }
+  .dinner-badge { background: #2563eb; color: #fff; }
+  .diet-tt-time { font-size: 16pt; font-weight: 900; color: #1f2937; line-height: 1; margin-bottom: 4px; }
+  .diet-tt-tip { font-size: 8pt; color: #4b5563; font-style: italic; line-height: 1.4; }
+  .diet-tt-note { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #78350f; font-style: italic; margin-top: 4px; line-height: 1.5; }
   @media print {
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .no-print { display: none; }
@@ -1679,6 +1941,10 @@ function generatePDF(
 
   ${macroNutrientsHtml}
 
+  ${sleepSectionHtml}
+
+  ${dietTimetableHtml}
+
   ${foodsToAvoidHtml}
 
   <div class="guarantee-box">
@@ -1780,6 +2046,8 @@ const EMPTY_FORM: UnifiedFormData = {
   gender: "",
   activityLevel: "moderately_active",
   goals: [],
+  bedtime: "",
+  wakeUpTime: "",
   invitedBy: "",
 };
 
@@ -1849,6 +2117,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
     Number(heightCm) > 0 &&
     form.weight.trim() &&
     form.gender &&
+    form.bedtime.trim() &&
+    form.wakeUpTime.trim() &&
     form.invitedBy.trim();
 
   const handlePayAndDownload = () => {
@@ -1881,6 +2151,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           results,
           form.gender,
           form.invitedBy,
+          form.bedtime,
+          form.wakeUpTime,
         );
         notifyCoach(results);
         saveReport(form, results, heightCm);
@@ -1937,6 +2209,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           results,
           form.gender,
           form.invitedBy,
+          form.bedtime,
+          form.wakeUpTime,
         );
         notifyCoach(results);
         saveReport(form, results, heightCm);
@@ -2135,6 +2409,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                       savedReport.results,
                       savedReport.form.gender,
                       savedReport.form.invitedBy,
+                      savedReport.form.bedtime ?? "",
+                      savedReport.form.wakeUpTime ?? "",
                     );
                   }}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
@@ -2606,7 +2882,155 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
               />
             </div>
 
-            {/* ── Section 3: Who Invited You ────────────────────────── */}
+            {/* ── Section 3: Sleep Schedule ─────────────────────────── */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-black flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #1d4ed8, #2563eb)",
+                    boxShadow:
+                      "0 0 0 3px rgba(29,78,216,0.22), 0 3px 12px rgba(29,78,216,0.4)",
+                    border: "2px solid rgba(255,255,255,0.5)",
+                  }}
+                >
+                  3
+                </span>
+                <div className="flex items-center gap-2 flex-1">
+                  <Moon className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <h3 className="font-display font-bold text-base text-foreground tracking-tight">
+                    {t.step3SleepLabel}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Bedtime + Wake-Up Time */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="f-bedtime"
+                    className="text-sm font-medium text-foreground/80"
+                  >
+                    {t.fieldBedtime} <span className="text-destructive">*</span>
+                  </Label>
+                  <input
+                    id="f-bedtime"
+                    data-ocid="assessment.bedtime.input"
+                    type="time"
+                    value={form.bedtime}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, bedtime: e.target.value }))
+                    }
+                    required
+                    className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="f-wakeup"
+                    className="text-sm font-medium text-foreground/80"
+                  >
+                    {t.fieldWakeUp} <span className="text-destructive">*</span>
+                  </Label>
+                  <input
+                    id="f-wakeup"
+                    data-ocid="assessment.wakeup.input"
+                    type="time"
+                    value={form.wakeUpTime}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        wakeUpTime: e.target.value,
+                      }))
+                    }
+                    required
+                    className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              {/* Sleep preview — shown when both times are entered */}
+              {form.bedtime &&
+                form.wakeUpTime &&
+                (() => {
+                  const sd = computeSleepData(form.bedtime, form.wakeUpTime);
+                  const catColors: Record<
+                    string,
+                    { bg: string; border: string; text: string; icon: string }
+                  > = {
+                    optimal: {
+                      bg: "#f0fdf4",
+                      border: "#86efac",
+                      text: "#14532d",
+                      icon: "✅",
+                    },
+                    warning: {
+                      bg: "#fffbeb",
+                      border: "#fcd34d",
+                      text: "#78350f",
+                      icon: "⚠️",
+                    },
+                    danger: {
+                      bg: "#fff1f2",
+                      border: "#fecaca",
+                      text: "#7f1d1d",
+                      icon: "🚨",
+                    },
+                    excessive: {
+                      bg: "#eff6ff",
+                      border: "#93c5fd",
+                      text: "#1e3a8a",
+                      icon: "ℹ️",
+                    },
+                  };
+                  const c = catColors[sd.whoCategory];
+                  return (
+                    <div
+                      className="rounded-xl px-4 py-3 text-sm font-semibold flex items-start gap-2"
+                      style={{
+                        background: c.bg,
+                        border: `1.5px solid ${c.border}`,
+                        color: c.text,
+                      }}
+                    >
+                      <span className="text-base leading-none mt-0.5 flex-shrink-0">
+                        {c.icon}
+                      </span>
+                      <div>
+                        <div className="font-black mb-0.5">
+                          Sleep Duration: {sd.displayText}
+                        </div>
+                        <div className="text-xs font-medium opacity-80">
+                          {sd.whoMessage}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+            </div>
+
+            {/* Step divider 3→4 */}
+            <div className="flex items-center gap-3 py-0.5">
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
+                }}
+              />
+              <span className="step-divider-pill flex-shrink-0">
+                {t.step3to4}
+              </span>
+              <div
+                className="flex-1 h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, #6ee7b7 30%, #0d9488 50%, #6ee7b7 70%, transparent 100%)",
+                }}
+              />
+            </div>
+
+            {/* ── Section 4: Who Invited You ────────────────────────── */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <span
@@ -2618,7 +3042,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                     border: "2px solid rgba(255,255,255,0.5)",
                   }}
                 >
-                  3
+                  4
                 </span>
                 <div className="flex items-center gap-2 flex-1">
                   <Share2 className="w-4 h-4 text-primary flex-shrink-0" />
@@ -2770,6 +3194,8 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                       lastResultsRef.current.results,
                       form.gender,
                       form.invitedBy,
+                      form.bedtime,
+                      form.wakeUpTime,
                     );
                   }}
                   className="w-full h-12 rounded-xl border-2 border-teal-500 text-teal-700 font-bold text-base flex items-center justify-center gap-2 hover:bg-teal-50 transition-colors"
