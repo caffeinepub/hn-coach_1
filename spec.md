@@ -1,50 +1,62 @@
 # HN Coach
 
 ## Current State
-Single-page wellness assessment app with a unified form collecting personal details, body metrics, and referral info. On payment (Rs. 10 via Razorpay), generates a branded PDF report with: wellness score, personal details, wellness results (BMI, BMR, TDEE, water, steps, exercise), ideal body measurements, weight goal + timeline, health risk awareness, daily nutrition requirements, foods to avoid, 30-day guarantee, and referral section.
+Single-page wellness assessment app. Users fill one form, pay Rs. 10 via Razorpay, and download a PDF wellness report. Features: 7 wellness metrics, sleep analysis, diet timetable, nutrition macros, ideal body measurements, health risk section, referral system, admin dashboard, Hindi/English toggle (English shows 🇬🇧 flag).
 
-Form fields: Full Name, Age, City, WhatsApp, Occupation, Height (cm/ft toggle), Weight, Gender, Who Invited You.
+The dinner time is currently calculated as 5–6 hours after the breakfast start time (wrong — should be 5–6 hours after lunch time).
+
+The language toggle shows 🇬🇧 for English.
+
+There is no 10-minute FOMO countdown on the page.
+
+There is no "reports generated" live counter bar.
+
+The report has no Biological Age section.
+
+The wellness score exists in the report but is not prominently shown/calculated based on the full report data comprehensively.
 
 ## Requested Changes (Diff)
 
 ### Add
-1. **Form — Sleep Fields (new section between Body Metrics and Referral)**:
-   - "Your Present Bedtime" — time picker (step 4)
-   - "Your Present Wake Up Time" — time picker
-   - Labels in both English and Hindi translations
-
-2. **Report — Sleep & Recovery Section** (placed above the Foods to Avoid section):
-   - Calculate total sleep hours and minutes from bedtime and wake-up time (handle overnight spanning midnight correctly)
-   - WHO sleep awareness message based on hours: <6h = severely insufficient warning, 6–7h = below recommended, 7–9h = optimal, >9h = excessive
-   - Small sleep/rest icon image — male silhouette sleeping for male, female silhouette sleeping for female (generated image)
-   - Styled section card with moon/star icon, sleep hours displayed prominently
-
-3. **Report — Diet Timetable Section** (placed above Foods to Avoid section, below Sleep & Recovery):
-   - Breakfast time = wake-up time + 2 to 3 hours (show range, e.g. "7:00 AM – 8:00 AM" if wake up is 5 AM)
-   - Lunch time = breakfast start + 5 to 6 hours
-   - Dinner time = lunch start + 5 to 6 hours
-   - Small food/meal icon images for each meal (generated)
-   - Professional layout with 3 meal cards showing time ranges and brief guidance
+- **10-minute FOMO countdown** on the page: A prominent countdown timer starting at 10:00 and ticking down to 0. Shows the offer price (Rs. 10 instead of Rs. 499). Resets when it reaches 0 (loops). Should appear above the form, inside a FOMO banner. Turns red in final 60 seconds.
+- **Live "Reports Generated" counting bar**: A progress/counter bar on the page showing how many reports have been generated. Fetches the total download count from the backend (`getRecords` call) and displays it as a live animating number with a progress-style bar (e.g. "1,234 Wellness Reports Generated So Far!"). Updates on page load.
+- **Biological Age section in the PDF report**: Calculate biological age based on BMI, sleep quality, physical activity, hydration, and metabolic health per trusted medical organization (WHO/Mayo Clinic methodology). Show it as a prominent section in the report after the Wellness Score section. Formula: biological age = chronological age + adjustment factors (BMI deviation, sleep deficiency, low activity penalty, dehydration). Show whether biological age is lower (good) or higher than chronological age, with a color-coded message.
 
 ### Modify
-- `UnifiedFormData` interface: add `bedtime: string` and `wakeUpTime: string` fields
-- `EMPTY_FORM`: add default empty strings for new fields
-- `allFilled` validation: include bedtime and wakeUpTime as required fields
-- `generatePDF` function: accept bedtime and wakeUpTime params; add Sleep & Recovery and Diet Timetable sections in HTML
-- All `generatePDF` call sites: pass new params
-- Translation objects (en + hi): add labels for bedtime, wake-up time, sleep section
+- **Dinner time calculation**: Fix the `computeDietTimetable` function. Dinner should be calculated as 5–6 hours **after lunch time** (not after breakfast start). Current bug: dinner is calculated as `bfFromH + 5` which is ~5 hours after breakfast, not after lunch.
+- **English flag**: Change 🇬🇧 to 🇮🇳 in the English language toggle button.
+- **Wellness Score**: Enhance the existing `computeWellnessScore` function to incorporate more report data — BMI score, sleep hours (from bedtime/wakeUpTime), hydration (water intake relative to body weight), BMR fitness, footsteps, exercise minutes. Make the score calculation more comprehensive and reflect the full report. Show score in the report with a better breakdown. Also show wellness score prominently on the page after form submission (not just in PDF).
 
 ### Remove
-- Nothing removed
+Nothing to remove.
 
 ## Implementation Plan
-1. Generate sleep image (male sleeping, female sleeping combined or two variants)
-2. Generate meal/food timetable icons (breakfast, lunch, dinner)
-3. Add `bedtime` and `wakeUpTime` to `UnifiedFormData`, `EMPTY_FORM`, translations
-4. Add Step 4 (Sleep Schedule) in the form UI between Body Metrics and Referral section
-5. Update `allFilled` to require bedtime + wakeUpTime
-6. Add `computeSleepData()` helper — calculates total sleep hours/mins and WHO message
-7. Add `computeDietTimetable()` helper — calculates breakfast/lunch/dinner time ranges from wake-up
-8. Update `generatePDF()` signature and HTML to include Sleep & Recovery section and Diet Timetable section (both placed above Foods to Avoid)
-9. Update all `generatePDF` call sites (4 locations) to pass new params
-10. Add CSS styles for the two new sections in the PDF HTML
+
+1. **Fix dinner time in `computeDietTimetable`**: Lunch starts at `bfFromH + 5` hours from wake-up. Dinner should start 5–6 hours after **lunch start** (`bfFromH + 5 + 5 = bfFromH + 10`), not `bfFromH + 5`. Fix the dinnerFrom/dinnerTo calculations.
+
+2. **Change English flag**: In the language toggle in `App()`, change `🇬🇧 English` to `🇮🇳 English`.
+
+3. **10-minute FOMO countdown**: Add a `FomoCountdown` component that:
+   - Uses `useState` for seconds (600) and `useEffect` with `setInterval` for countdown
+   - Resets to 600 when it reaches 0
+   - Displays MM:SS format
+   - Shows red styling when ≤ 60 seconds
+   - Placed above the WellnessAssessment section, below the banner image
+   - Shows "⏳ Offer expires in X:XX — Download at Rs. 10 before it's too late!"
+
+4. **Live Reports Counter**: Add a `ReportsCounter` component that:
+   - On mount, calls `createActorWithConfig().then(actor => actor.getRecords(null, null))` to get total count
+   - Shows an animated number counter (starts from 0, counts up to real value over 1.5s)
+   - Displays as a styled bar: "🏆 X,XXX Wellness Reports Generated!" with a green progress fill
+   - Placed just above the FOMO countdown or below the tagline section
+
+5. **Biological Age calculation**: Add `computeBiologicalAge(age, bmi, sleepHours, waterLitres, bodyWeight, activityLevel)` function:
+   - Start from chronological age
+   - BMI penalty: if BMI > 25, add (BMI - 25) * 0.5 years; if BMI < 18.5, add (18.5 - BMI) * 0.4 years
+   - Sleep penalty: if sleep < 6h, add 2 years; if sleep < 7h, add 1 year; if > 9h, add 0.5 years
+   - Activity penalty: sedentary adds 2 years; lightly_active adds 1 year; moderately_active or above, no penalty
+   - Hydration bonus: if waterLitres >= weight/18, subtract 0.5 years
+   - Round to 1 decimal
+   - Add to PDF report after wellness score: show chronological age vs biological age, color-coded (green if bio < chrono, red if bio > chrono), with a message from WHO/Mayo Clinic methodology
+
+6. **Enhanced Wellness Score**: Update `computeWellnessScore` to also take `sleepHours` and `waterIntake` and `activityLevel` as parameters, add sleep component (0–15 pts) and hydration component (0–10 pts), cap total at 100. Update all call sites to pass the new parameters. The score should factor: BMI (30pts), water (10pts), BMR fitness (20pts), steps (10pts), exercise (10pts), sleep (15pts), hydration adequacy (5pts).

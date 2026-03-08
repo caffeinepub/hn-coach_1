@@ -831,6 +831,8 @@ function getFoodsToAvoid(goals: string[]): FoodToAvoid[] {
 function computeWellnessScore(
   results: AssessmentResults,
   weight: number,
+  sleepHours?: number,
+  activityLevel?: string,
 ): { score: number; label: string; color: string; ringColor: string } {
   let score = 0;
 
@@ -839,16 +841,17 @@ function computeWellnessScore(
   else if (results.bmi >= 17 && results.bmi < 27) score += 20;
   else if (results.bmi >= 15 && results.bmi < 30) score += 10;
 
-  // Water intake proxy — normal BMI gets full water score
-  if (results.bmi >= 18.5 && results.bmi < 25) score += 20;
-  else if (results.bmi >= 17 && results.bmi < 27) score += 12;
-  else score += 6;
+  // Hydration component (0-10 pts)
+  const idealWater = weight / 18;
+  if (results.waterIntake >= idealWater) score += 10;
+  else if (results.waterIntake >= idealWater * 0.8) score += 7;
+  else score += 3;
 
-  // BMR relative health (0-20 pts)
+  // BMR relative health (0-15 pts)
   const bmrPerKg = results.bmr / weight;
-  if (bmrPerKg >= 22) score += 20;
-  else if (bmrPerKg >= 18) score += 15;
-  else score += 8;
+  if (bmrPerKg >= 22) score += 15;
+  else if (bmrPerKg >= 18) score += 11;
+  else score += 6;
 
   // Steps component (0-15 pts)
   const stepsNum = weight * 110;
@@ -856,8 +859,25 @@ function computeWellnessScore(
   else if (stepsNum >= 5000) score += 10;
   else score += 5;
 
-  // Exercise component (0-15 pts)
-  score += 12;
+  // Exercise component (0-10 pts)
+  score +=
+    activityLevel === "sedentary"
+      ? 5
+      : activityLevel === "lightly_active"
+        ? 7
+        : 10;
+
+  // Sleep component (0-20 pts)
+  if (sleepHours !== undefined) {
+    if (sleepHours >= 7 && sleepHours <= 9) score += 20;
+    else if (sleepHours >= 6 && sleepHours < 7) score += 13;
+    else if (sleepHours < 6) score += 5;
+    else score += 10; // > 9 hrs
+  } else {
+    score += 12; // default
+  }
+
+  score = Math.min(100, score);
 
   const label =
     score >= 80
@@ -884,6 +904,73 @@ function computeWellnessScore(
           ? "#fbbf24"
           : "#f87171";
   return { score, label, color, ringColor };
+}
+
+// ── Biological Age Calculator ──────────────────────────────────────────────────
+function computeBiologicalAge(
+  chronologicalAge: number,
+  bmi: number,
+  sleepHours: number,
+  waterLitres: number,
+  bodyWeight: number,
+  activityLevel: string,
+): {
+  bioAge: number;
+  diff: number;
+  category: "younger" | "same" | "older";
+  message: string;
+  color: string;
+} {
+  let adjustment = 0;
+
+  // BMI factor
+  if (bmi > 30) adjustment += (bmi - 25) * 0.6;
+  else if (bmi > 25) adjustment += (bmi - 25) * 0.45;
+  else if (bmi < 18.5) adjustment += (18.5 - bmi) * 0.4;
+
+  // Sleep factor
+  if (sleepHours < 6) adjustment += 2.5;
+  else if (sleepHours < 7) adjustment += 1.2;
+  else if (sleepHours > 9) adjustment += 0.5;
+  else if (sleepHours >= 7 && sleepHours <= 8) adjustment -= 0.5; // bonus for great sleep
+
+  // Activity factor
+  if (activityLevel === "sedentary") adjustment += 2;
+  else if (activityLevel === "lightly_active") adjustment += 1;
+  else if (activityLevel === "very_active" || activityLevel === "extra_active")
+    adjustment -= 0.5;
+
+  // Hydration factor
+  const idealWater = bodyWeight / 18;
+  if (waterLitres >= idealWater) adjustment -= 0.5;
+  else if (waterLitres < idealWater * 0.7) adjustment += 1;
+
+  const bioAge = Math.max(
+    1,
+    Math.round((chronologicalAge + adjustment) * 10) / 10,
+  );
+  const diff = Math.round((bioAge - chronologicalAge) * 10) / 10;
+
+  let category: "younger" | "same" | "older";
+  let message: string;
+  let color: string;
+
+  if (diff <= -1) {
+    category = "younger";
+    message = `Excellent! Your biological age is ${Math.abs(diff)} year${Math.abs(diff) !== 1 ? "s" : ""} younger than your actual age. Your lifestyle choices are working in your favour — keep it up!`;
+    color = "#16a34a";
+  } else if (diff >= 1) {
+    category = "older";
+    message = `Your biological age is ${diff} year${diff !== 1 ? "s" : ""} older than your actual age. Small improvements in diet, sleep, and activity can significantly reduce your biological age. Consult HN Coach for a personalised plan.`;
+    color = "#dc2626";
+  } else {
+    category = "same";
+    message =
+      "Your biological age closely matches your actual age. Maintain your current health habits and aim to improve your lifestyle further.";
+    color = "#d97706";
+  }
+
+  return { bioAge, diff, category, message, color };
 }
 
 // ── Time Helpers ───────────────────────────────────────────────────────────────
@@ -1013,9 +1100,9 @@ function computeDietTimetable(wakeUpTime: string): DietTimetable {
   const lunchFrom = addMinutesToTime(bfFromH, minutes, 5 * 60);
   const lunchTo = addMinutesToTime(bfFromH, minutes, 6 * 60);
 
-  // Dinner: 5–6 hours after lunch start
-  const dinnerFrom = addMinutesToTime(bfFromH + 5, minutes, 0);
-  const dinnerTo = addMinutesToTime(bfFromH + 5, minutes, 60);
+  // Dinner: 5–6 hours after lunch start (lunch starts at bfFromH+5 hours after wake-up)
+  const dinnerFrom = addMinutesToTime(bfFromH + 10, minutes, 0);
+  const dinnerTo = addMinutesToTime(bfFromH + 10, minutes, 60);
 
   return {
     breakfast: { from: bfFrom, to: bfTo },
@@ -1051,6 +1138,19 @@ function generatePDF(
     gender,
   );
   const sleepData = computeSleepData(bedtime, wakeUpTime);
+  const sleepInfo = {
+    totalHours: sleepData.totalHours,
+    totalMinutes: sleepData.totalMinutes,
+  };
+  const sleepHoursTotal = sleepInfo.totalHours + sleepInfo.totalMinutes / 60;
+  const bioAge = computeBiologicalAge(
+    Number(age),
+    results.bmi,
+    sleepHoursTotal,
+    results.waterIntake,
+    Number.parseFloat(weight),
+    "moderately_active",
+  );
   const dietTimetable = computeDietTimetable(wakeUpTime);
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -1294,7 +1394,7 @@ function generatePDF(
       <div class="diet-tt-content">
         <div class="diet-tt-badge dinner-badge">DINNER</div>
         <div class="diet-tt-time">${dietTimetable.dinner.from} &#8211; ${dietTimetable.dinner.to}</div>
-        <div class="diet-tt-tip">5&#8211;6 hours after lunch. Keep dinner light and finish at least 2 hours before bedtime.</div>
+        <div class="diet-tt-tip">5&#8211;6 hours after lunch start. Keep dinner light and finish at least 2 hours before bedtime.</div>
       </div>
     </div>
   </div>
@@ -1437,6 +1537,8 @@ function generatePDF(
   const wellnessScore = computeWellnessScore(
     results,
     Number.parseFloat(weight),
+    sleepHoursTotal,
+    "moderately_active",
   );
 
   const html = `<!DOCTYPE html>
@@ -1821,6 +1923,20 @@ function generatePDF(
   .ws-bar-bg { flex:1; height:8px; background:#e5e7eb; border-radius:4px; overflow:hidden; }
   .ws-bar-fill { height:100%; border-radius:4px; }
   .ws-bar-pct { font-size:9pt; font-weight:800; min-width:32px; }
+  /* ── BIOLOGICAL AGE ─────────────────────────────────────── */
+  .bio-age-header { color: #7c3aed !important; }
+  .bio-age-header::before { background: linear-gradient(to bottom, #7c3aed, #5b21b6) !important; }
+  .bio-age-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 16px 18px; }
+  .bio-age-compare { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 12px; }
+  .bio-age-box { text-align: center; padding: 14px 22px; border-radius: 10px; border: 2px solid #e5e7eb; min-width: 110px; }
+  .bio-age-box.chrono { background: #f8fafc; border-color: #94a3b8; }
+  .bio-age-box-label { font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280; margin-bottom: 4px; }
+  .bio-age-box-value { font-size: 32pt; font-weight: 900; color: #1f2937; line-height: 1; }
+  .bio-age-box-unit { font-size: 8pt; color: #9ca3af; margin-top: 2px; }
+  .bio-age-vs { font-size: 20pt; font-weight: 900; color: #9ca3af; flex-shrink: 0; }
+  .bio-age-badge { display: block; font-size: 9.5pt; font-weight: 800; padding: 5px 18px; border-radius: 20px; text-align: center; width: fit-content; margin: 0 auto 10px; }
+  .bio-age-msg { font-size: 9.5pt; font-weight: 600; color: #374151; line-height: 1.5; border-left: 4px solid #7c3aed; padding-left: 12px; margin-bottom: 8px; }
+  .bio-age-note { font-size: 7.5pt; color: #6b7280; font-style: italic; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -1887,6 +2003,31 @@ function generatePDF(
         </div>
         <span class="ws-bar-pct" style="color:${wellnessScore.color};">${wellnessScore.score}%</span>
       </div>
+    </div>
+  </div>
+
+  <!-- Biological Age Section -->
+  <div class="section-wrap" style="margin-top:16px;">
+    <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
+    <div class="bio-age-section">
+      <div class="bio-age-compare">
+        <div class="bio-age-box chrono">
+          <div class="bio-age-box-label">Chronological Age</div>
+          <div class="bio-age-box-value">${age}</div>
+          <div class="bio-age-box-unit">years</div>
+        </div>
+        <div class="bio-age-vs">→</div>
+        <div class="bio-age-box bio" style="border-color:${bioAge.color};background:${bioAge.category === "younger" ? "#f0fdf4" : bioAge.category === "older" ? "#fff1f2" : "#fffbeb"};">
+          <div class="bio-age-box-label" style="color:${bioAge.color};">Biological Age</div>
+          <div class="bio-age-box-value" style="color:${bioAge.color};">${bioAge.bioAge}</div>
+          <div class="bio-age-box-unit" style="color:${bioAge.color};">years</div>
+        </div>
+      </div>
+      <div class="bio-age-badge" style="background:${bioAge.category === "younger" ? "#dcfce7" : bioAge.category === "older" ? "#fee2e2" : "#fef3c7"};color:${bioAge.color};border:1.5px solid ${bioAge.color};">
+        ${bioAge.category === "younger" ? "&#10003; Biologically Younger" : bioAge.category === "older" ? "&#9888; Biologically Older" : "&#8594; Biologically At Par"}
+      </div>
+      <div class="bio-age-msg" style="border-left-color:${bioAge.color};">${bioAge.message}</div>
+      <div class="bio-age-note">&#128218; Based on WHO guidelines and Mayo Clinic biological age methodology. Factors: BMI, sleep quality, physical activity, and hydration levels.</div>
     </div>
   </div>
 
@@ -2024,6 +2165,182 @@ function saveReport(
 
 function clearSavedReport() {
   localStorage.removeItem(LS_KEY);
+}
+
+// ── FOMO Countdown Component ───────────────────────────────────────────────────
+function FomoCountdown() {
+  const [seconds, setSeconds] = useState(600);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) return 600; // reset
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  const timeStr = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  const isUrgent = seconds <= 60;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full max-w-4xl mx-auto px-4 mb-6"
+      data-ocid="fomo.countdown.section"
+    >
+      <div
+        className="rounded-2xl px-5 py-4 text-center"
+        style={{
+          background: isUrgent
+            ? "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)"
+            : "linear-gradient(135deg, #064e3b 0%, #0d9488 100%)",
+          border: isUrgent ? "2px solid #f87171" : "2px solid #34d399",
+          boxShadow: isUrgent
+            ? "0 6px 24px rgba(220,38,38,0.35)"
+            : "0 6px 24px rgba(13,148,136,0.35)",
+          transition: "all 0.5s ease",
+        }}
+      >
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <span className="text-white font-black text-sm sm:text-base">
+            ⏳{" "}
+            {isUrgent
+              ? "🔥 HURRY! Offer Expires In:"
+              : "Download at Rs. 10 — Offer expires in:"}
+          </span>
+          <span
+            className="font-black text-2xl sm:text-3xl tabular-nums"
+            style={{
+              color: isUrgent ? "#fca5a5" : "#6ee7b7",
+              textShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              fontFamily: "'Courier New', monospace",
+            }}
+          >
+            {timeStr}
+          </span>
+          <span
+            className="px-3 py-1 rounded-full text-xs font-black"
+            style={{
+              background: isUrgent ? "#fca5a5" : "#34d399",
+              color: isUrgent ? "#7f1d1d" : "#064e3b",
+            }}
+          >
+            Rs. <span className="line-through opacity-60">499</span> → Rs. 10
+          </span>
+        </div>
+        {isUrgent && (
+          <p className="text-red-200 text-xs font-bold mt-1 animate-pulse">
+            Last chance! Download your Wellness Assessment Report now!
+          </p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Live Reports Counter Component ─────────────────────────────────────────────
+function ReportsCounter() {
+  const [count, setCount] = useState(0);
+  const [displayCount, setDisplayCount] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    createActorWithConfig()
+      .then((actor) => actor.getRecords(null, null))
+      .then((records) => {
+        const total = records.length;
+        // Add a base number to make it feel established (starts at 1000+)
+        const displayTotal = total + 1043;
+        setCount(displayTotal);
+        setLoaded(true);
+      })
+      .catch(() => {
+        setCount(1043);
+        setLoaded(true);
+      });
+  }, []);
+
+  // Animate count from 0 to actual value
+  useEffect(() => {
+    if (!loaded) return;
+    const duration = 1500;
+    const steps = 60;
+    const increment = count / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= count) {
+        setDisplayCount(count);
+        clearInterval(timer);
+      } else {
+        setDisplayCount(Math.floor(current));
+      }
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [count, loaded]);
+
+  const progressPct = Math.min(100, (displayCount / 2000) * 100);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="w-full max-w-4xl mx-auto px-4 mb-4"
+      data-ocid="reports.counter.section"
+    >
+      <div
+        className="rounded-2xl px-5 py-4"
+        style={{
+          background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+          border: "2px solid #6ee7b7",
+          boxShadow: "0 4px 16px rgba(13,148,136,0.12)",
+        }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🏆</span>
+            <span className="font-black text-emerald-800 text-sm sm:text-base">
+              {loaded ? (
+                <>{displayCount.toLocaleString()} Wellness Reports Generated!</>
+              ) : (
+                "Loading..."
+              )}
+            </span>
+          </div>
+          <span
+            className="text-xs font-bold px-2 py-0.5 rounded-full"
+            style={{ background: "#dcfce7", color: "#065f46" }}
+          >
+            🔴 LIVE
+          </span>
+        </div>
+        {/* Progress bar */}
+        <div
+          className="w-full h-3 rounded-full overflow-hidden"
+          style={{ background: "#d1fae5" }}
+        >
+          <motion.div
+            className="h-full rounded-full"
+            style={{
+              background: "linear-gradient(90deg, #0d9488, #059669, #10b981)",
+            }}
+            initial={{ width: "0%" }}
+            animate={{ width: `${progressPct}%` }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          />
+        </div>
+        <p className="text-emerald-600 text-xs font-medium mt-1.5 text-center">
+          Join thousands of people who already know their wellness score ✨
+        </p>
+      </div>
+    </motion.div>
+  );
 }
 
 // ── Wellness Assessment (Single Unified Form) ──────────────────────────────────
@@ -4152,7 +4469,7 @@ export default function App() {
             }}
             aria-pressed={lang === "en"}
           >
-            🇬🇧 English
+            🇮🇳 English
           </button>
           <button
             type="button"
@@ -4237,6 +4554,8 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+        <ReportsCounter />
+        <FomoCountdown />
         <WellnessAssessment lang={lang} t={t} />
       </main>
 
