@@ -1520,7 +1520,7 @@ function generatePDF(
     <div class="referral-subtitle">Refer 2 friends and help them get their <strong>Wellness Assessment Report</strong></div>
     <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
-      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 1! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
+      <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </a>
@@ -2006,31 +2006,6 @@ function generatePDF(
     </div>
   </div>
 
-  <!-- Biological Age Section -->
-  <div class="section-wrap" style="margin-top:16px;">
-    <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
-    <div class="bio-age-section">
-      <div class="bio-age-compare">
-        <div class="bio-age-box chrono">
-          <div class="bio-age-box-label">Chronological Age</div>
-          <div class="bio-age-box-value">${age}</div>
-          <div class="bio-age-box-unit">years</div>
-        </div>
-        <div class="bio-age-vs">→</div>
-        <div class="bio-age-box bio" style="border-color:${bioAge.color};background:${bioAge.category === "younger" ? "#f0fdf4" : bioAge.category === "older" ? "#fff1f2" : "#fffbeb"};">
-          <div class="bio-age-box-label" style="color:${bioAge.color};">Biological Age</div>
-          <div class="bio-age-box-value" style="color:${bioAge.color};">${bioAge.bioAge}</div>
-          <div class="bio-age-box-unit" style="color:${bioAge.color};">years</div>
-        </div>
-      </div>
-      <div class="bio-age-badge" style="background:${bioAge.category === "younger" ? "#dcfce7" : bioAge.category === "older" ? "#fee2e2" : "#fef3c7"};color:${bioAge.color};border:1.5px solid ${bioAge.color};">
-        ${bioAge.category === "younger" ? "&#10003; Biologically Younger" : bioAge.category === "older" ? "&#9888; Biologically Older" : "&#8594; Biologically At Par"}
-      </div>
-      <div class="bio-age-msg" style="border-left-color:${bioAge.color};">${bioAge.message}</div>
-      <div class="bio-age-note">&#128218; Based on WHO guidelines and Mayo Clinic biological age methodology. Factors: BMI, sleep quality, physical activity, and hydration levels.</div>
-    </div>
-  </div>
-
   <!-- Personal Details with watermark -->
   <div class="personal-section">
     <div class="personal-watermark">HN COACH</div>
@@ -2071,6 +2046,30 @@ function generatePDF(
   </div>
 
   <div class="section-wrap">
+  <!-- Biological Age Section -->
+  <div class="section-wrap" style="margin-top:16px;">
+    <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
+    <div class="bio-age-section">
+      <div class="bio-age-compare">
+        <div class="bio-age-box chrono">
+          <div class="bio-age-box-label">Chronological Age</div>
+          <div class="bio-age-box-value">${age}</div>
+          <div class="bio-age-box-unit">years</div>
+        </div>
+        <div class="bio-age-vs">→</div>
+        <div class="bio-age-box bio" style="border-color:${bioAge.color};background:${bioAge.category === "younger" ? "#f0fdf4" : bioAge.category === "older" ? "#fff1f2" : "#fffbeb"};">
+          <div class="bio-age-box-label" style="color:${bioAge.color};">Biological Age</div>
+          <div class="bio-age-box-value" style="color:${bioAge.color};">${bioAge.bioAge}</div>
+          <div class="bio-age-box-unit" style="color:${bioAge.color};">years</div>
+        </div>
+      </div>
+      <div class="bio-age-badge" style="background:${bioAge.category === "younger" ? "#dcfce7" : bioAge.category === "older" ? "#fee2e2" : "#fef3c7"};color:${bioAge.color};border:1.5px solid ${bioAge.color};">
+        ${bioAge.category === "younger" ? "&#10003; Biologically Younger" : bioAge.category === "older" ? "&#9888; Biologically Older" : "&#8594; Biologically At Par"}
+      </div>
+      <div class="bio-age-msg" style="border-left-color:${bioAge.color};">${bioAge.message}</div>
+      <div class="bio-age-note">&#128218; Based on WHO guidelines and Mayo Clinic biological age methodology. Factors: BMI, sleep quality, physical activity, and hydration levels.</div>
+    </div>
+  </div>
   ${idealBodyMeasurementsHtml}
 
   <div class="section-title">🎯 Weight Goal</div>
@@ -2103,10 +2102,10 @@ function generatePDF(
     <div class="footer-cta-text">🌟 Ready to Transform Your Health?</div>
     <div class="footer-sub">Your personal wellness coach is just one message away. Send this report and get a personalised consultation!</div>
     <div>
-      <a href="${waUrl}" class="footer-wa-btn">
+      <button type="button" onclick="window.print(); setTimeout(function(){ window.open('${waUrl}', '_blank'); }, 1500);" class="footer-wa-btn" style="cursor:pointer;border:none;">
         <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        🔥 Send This Report &amp; Get Your Consultation 🔥
-      </a>
+        📎 Book Now — Save PDF &amp; Send to Coach on WhatsApp
+      </button>
     </div>
     <div class="footer-brand">HN Coach · Personalised Wellness Coaching · Consult HN Coach for personalised advice.</div>
   </div>
@@ -2613,7 +2612,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
       ? `\n\n📌 Referred By: ${form.whatsapp}`
       : "";
     const msg = encodeURIComponent(
-      `Hi! I just downloaded my Wellness Assessment Report from HN Coach — only Rs. 10! Get yours here: ${referralLink}${referrerTag}`,
+      `Hi! I just downloaded my Wellness Assessment Report from HN Coach! Get yours here: ${referralLink}${referrerTag}`,
     );
     window.open(`https://wa.me/?text=${msg}`, "_blank");
   };
