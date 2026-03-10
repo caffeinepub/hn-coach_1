@@ -1480,6 +1480,66 @@ function generatePDF(
   <div class="body-measure-disclaimer">&#9432; Ideal measurements are calculated based on standard anthropometric proportionality guidelines. Individual variation is natural — these are reference ranges. Consult HN Coach for personalised body composition guidance.</div>
   `;
 
+  // Visceral Fat Analysis
+  const visceralFatLevel = Math.max(
+    1,
+    Math.min(
+      20,
+      Math.round(
+        results.bmi * 0.6 + Number(age) * 0.1 - (gender === "male" ? 15 : 18),
+      ),
+    ),
+  );
+  const vfCategory =
+    visceralFatLevel <= 9
+      ? "Healthy"
+      : visceralFatLevel <= 14
+        ? "High"
+        : "Very High";
+  const vfColor =
+    visceralFatLevel <= 9
+      ? "#16a34a"
+      : visceralFatLevel <= 14
+        ? "#d97706"
+        : "#dc2626";
+  const vfBg =
+    visceralFatLevel <= 9
+      ? "#f0fdf4"
+      : visceralFatLevel <= 14
+        ? "#fffbeb"
+        : "#fff1f2";
+  const vfRecommendation =
+    visceralFatLevel <= 9
+      ? "Your visceral fat level is in the healthy range. Keep maintaining your active lifestyle and balanced diet to preserve this."
+      : visceralFatLevel <= 14
+        ? "Your visceral fat level is above ideal. Reducing refined carbohydrates, increasing cardio (30 min/day), and managing stress can help lower it significantly."
+        : "Your visceral fat level is very high, posing serious health risks. Immediate dietary changes, regular exercise, and medical consultation are strongly recommended.";
+  const vfBarPercent = Math.round((visceralFatLevel / 20) * 100);
+  const visceralFatHtml = `
+  <div style="background:${vfBg};border:2px solid ${vfColor};border-radius:12px;padding:16px 18px;margin:10px 0;">
+    <div class="section-title" style="color:${vfColor};border-bottom-color:${vfColor};margin-bottom:10px;">&#129504; Visceral Fat Analysis</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:11pt;font-weight:700;color:#334155;">Estimated Visceral Fat Level</div>
+        <div style="font-size:24pt;font-weight:900;color:${vfColor};line-height:1.1;">${visceralFatLevel} <span style="font-size:10pt;color:#64748b;">/ 20</span></div>
+        <div style="font-size:10pt;font-weight:800;color:${vfColor};margin-top:2px;">● ${vfCategory}</div>
+      </div>
+      <div style="text-align:right;font-size:8.5pt;color:#64748b;">
+        <div style="margin-bottom:3px;color:#16a34a;font-weight:700;">● Healthy: 1–9</div>
+        <div style="margin-bottom:3px;color:#d97706;font-weight:700;">● High: 10–14</div>
+        <div style="color:#dc2626;font-weight:700;">● Very High: 15–20</div>
+      </div>
+    </div>
+    <div style="background:#e2e8f0;border-radius:8px;height:12px;overflow:hidden;margin-bottom:10px;">
+      <div style="width:${vfBarPercent}%;background:${vfColor};height:100%;border-radius:8px;transition:width 0.5s;"></div>
+    </div>
+    <div style="font-size:9pt;color:#334155;background:rgba(255,255,255,0.7);border-radius:8px;padding:8px 12px;border-left:3px solid ${vfColor};">
+      &#128161; ${vfRecommendation}
+    </div>
+    <div style="font-size:7.5pt;color:#94a3b8;margin-top:6px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
+  </div>
+  `;
+
   const weightDiffLabel =
     Math.abs(weightDiff) <= 1
       ? "At Ideal Weight ✅"
@@ -1510,15 +1570,17 @@ function generatePDF(
       <div style="font-size:11pt;font-weight:800;color:#fff;font-style:italic;line-height:1.5;">🌍 This is a Social Health Awareness Mission</div>
       <div style="font-size:9.5pt;color:rgba(255,255,255,0.9);margin-top:3px;">Join us and make India aware about Wellness.</div>
     </div>
-    <div style="text-align:center;">
-      <div class="referral-badge">
-        <svg viewBox="0 0 24 24" fill="white" style="width:12px;height:12px;flex-shrink:0;"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-        REFER 2 FRIENDS
+    <div class="referral-title">💚 Sharing is Caring</div>
+    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
+    <div style="background:rgba(255,215,0,0.18);border:1.5px solid rgba(255,215,0,0.5);border-radius:10px;padding:10px 14px;margin:10px 0 14px 0;text-align:center;">
+      <div style="font-size:13pt;font-weight:900;color:#ffd700;margin-bottom:6px;">💰 Earn ₹5 / Referral</div>
+      <div style="font-size:8.5pt;color:rgba(255,255,255,0.85);font-weight:600;margin-bottom:8px;">The more you share, the more you earn!</div>
+      <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">10 Referrals → ₹50</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">100 Referrals → ₹500</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">1000 Referrals → ₹5000</div>
       </div>
     </div>
-    <div class="referral-title">💚 Sharing is Caring</div>
-    <div class="referral-subtitle">Refer 2 friends and help them get their <strong>Wellness Assessment Report</strong></div>
-    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
     <div class="referral-buttons">
       <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
         <svg viewBox="0 0 24 24" fill="white" style="width:14px;height:14px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -2072,12 +2134,12 @@ function generatePDF(
   </div>
   ${idealBodyMeasurementsHtml}
 
+  ${visceralFatHtml}
+
   <div class="section-title">🎯 Weight Goal</div>
   ${weightGoalHtml}
 
   ${timelineHtml}
-
-  ${healthRiskHtml}
 
   ${macroNutrientsHtml}
 
@@ -2086,6 +2148,8 @@ function generatePDF(
   ${dietTimetableHtml}
 
   ${foodsToAvoidHtml}
+
+  ${healthRiskHtml}
 
   <div class="guarantee-box">
     <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
@@ -2104,7 +2168,7 @@ function generatePDF(
     <div>
       <button type="button" onclick="window.print(); setTimeout(function(){ window.open('${waUrl}', '_blank'); }, 1500);" class="footer-wa-btn" style="cursor:pointer;border:none;">
         <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        📎 Book Now — Save PDF &amp; Send to Coach on WhatsApp
+        🥗 Get Your Free Diet Plan
       </button>
     </div>
     <div class="footer-brand">HN Coach · Personalised Wellness Coaching · Consult HN Coach for personalised advice.</div>
@@ -4147,6 +4211,104 @@ function AdminDashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Referral Leaderboard with Reward Counter */}
+            {(() => {
+              const referrerMap: Record<string, number> = {};
+              for (const r of records) {
+                if (r.invitedBy?.trim()) {
+                  const key = r.invitedBy.trim();
+                  referrerMap[key] = (referrerMap[key] || 0) + 1;
+                }
+              }
+              const leaderboard = Object.entries(referrerMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 20);
+              if (leaderboard.length === 0) return null;
+              return (
+                <div
+                  className="bg-white rounded-2xl border border-yellow-200 shadow-sm overflow-hidden"
+                  data-ocid="admin.referral.reward.panel"
+                >
+                  <div
+                    className="flex items-center gap-2 px-5 py-4 border-b border-yellow-100"
+                    style={{
+                      background: "linear-gradient(135deg, #fffbeb, #fef9c3)",
+                    }}
+                  >
+                    <span className="text-xl">💰</span>
+                    <h2 className="font-black text-gray-800 text-base">
+                      Referral Rewards Counter
+                    </h2>
+                    <span className="text-xs text-amber-600 font-semibold ml-auto">
+                      ₹5 per Referral
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr style={{ background: "#fffbeb" }}>
+                          <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
+                            #
+                          </th>
+                          <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
+                            Referrer (WhatsApp)
+                          </th>
+                          <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
+                            Downloads Referred
+                          </th>
+                          <th className="px-4 py-2 text-center text-xs font-bold text-amber-600 uppercase">
+                            Reward Earned (₹)
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {leaderboard.map(([ref, count], i) => (
+                          <tr
+                            key={ref}
+                            className="border-t border-gray-50 hover:bg-amber-50 transition-colors"
+                            data-ocid={`admin.referral.reward.row.${i + 1}`}
+                          >
+                            <td className="px-4 py-2.5 text-gray-400 font-bold text-xs">
+                              {i + 1}
+                            </td>
+                            <td className="px-4 py-2.5 font-semibold text-gray-800 font-mono text-xs">
+                              {ref}
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <span
+                                className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-black"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #dcfce7, #d1fae5)",
+                                  color: "#065f46",
+                                  border: "1px solid #86efac",
+                                }}
+                              >
+                                {count}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <span
+                                className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-black"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #fef3c7, #fde68a)",
+                                  color: "#92400e",
+                                  border: "1px solid #fcd34d",
+                                }}
+                              >
+                                ₹{count * 5}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Search + View Toggle */}
             <div className="flex items-center gap-3 flex-wrap">
