@@ -395,13 +395,16 @@ function computeResults(
   // Exercise minutes
   let exerciseMinutes: string;
   if (activityLevel === "sedentary") {
-    exerciseMinutes = "45 mins/day";
+    exerciseMinutes = "45 mins/day • 5 days/week";
   } else if (activityLevel === "lightly_active") {
-    exerciseMinutes = a <= 40 && w <= 80 ? "30 mins/day" : "35 mins/day";
+    exerciseMinutes =
+      a <= 40 && w <= 80
+        ? "30 mins/day • 4 days/week"
+        : "35 mins/day • 5 days/week";
   } else if (activityLevel === "moderately_active") {
-    exerciseMinutes = "20–25 mins/day";
+    exerciseMinutes = "20–25 mins/day • 3–4 days/week";
   } else {
-    exerciseMinutes = "30 mins/day";
+    exerciseMinutes = "30 mins/day • 5 days/week";
   }
 
   return {
@@ -1112,7 +1115,7 @@ function computeDietTimetable(wakeUpTime: string): DietTimetable {
 }
 
 // ── PDF Generator (browser print) ─────────────────────────────────────────────
-function generatePDF(
+function buildReportHtml(
   name: string,
   age: string,
   city: string,
@@ -1333,6 +1336,29 @@ function generatePDF(
       </div>
     </div>
   </div>
+  <div style="margin:12px 0 8px 0;">
+    <div style="font-size:10pt;font-weight:700;color:#334155;margin-bottom:8px;padding:6px 10px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:8px;border-left:4px solid #f59e0b;">&#9888; Daily Limit Recommendations — WHO Guidelines</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="background:linear-gradient(135deg,#fff1f2,#ffe4e6);border:2px solid #fca5a5;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+        <div style="font-size:20pt;">🍬</div>
+        <div>
+          <div style="font-size:8pt;font-weight:800;color:#dc2626;letter-spacing:1px;text-transform:uppercase;">SUGAR LIMIT</div>
+          <div style="font-size:18pt;font-weight:900;color:#b91c1c;line-height:1.1;">&lt;25g<span style="font-size:9pt;color:#64748b;font-weight:600;">/day</span></div>
+          <div style="font-size:7.5pt;color:#64748b;">Free sugars &lt;5% of total energy</div>
+          <div style="font-size:7.5pt;color:#dc2626;margin-top:2px;">Excess sugar → Diabetes, Obesity, Fatty Liver</div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #93c5fd;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+        <div style="font-size:20pt;">🧂</div>
+        <div>
+          <div style="font-size:8pt;font-weight:800;color:#2563eb;letter-spacing:1px;text-transform:uppercase;">SODIUM LIMIT</div>
+          <div style="font-size:18pt;font-weight:900;color:#1d4ed8;line-height:1.1;">&lt;2000mg<span style="font-size:9pt;color:#64748b;font-weight:600;">/day</span></div>
+          <div style="font-size:7.5pt;color:#64748b;">≈ 5g salt per day (1 teaspoon)</div>
+          <div style="font-size:7.5pt;color:#2563eb;margin-top:2px;">Excess sodium → Hypertension, Heart Disease</div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.2g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
   `;
 
@@ -1537,22 +1563,27 @@ function generatePDF(
       &#128161; ${vfRecommendation}
     </div>
     <div style="font-size:7.5pt;color:#94a3b8;margin-top:6px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
+    <div style="margin-top:12px;text-align:center;">
+      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:6px;">Understanding Your Body Fat Distribution</div>
+      <img src="${window.location.origin}/assets/generated/visceral-fat-${gender}-diagram-transparent.dim_400x300.png" alt="Body Fat Distribution Diagram" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
+      <div style="font-size:7.5pt;color:#64748b;margin-top:4px;">Subcutaneous fat (under skin) vs. Visceral fat (around organs) — based on your gender</div>
+    </div>
   </div>
   `;
 
-  const weightDiffLabel =
+  const _weightDiffLabel =
     Math.abs(weightDiff) <= 1
       ? "At Ideal Weight ✅"
       : weightDiff > 0
-        ? `Need to LOSE ${absWeightDiff} kg`
-        : `Need to GAIN ${absWeightDiff} kg`;
+        ? "Need to LOSE $absWeightDiffkg"
+        : "Need to GAIN $absWeightDiffkg";
 
   const goalsLabel =
     goals.map((g) => GOAL_LABELS[g] || g).join(", ") || "Not specified";
 
-  const referredByLine = invitedBy ? `\n• Referred By: ${invitedBy}` : "";
+  const _referredByLine = invitedBy ? "\n• Referred By: $invitedBy" : "";
   const waMsg = encodeURIComponent(
-    `Hi HN Coach! 👋 I just downloaded my *Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: ${name}\n• Age: ${age} yrs | City: ${city}\n• Occupation: ${occupation}\n• Height: ${height} cm | Weight: ${weight} kg\n• Goal(s): ${goalsLabel}${referredByLine}\n\n*📊 My Wellness Report*\n• Ideal Weight: ${results.idealWeight.toFixed(1)} kg\n• BMI: ${results.bmi.toFixed(1)} (${results.bmiCategory})\n• BMR: ${results.bmr.toLocaleString()} kcal/day\n• TDEE: ${results.tdee.toLocaleString()} kcal/day\n• Daily Water: ${results.waterIntake.toFixed(1)} L/day\n• Daily Steps: ${results.footsteps}\n• Exercise: ${results.exerciseMinutes}\n• Weight Goal: ${weightDiffLabel}\n\nI'd love a consultation. Can you please help me? 🙏`,
+    `Hi HN Coach! 👋 I just downloaded my *Wellness Assessment Report*. Here are my results:\n\n*👤 Personal Details*\n• Name: $name\n• Age: $ageyrs | City: $city\n• Occupation: $occupation\n• Height: $heightcm | Weight: $weightkg\n• Goal(s): $goalsLabel$referredByLine\n\n*📊 My Wellness Report*\n• Ideal Weight: $results.idealWeight.toFixed(1)kg\n• BMI: $results.bmi.toFixed(1)($results.bmiCategory)\n• BMR: $results.bmr.toLocaleString()kcal/day\n• TDEE: $results.tdee.toLocaleString()kcal/day\n• Daily Water: $results.waterIntake.toFixed(1)L/day\n• Daily Steps: $results.footsteps\n• Exercise: $results.exerciseMinutes\n• Weight Goal: $weightDiffLabel\n\nI'd love a consultation. Can you please help me? 🙏`,
   );
 
   // If invitedBy looks like a phone number (7+ digits), use it as the target; otherwise fallback to coach
@@ -1566,20 +1597,10 @@ function generatePDF(
   const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(whatsapp || name)}`;
   const referralSection = `
   <div class="referral-section">
-    <div style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.35);border-radius:10px;padding:10px 16px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:11pt;font-weight:800;color:#fff;font-style:italic;line-height:1.5;">🌍 This is a Social Health Awareness Mission</div>
-      <div style="font-size:9.5pt;color:rgba(255,255,255,0.9);margin-top:3px;">Join us and make India aware about Wellness.</div>
-    </div>
     <div class="referral-title">💚 Sharing is Caring</div>
-    <div class="referral-desc">Share your personal link below — when your friend opens it, the <strong style="color:#fff;">'Who Invited You?'</strong> field auto-fills with your name!</div>
-    <div style="background:rgba(255,215,0,0.18);border:1.5px solid rgba(255,215,0,0.5);border-radius:10px;padding:10px 14px;margin:10px 0 14px 0;text-align:center;">
-      <div style="font-size:13pt;font-weight:900;color:#ffd700;margin-bottom:6px;">💰 Earn ₹5 / Referral</div>
-      <div style="font-size:8.5pt;color:rgba(255,255,255,0.85);font-weight:600;margin-bottom:8px;">The more you share, the more you earn!</div>
-      <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
-        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">10 Referrals → ₹50</div>
-        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">100 Referrals → ₹500</div>
-        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:5px 10px;font-size:8pt;color:#fff;font-weight:700;">1000 Referrals → ₹5000</div>
-      </div>
+    <div style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);border-radius:10px;padding:12px 16px;margin:10px 0 14px 0;text-align:center;">
+      <div style="font-size:12pt;font-weight:800;color:#fff;line-height:1.6;">Help your 2 friends to download this report</div>
+      <div style="font-size:11pt;font-weight:700;color:#ffd700;margin-top:4px;">and get your full refund! 🎁</div>
     </div>
     <div class="referral-buttons">
       <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
@@ -1593,7 +1614,7 @@ function generatePDF(
     </div>
     <input id="ref-copy-input" type="text" readonly value="${referralPageUrl}" style="opacity:0;position:absolute;left:-9999px;width:1px;height:1px;" />
     <a href="${referralPageUrl}" class="ref-link-box" style="display:block;text-decoration:none;" target="_blank">${referralPageUrl}</a>
-    <div class="ref-hashtag">@HN_Coach &nbsp;·&nbsp; #WellnessForAll &nbsp;·&nbsp; #SharingIsCaring</div>
+
   </div>`;
 
   const wellnessScore = computeWellnessScore(
@@ -1610,7 +1631,7 @@ function generatePDF(
 <title>HN Coach – Wellness Report – ${name}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 11pt; color: #1f2937; background: #fff; }
+  body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #1f2937; background: #fff; }
   .page { max-width: 760px; margin: 0 auto; padding: 0 0 32px; }
 
   /* ── PREMIUM HEADER ─────────────────────────────────────── */
@@ -1852,7 +1873,7 @@ function generatePDF(
   .tl-rate-sub { font-size: 8pt; color: #ea580c; margin: 2px 0 6px; }
   .tl-months { font-size: 20pt; font-weight: 900; color: #9a3412; line-height: 1; }
   .timeline-note { font-size: 9pt; color: #7c2d12; background: #fff3e0; border: 1px solid #fdba74; border-radius: 8px; padding: 8px 12px; font-weight: 600; line-height: 1.5; }
-  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 20px 24px; margin: 20px 0 16px; box-shadow: 0 4px 20px rgba(6,78,59,0.3); }
+  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 12px 16px; margin: 12px 0 10px; box-shadow: 0 4px 20px rgba(6,78,59,0.3); }
   .referral-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; font-size: 8pt; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
   .referral-title { font-size: 18pt; font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
   .referral-subtitle { font-size: 10pt; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 4px; }
@@ -1971,11 +1992,18 @@ function generatePDF(
   .diet-tt-tip { font-size: 8pt; color: #4b5563; font-style: italic; line-height: 1.4; }
   .diet-tt-note { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #78350f; font-style: italic; margin-top: 4px; line-height: 1.5; }
   @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 4px 8px !important; font-size: 8.5pt !important; }
     .no-print { display: none; }
+    .print-btn-wrapper { display: none !important; }
+    .section { padding: 6px 8px !important; margin-bottom: 6px !important; page-break-inside: avoid; }
+    .referral-section { padding: 8px 10px !important; margin: 8px 0 !important; }
+    .wellness-score-section { padding: 8px 10px !important; margin: 8px 14px !important; }
+    .bio-age-section { padding: 8px 10px !important; }
+    .metric-card-body { padding: 6px 8px !important; }
+    .personal-section { margin: 0 14px 12px !important; }
   }
   /* ── WELLNESS SCORE ─────────────────────────────────────── */
-  .wellness-score-section { display:flex; align-items:center; gap:20px; margin:16px 24px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:14px; padding:16px 20px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
+  .wellness-score-section { display:flex; align-items:center; gap:14px; margin:10px 16px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:12px; padding:10px 14px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
   .ws-ring-wrap { flex-shrink:0; width:100px; height:100px; position:relative; }
   .ws-content { flex:1; }
   .ws-label { font-size:13pt; font-weight:900; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px; }
@@ -1988,7 +2016,7 @@ function generatePDF(
   /* ── BIOLOGICAL AGE ─────────────────────────────────────── */
   .bio-age-header { color: #7c3aed !important; }
   .bio-age-header::before { background: linear-gradient(to bottom, #7c3aed, #5b21b6) !important; }
-  .bio-age-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 16px 18px; }
+  .bio-age-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 10px 12px; }
   .bio-age-compare { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 12px; }
   .bio-age-box { text-align: center; padding: 14px 22px; border-radius: 10px; border: 2px solid #e5e7eb; min-width: 110px; }
   .bio-age-box.chrono { background: #f8fafc; border-color: #94a3b8; }
@@ -2002,6 +2030,12 @@ function generatePDF(
 </style>
 </head>
 <body>
+<div class="print-btn-wrapper" style="text-align:center;padding:12px 0 8px;position:sticky;top:0;z-index:100;background:#f0fdf4;border-bottom:2px solid #059669;">
+  <button onclick="window.print()" style="background:linear-gradient(135deg,#059669,#0d9488);color:#fff;border:none;border-radius:10px;padding:12px 36px;font-size:12pt;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(5,150,105,0.4);letter-spacing:0.3px;">
+    🖨️ Print / Download as PDF
+  </button>
+  <div style="font-size:8pt;color:#065f46;margin-top:6px;font-weight:600;">Click above to save this report as a PDF</div>
+</div>
 <div class="page">
 
   <!-- Premium Header -->
@@ -2157,6 +2191,47 @@ function generatePDF(
     <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
   </div>
 
+  <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #6ee7b7; border-radius: 14px; page-break-inside: avoid;">
+    <div style="text-align:center; margin-bottom:12px;">
+      <div style="font-size:13pt; font-weight:900; color:#064e3b; letter-spacing:0.3px;">⚡ Your Immediate Next Step</div>
+      <div style="font-size:10pt; color:#047857; font-weight:600; margin-top:3px;">Start practicing these today</div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div style="background:#fff; border:1.5px solid #a7f3d0; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+        <div style="font-size:22pt; flex-shrink:0;">💧</div>
+        <div>
+          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Water Intake</div>
+          <div style="font-size:14pt; font-weight:900; color:#0d9488;">${results.waterIntake.toFixed(1)}L</div>
+          <div style="font-size:7.5pt; color:#6b7280;">per day</div>
+        </div>
+      </div>
+      <div style="background:#fff; border:1.5px solid #fde68a; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+        <div style="font-size:22pt; flex-shrink:0;">👟</div>
+        <div>
+          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Footsteps</div>
+          <div style="font-size:14pt; font-weight:900; color:#d97706;">${results.footsteps}</div>
+          <div style="font-size:7.5pt; color:#6b7280;">steps / day</div>
+        </div>
+      </div>
+      <div style="background:#fff; border:1.5px solid #c7d2fe; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+        <div style="font-size:22pt; flex-shrink:0;">🏃</div>
+        <div>
+          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Exercise</div>
+          <div style="font-size:13pt; font-weight:900; color:#7c3aed;">${results.exerciseMinutes}</div>
+          <div style="font-size:7.5pt; color:#6b7280;">per week</div>
+        </div>
+      </div>
+      <div style="background:#fff; border:1.5px solid #fed7aa; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
+        <div style="font-size:22pt; flex-shrink:0;">🥗</div>
+        <div>
+          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Nutrition</div>
+          <div style="font-size:9pt; font-weight:800; color:#ea580c;">P: ${macros.protein}g · C: ${macros.carbs}g</div>
+          <div style="font-size:8.5pt; font-weight:700; color:#ea580c;">F: ${macros.fat}g · Fi: ${macros.fibre}g</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   ${referralSection}
   </div>
 
@@ -2178,14 +2253,7 @@ function generatePDF(
 </body>
 </html>`;
 
-  const printWindow = window.open("", "_blank", "width=900,height=700");
-  if (!printWindow) return;
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(() => {
-    printWindow.print();
-  }, 600);
+  return html;
 }
 
 // ── Local Storage Persistence ──────────────────────────────────────────────────
@@ -2307,10 +2375,16 @@ function FomoCountdown() {
 }
 
 // ── Live Reports Counter Component ─────────────────────────────────────────────
-function ReportsCounter() {
+function ReportsCounter({
+  onPriceUpdate,
+}: { onPriceUpdate?: (price: number) => void }) {
   const [count, setCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const onPriceUpdateRef = useRef(onPriceUpdate);
+  useEffect(() => {
+    onPriceUpdateRef.current = onPriceUpdate;
+  });
 
   useEffect(() => {
     createActorWithConfig()
@@ -2321,11 +2395,15 @@ function ReportsCounter() {
         const displayTotal = total + 1043;
         setCount(displayTotal);
         setLoaded(true);
+        if (onPriceUpdateRef.current)
+          onPriceUpdateRef.current(displayTotal >= 1500 ? 49 : 10);
       })
       .catch(() => {
         setCount(1043);
         setLoaded(true);
+        if (onPriceUpdateRef.current) onPriceUpdateRef.current(10);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Animate count from 0 to actual value
@@ -2347,7 +2425,7 @@ function ReportsCounter() {
     return () => clearInterval(timer);
   }, [count, loaded]);
 
-  const progressPct = Math.min(100, (displayCount / 2000) * 100);
+  const progressPct = Math.min(100, (displayCount / 1500) * 100);
 
   return (
     <motion.div
@@ -2399,7 +2477,8 @@ function ReportsCounter() {
           />
         </div>
         <p className="text-emerald-600 text-xs font-medium mt-1.5 text-center">
-          Join thousands of people who already know their wellness score ✨
+          After 1,500 reports — price goes to ₹49 ·{" "}
+          {displayCount.toLocaleString()} / 1,500 so far
         </p>
       </div>
     </motion.div>
@@ -2410,6 +2489,7 @@ function ReportsCounter() {
 interface WellnessAssessmentProps {
   lang: Lang;
   t: Translations;
+  currentPrice: number;
 }
 
 const EMPTY_FORM: UnifiedFormData = {
@@ -2431,7 +2511,11 @@ const EMPTY_FORM: UnifiedFormData = {
   invitedBy: "",
 };
 
-function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
+function WellnessAssessment({
+  lang,
+  t,
+  currentPrice,
+}: WellnessAssessmentProps) {
   const [savedReport, setSavedReport] = useState<SavedReport | null>(() =>
     loadSavedReport(),
   );
@@ -2452,7 +2536,9 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
   const referralRef = useRef<HTMLDivElement>(null);
+  const reportSectionRef = useRef<HTMLDivElement>(null);
   const lastResultsRef = useRef<{
     results: AssessmentResults;
     heightCm: string;
@@ -2519,7 +2605,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
       // Script not loaded yet — fallback: generate directly
       setIsGenerating(true);
       setTimeout(() => {
-        generatePDF(
+        const html1 = buildReportHtml(
           form.fullName,
           form.age,
           form.city,
@@ -2534,7 +2620,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           form.bedtime,
           form.wakeUpTime,
         );
-        notifyCoach(results);
+        setReportHtml(html1);
         saveReport(form, results, heightCm);
         // Record download in backend (fire and forget)
         createActorWithConfig()
@@ -2559,7 +2645,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
         setPaymentSuccess(true);
         setShowReferral(true);
         setTimeout(() => {
-          referralRef.current?.scrollIntoView({
+          reportSectionRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "start",
           });
@@ -2572,12 +2658,12 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
 
     const options = {
       key: "rzp_live_SNoVPUAavv60C9",
-      amount: 1000, // Rs. 10 in paise
+      amount: currentPrice * 100, // dynamic price in paise
       currency: "INR",
       name: "HN Coach",
       description: "Wellness Assessment Report",
       handler: (_response: Record<string, string>) => {
-        generatePDF(
+        const html2 = buildReportHtml(
           form.fullName,
           form.age,
           form.city,
@@ -2592,7 +2678,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           form.bedtime,
           form.wakeUpTime,
         );
-        notifyCoach(results);
+        setReportHtml(html2);
         saveReport(form, results, heightCm);
         // Record download in backend (fire and forget)
         createActorWithConfig()
@@ -2617,7 +2703,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
         setIsPaymentLoading(false);
         setShowReferral(true);
         setTimeout(() => {
-          referralRef.current?.scrollIntoView({
+          reportSectionRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "start",
           });
@@ -2640,7 +2726,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
     rzp.open();
   };
 
-  const notifyCoach = (results: AssessmentResults) => {
+  const _notifyCoach = (results: AssessmentResults) => {
     // Notify coach on WhatsApp with full report details
     const goalsLabel =
       form.goals.map((g) => GOAL_LABELS[g] || g).join(", ") || "Not specified";
@@ -2777,7 +2863,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                   type="button"
                   data-ocid="welcome.download_again.button"
                   onClick={() => {
-                    generatePDF(
+                    const h = buildReportHtml(
                       savedReport.form.fullName,
                       savedReport.form.age,
                       savedReport.form.city,
@@ -2791,6 +2877,15 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                       savedReport.form.invitedBy,
                       savedReport.form.bedtime ?? "",
                       savedReport.form.wakeUpTime ?? "",
+                    );
+                    setReportHtml(h);
+                    setTimeout(
+                      () =>
+                        reportSectionRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        }),
+                      400,
                     );
                   }}
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
@@ -3562,7 +3657,7 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                   data-ocid="assessment.download.secondary_button"
                   onClick={() => {
                     if (!lastResultsRef.current) return;
-                    generatePDF(
+                    const h = buildReportHtml(
                       form.fullName,
                       form.age,
                       form.city,
@@ -3576,6 +3671,15 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
                       form.invitedBy,
                       form.bedtime,
                       form.wakeUpTime,
+                    );
+                    setReportHtml(h);
+                    setTimeout(
+                      () =>
+                        reportSectionRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        }),
+                      400,
                     );
                   }}
                   className="w-full h-12 rounded-xl border-2 border-teal-500 text-teal-700 font-bold text-base flex items-center justify-center gap-2 hover:bg-teal-50 transition-colors"
@@ -3601,6 +3705,45 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
         </Card>
       </motion.div>
 
+      {/* Inline Report Section — shown after payment */}
+      {reportHtml !== null && (
+        <div ref={reportSectionRef} className="mt-6 mb-4">
+          <button
+            type="button"
+            data-ocid="report.print.primary_button"
+            onClick={() => {
+              const iframe = document.getElementById(
+                "report-iframe",
+              ) as HTMLIFrameElement;
+              iframe?.contentWindow?.print();
+            }}
+            className="w-full mb-4 flex items-center justify-center gap-3 py-4 px-6 rounded-2xl font-black text-lg text-white transition-all hover:brightness-110 active:scale-[0.98]"
+            style={{
+              background:
+                "linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)",
+              boxShadow: "0 6px 28px rgba(5,150,105,0.45)",
+              letterSpacing: "0.3px",
+            }}
+          >
+            <span style={{ fontSize: "1.3rem" }}>🖨️</span>
+            Print / Download Report as PDF
+          </button>
+          <iframe
+            id="report-iframe"
+            srcDoc={reportHtml}
+            style={{
+              width: "100%",
+              height: "1200px",
+              border: "none",
+              borderRadius: "12px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.15)",
+              display: "block",
+            }}
+            title="Wellness Report"
+          />
+        </div>
+      )}
+
       {/* Referral Section — shown after report is generated */}
       {showReferral && (
         <motion.div
@@ -3617,107 +3760,29 @@ function WellnessAssessment({ lang, t }: WellnessAssessmentProps) {
           }}
         >
           <div className="px-5 py-7 text-center">
-            {/* Mission Banner */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.15 }}
-              className="mb-5 rounded-xl px-4 py-3 mx-auto max-w-lg"
+            {/* Header */}
+            <h3 className="text-2xl font-black text-white mb-4">
+              💚 Sharing is Caring — Help Your Friends
+            </h3>
+
+            {/* Refund message */}
+            <div
+              className="mx-auto max-w-sm mb-4 rounded-xl px-4 py-3 text-center"
               style={{
-                background: "rgba(255,255,255,0.12)",
-                border: "1.5px solid rgba(255,255,255,0.35)",
+                background: "rgba(255,215,0,0.15)",
+                border: "2px solid rgba(255,215,0,0.6)",
               }}
             >
-              <p className="text-white font-extrabold italic text-sm sm:text-base leading-snug">
-                🌍 This is a Social Health Awareness Mission
+              <p className="font-black text-yellow-300 text-sm">
+                🎁 Help 2 Friends Download Their Report
               </p>
-              <p className="text-emerald-100/90 text-xs sm:text-sm mt-1 font-medium">
-                Join us and make India aware about Wellness.
+              <p className="font-bold text-white text-sm mt-1">
+                & Get Your Full Refund of ₹10 Back!
               </p>
-            </motion.div>
-
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/25 rounded-full px-4 py-1.5 text-xs font-black text-white uppercase tracking-widest mb-4">
-              <Share2 className="w-3.5 h-3.5" />
-              {t.refer2Friends}
+              <p className="text-emerald-100/80 text-xs mt-1">
+                2 Referrals × ₹5 = ₹10 Refund 🎉
+              </p>
             </div>
-
-            <h3 className="text-2xl font-black text-white mb-1">
-              {t.sharingIsCaring}
-            </h3>
-            <p className="text-emerald-100 font-semibold text-sm mb-1">
-              {t.referralShareDesc}
-            </p>
-
-            {/* Help 2 Friends progress visualization */}
-            <div className="flex items-center justify-center gap-5 my-5">
-              <div className="flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ scale: 0.7, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{
-                    delay: 0.15,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 220,
-                  }}
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
-                    border: "2px dashed rgba(134,239,172,0.55)",
-                    boxShadow:
-                      "0 0 0 4px rgba(134,239,172,0.1), inset 0 1px 0 rgba(255,255,255,0.15)",
-                  }}
-                >
-                  🧑
-                </motion.div>
-                <span className="text-emerald-100 text-xs font-bold tracking-wide">
-                  {t.friend1}
-                </span>
-              </div>
-              <div className="flex flex-col items-center gap-1 self-start mt-4">
-                <div
-                  className="w-8 h-0.5 rounded-full"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, rgba(134,239,172,0.6), rgba(134,239,172,0.2))",
-                  }}
-                />
-                <div
-                  className="w-5 h-0.5 rounded-full"
-                  style={{ background: "rgba(134,239,172,0.3)" }}
-                />
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ scale: 0.7, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{
-                    delay: 0.3,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 220,
-                  }}
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
-                    border: "2px dashed rgba(134,239,172,0.55)",
-                    boxShadow:
-                      "0 0 0 4px rgba(134,239,172,0.1), inset 0 1px 0 rgba(255,255,255,0.15)",
-                  }}
-                >
-                  🧑
-                </motion.div>
-                <span className="text-emerald-100 text-xs font-bold tracking-wide">
-                  {t.friend2}
-                </span>
-              </div>
-            </div>
-            <p className="text-emerald-100/75 text-xs mb-5 font-medium">
-              {t.tag2Friends}
-            </p>
 
             {/* Referral link display — click to copy */}
             <button
@@ -3953,6 +4018,13 @@ function AdminDashboard() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [records, setRecords] = useState<DownloadRecord[]>([]);
+  const [paidOut, setPaidOut] = useState<Record<string, string>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("hncoach_paid_out") || "{}");
+    } catch {
+      return {};
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
@@ -4260,6 +4332,9 @@ function AdminDashboard() {
                           <th className="px-4 py-2 text-center text-xs font-bold text-amber-600 uppercase">
                             Reward Earned (₹)
                           </th>
+                          <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
+                            Status
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -4300,6 +4375,39 @@ function AdminDashboard() {
                               >
                                 ₹{count * 5}
                               </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              {paidOut[ref] ? (
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
+                                    ✓ Paid
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {paidOut[ref]}
+                                  </span>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const dateStr =
+                                      new Date().toLocaleDateString("en-IN");
+                                    const updated = {
+                                      ...paidOut,
+                                      [ref]: dateStr,
+                                    };
+                                    setPaidOut(updated);
+                                    localStorage.setItem(
+                                      "hncoach_paid_out",
+                                      JSON.stringify(updated),
+                                    );
+                                  }}
+                                  className="px-2 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors"
+                                  data-ocid={`admin.referral.payout.button.${i + 1}`}
+                                >
+                                  Mark Paid
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -4502,6 +4610,7 @@ function AdminDashboard() {
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
+  const [currentPrice, setCurrentPrice] = useState(10);
   const t = translations[lang];
 
   // Check for admin mode
@@ -4715,9 +4824,9 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
-        <ReportsCounter />
+        <ReportsCounter onPriceUpdate={(p) => setCurrentPrice(p)} />
         <FomoCountdown />
-        <WellnessAssessment lang={lang} t={t} />
+        <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
       </main>
 
       {/* 30 Days Money Back Guarantee Surprise */}
