@@ -399,12 +399,12 @@ function computeResults(
   } else if (activityLevel === "lightly_active") {
     exerciseMinutes =
       a <= 40 && w <= 80
-        ? "30 mins/day • 4 days/week"
-        : "35 mins/day • 5 days/week";
+        ? "45 mins/day • 4 days/week"
+        : "45 mins/day • 5 days/week";
   } else if (activityLevel === "moderately_active") {
-    exerciseMinutes = "20–25 mins/day • 3–4 days/week";
+    exerciseMinutes = "45 mins/day • 4 days/week";
   } else {
-    exerciseMinutes = "30 mins/day • 5 days/week";
+    exerciseMinutes = "45 mins/day • 5 days/week";
   }
 
   return {
@@ -421,7 +421,7 @@ function computeResults(
 
 // ── Macronutrient Calculator ───────────────────────────────────────────────────
 interface MacroNeeds {
-  protein: number; // grams/day — 1.2g per kg of body weight
+  protein: number; // grams/day — 1.5g per kg of body weight
   fat: number; // grams/day — 25% of BMR calories / 9
   carbs: number; // grams/day — 40% of TDEE calories / 4
   fibre: number; // grams/day — ICMR: 0.5g/kg body weight, min 25g, max 40g
@@ -433,7 +433,7 @@ function computeMacros(
   bodyWeight: number,
   bmr: number,
 ): MacroNeeds {
-  const protein = Math.round(bodyWeight * 1.2); // 1.2g per kg of body weight
+  const protein = Math.round(bodyWeight * 1.5); // 1.2g per kg of body weight
   const fat = Math.round((bmr * 0.25) / 9); // 25% of BMR calories from fat (Global Nutrition Philosophy)
   const carbs = Math.round((tdee * 0.4) / 4); // 40% of TDEE calories from carbs (Global Nutrition Philosophy)
   const fibre = Math.min(40, Math.max(25, Math.round(bodyWeight * 0.5))); // ICMR 0.5g/kg, 25–40g range
@@ -1298,7 +1298,6 @@ function buildReportHtml(
       <div class="macro-content">
         <div class="macro-badge protein-badge">PROTEIN</div>
         <div class="macro-value">${macros.protein}g<span class="macro-unit">/day</span></div>
-        <div class="macro-formula">1.2g × ${weight} kg body weight</div>
         <div class="macro-desc">Builds &amp; repairs muscles, supports immunity and hormones.</div>
       </div>
     </div>
@@ -1359,7 +1358,7 @@ function buildReportHtml(
       </div>
     </div>
   </div>
-  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.2g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
+  <div class="macro-note">&#9432; These calculations are based on <strong>Global Nutrition Philosophy</strong> (Protein: 1.5g/kg body weight; Fat: 25% of BMR; Carbs: 40% of TDEE; Fibre: 0.5g/kg body weight per ICMR). For a personalised macro-based meal plan tailored to your body, contact HN Coach.</div>
   `;
 
   // Sleep & Recovery Section HTML
@@ -1565,7 +1564,7 @@ function buildReportHtml(
     <div style="font-size:7.5pt;color:#94a3b8;margin-top:6px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
     <div style="margin-top:12px;text-align:center;">
       <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:6px;">Understanding Your Body Fat Distribution</div>
-      <img src="${window.location.origin}/assets/generated/visceral-fat-${gender}-diagram-transparent.dim_400x300.png" alt="Body Fat Distribution Diagram" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
+      <img src="${window.location.origin}/assets/uploads/belly-fat-diagram_600x600-1.png" alt="Body Fat Distribution Diagram" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
       <div style="font-size:7.5pt;color:#64748b;margin-top:4px;">Subcutaneous fat (under skin) vs. Visceral fat (around organs) — based on your gender</div>
     </div>
   </div>
@@ -2135,9 +2134,6 @@ function buildReportHtml(
       <div class="metric-card"><div class="metric-card-accent emerald"></div><div class="metric-card-body"><div class="metric-label">BMI <span style="color:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};font-size:8pt;">(${results.bmiCategory})</span></div><div class="metric-note">Body Mass Index</div><div class="metric-value">${results.bmi.toFixed(1)}</div></div></div>
       <div class="metric-card"><div class="metric-card-accent cyan"></div><div class="metric-card-body"><div class="metric-label">BMR</div><div class="metric-note">Calories burned at rest</div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div></div>
       <div class="metric-card"><div class="metric-card-accent blue"></div><div class="metric-card-body"><div class="metric-label">TDEE</div><div class="metric-note">Calories to maintain weight</div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent indigo"></div><div class="metric-card-body"><div class="metric-label">Daily Water Intake</div><div class="metric-note">1 litre per 18 kg body weight</div><div class="metric-value">${results.waterIntake.toFixed(1)} L/day</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent violet"></div><div class="metric-card-body"><div class="metric-label">Daily Footsteps</div><div class="metric-note">1 kg body = 110 footsteps</div><div class="metric-value">${results.footsteps}</div></div></div>
-      <div class="metric-card" style="grid-column:1/-1;"><div class="metric-card-accent amber"></div><div class="metric-card-body"><div class="metric-label">Daily Exercise Duration</div><div class="metric-note">Based on activity level</div><div class="metric-value">${results.exerciseMinutes}</div></div></div>
     </div>
   </div>
 
