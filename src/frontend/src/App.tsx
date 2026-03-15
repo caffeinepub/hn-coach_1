@@ -1129,6 +1129,7 @@ function buildReportHtml(
   invitedBy: string,
   bedtime: string,
   wakeUpTime: string,
+  myReferralCount = 0,
 ) {
   const macros = computeMacros(
     results.idealWeight,
@@ -1590,16 +1591,64 @@ function buildReportHtml(
   const targetNumber = isPhoneNumber
     ? invitedBy.trim().replace(/[\s\-+]/g, "")
     : "919155348866";
-  const waUrl = `https://wa.me/${targetNumber}?text=${waMsg}`;
+  const _waUrl = `https://wa.me/${targetNumber}?text=${waMsg}`;
 
   // Referral link uses the person's own WhatsApp number as the ref param
   const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(whatsapp || name)}`;
+  // Pre-compute referral progress bar values
+  const _refProgressWidth = Math.min((myReferralCount / 2) * 100, 100);
+  const _refProgressPct = _refProgressWidth.toFixed(0);
+  const _refPctSpan =
+    myReferralCount > 0
+      ? `<span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:8pt; font-weight:700; color:#fff;">${_refProgressPct}%</span>`
+      : "";
+  const _refStatusColor = myReferralCount >= 2 ? "#4ade80" : "#ffd700";
+  const _refStatusMsg =
+    myReferralCount === 0
+      ? "\uD83C\uDFAF Share your link below \u2014 get \u20B910 refund when 2 friends download!"
+      : myReferralCount === 1
+        ? "\uD83D\uDD25 1 friend downloaded! Just 1 more for your full refund!"
+        : "\uD83C\uDF89 Congratulations! You qualify for a full refund! Contact us on WhatsApp.";
+  const _f1Border = myReferralCount >= 1 ? "#4ade80" : "rgba(255,255,255,0.3)";
+  const _f1Color = myReferralCount >= 1 ? "#4ade80" : "#fff";
+  const _f1Icon = myReferralCount >= 1 ? "\u2705" : "\u2B1C";
+  const _f2Border = myReferralCount >= 2 ? "#4ade80" : "rgba(255,255,255,0.3)";
+  const _f2Color = myReferralCount >= 2 ? "#4ade80" : "#fff";
+  const _f2Icon = myReferralCount >= 2 ? "\u2705" : "\u2B1C";
   const referralSection = `
   <div class="referral-section">
     <div class="referral-title">💚 Sharing is Caring</div>
     <div style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);border-radius:10px;padding:12px 16px;margin:10px 0 14px 0;text-align:center;">
       <div style="font-size:12pt;font-weight:800;color:#fff;line-height:1.6;">Help your 2 friends to download this report</div>
       <div style="font-size:11pt;font-weight:700;color:#ffd700;margin-top:4px;">and get your full refund! 🎁</div>
+    </div>
+    <div style="margin: 14px 0; background: rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 16px; border: 1.5px solid rgba(255,255,255,0.3);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:11pt; font-weight:700; color:#fff;">&#x1F4CA; Your Referral Progress</span>
+        <span style="font-size:11pt; font-weight:800; color:#ffd700;">${myReferralCount} / 2 Done</span>
+      </div>
+      <div style="background: rgba(0,0,0,0.3); border-radius: 20px; height: 18px; overflow: hidden; position: relative;">
+        <div style="height:100%; width: ${_refProgressWidth}%; background: linear-gradient(90deg, #4ade80, #22c55e); border-radius: 20px; position: relative;">
+          ${_refPctSpan}
+        </div>
+      </div>
+      <div style="margin-top:8px; font-size:9.5pt; color: ${_refStatusColor}; font-weight:600; text-align:center;">
+        ${_refStatusMsg}
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px; justify-content:center;">
+        <div style="background:rgba(255,255,255,0.1); border:1.5px solid ${_f1Border}; border-radius:8px; padding:6px 12px; text-align:center;">
+          <div style="font-size:14pt; font-weight:800; color:${_f1Color};">${_f1Icon}</div>
+          <div style="font-size:8pt; color:rgba(255,255,255,0.8);">Friend 1</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); border:1.5px solid ${_f2Border}; border-radius:8px; padding:6px 12px; text-align:center;">
+          <div style="font-size:14pt; font-weight:800; color:${_f2Color};">${_f2Icon}</div>
+          <div style="font-size:8pt; color:rgba(255,255,255,0.8);">Friend 2</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.3); border-radius:8px; padding:6px 12px; text-align:center; flex:1; max-width:120px;">
+          <div style="font-size:10pt; font-weight:800; color:#ffd700;">&#x20B9;10</div>
+          <div style="font-size:8pt; color:rgba(255,255,255,0.8);">Refund Goal</div>
+        </div>
+      </div>
     </div>
     <div class="referral-buttons">
       <a href="https://wa.me/?text=${encodeURIComponent(`Hi! I just downloaded my Wellness Assessment Report from HN Coach! Get yours here: ${referralPageUrl}\n\n📌 Referred By: ${whatsapp || name}`)}" class="ref-btn-wa">
@@ -1847,6 +1896,14 @@ function buildReportHtml(
   }
   .footer-cta-text { font-size: 12pt; font-weight: 900; color: #d1fae5; letter-spacing: 0.5px; margin-bottom: 14px; }
   .footer-brand { font-size: 8pt; opacity: 0.7; margin-top: 8px; }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 4px 24px rgba(255,107,53,0.5), 0 0 0 4px rgba(255,107,53,0.15); transform: scale(1); }
+    50% { box-shadow: 0 6px 40px rgba(255,107,53,0.9), 0 0 0 8px rgba(255,107,53,0.25); transform: scale(1.03); }
+  }
+  @keyframes diet-plan-pulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(5,150,105,0.4), 0 0 0 3px rgba(5,150,105,0.15); }
+    50% { box-shadow: 0 6px 28px rgba(5,150,105,0.8), 0 0 0 6px rgba(5,150,105,0.3); }
+  }
   .risk-header { color: #dc2626 !important; }
   .risk-header::before { background: linear-gradient(to bottom, #dc2626, #b91c1c) !important; }
   .risk-healthy { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 10px; padding: 12px 16px; font-size: 10pt; color: #14532d; margin-bottom: 8px; border-left: 4px solid #16a34a; }
@@ -2171,6 +2228,12 @@ function buildReportHtml(
 
   ${timelineHtml}
 
+  <div class="guarantee-box">
+    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
+    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
+    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
+  </div>
+
   ${macroNutrientsHtml}
 
   ${sleepSectionHtml}
@@ -2180,12 +2243,6 @@ function buildReportHtml(
   ${foodsToAvoidHtml}
 
   ${healthRiskHtml}
-
-  <div class="guarantee-box">
-    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
-    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
-    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
-  </div>
 
   <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #6ee7b7; border-radius: 14px; page-break-inside: avoid;">
     <div style="text-align:center; margin-bottom:12px;">
@@ -2235,12 +2292,18 @@ function buildReportHtml(
   <div class="footer">
     <div class="footer-gold-line"></div>
     <div class="footer-cta-text">🌟 Ready to Transform Your Health?</div>
-    <div class="footer-sub">Your personal wellness coach is just one message away. Send this report and get a personalised consultation!</div>
+    <div class="footer-sub">Your personal wellness coach is just one message away. Get your personalised diet plan and start your transformation today!</div>
+    <div style="margin-bottom:8px;padding:8px 16px;background:rgba(255,255,255,0.12);border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,0.25);">
+      <span style="font-size:11pt;font-weight:900;color:#fde68a;">🎯 Don't miss this! Your personalized diet plan is ready</span>
+    </div>
     <div>
-      <button type="button" onclick="window.print(); setTimeout(function(){ window.open('${waUrl}', '_blank'); }, 1500);" class="footer-wa-btn" style="cursor:pointer;border:none;">
-        <svg viewBox="0 0 24 24" fill="white" style="width:22px;height:22px;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        🥗 Get Your Free Diet Plan
-      </button>
+      <a href="https://dietplan-hncoach-8m2.caffeine.xyz/?ref=${encodeURIComponent(targetNumber)}" target="_blank" class="footer-wa-btn" style="cursor:pointer;border:none;display:inline-flex;align-items:center;gap:10px;text-decoration:none;background:linear-gradient(135deg,#ff6b35 0%,#ff8c42 50%,#ffaa00 100%);box-shadow:0 4px 24px rgba(255,107,53,0.6),0 0 0 4px rgba(255,107,53,0.2);border:2px solid rgba(255,255,255,0.35);animation:pulse-glow 2s ease-in-out infinite;padding:16px 36px;font-size:14pt;" rel="noreferrer">
+        <span style="font-size:24px;">🥗</span>
+        <span>
+          <span style="display:block;font-size:8pt;font-weight:700;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:1.5px;">✨ Special Offer — Free Today!</span>
+          Get Your Diet Plan Now
+        </span>
+      </a>
     </div>
     <div class="footer-brand">HN Coach · Personalised Wellness Coaching · Consult HN Coach for personalised advice.</div>
   </div>
@@ -2507,6 +2570,389 @@ const EMPTY_FORM: UnifiedFormData = {
   invitedBy: "",
 };
 
+// ── Social Proof Popup ─────────────────────────────────────────────────────────
+const FEMALE_NAMES = [
+  "Priya",
+  "Anita",
+  "Kavya",
+  "Sunita",
+  "Pooja",
+  "Neha",
+  "Rekha",
+  "Divya",
+  "Meera",
+  "Shivani",
+  "Pallavi",
+  "Archana",
+  "Deepika",
+  "Shreya",
+  "Nandini",
+  "Ritu",
+  "Swati",
+  "Geeta",
+  "Manisha",
+  "Sonal",
+];
+const CITIES = [
+  "Mumbai",
+  "Delhi",
+  "Pune",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Ahmedabad",
+  "Jaipur",
+  "Surat",
+];
+const TIME_AGO = [
+  "just now",
+  "1 min ago",
+  "2 mins ago",
+  "3 mins ago",
+  "5 mins ago",
+  "7 mins ago",
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function SocialProofPopup() {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [name, setName] = useState(FEMALE_NAMES[0]);
+  const [city, setCity] = useState(CITIES[0]);
+  const [time, setTime] = useState(TIME_AGO[2]);
+
+  useEffect(() => {
+    if (dismissed) return;
+    const showNew = () => {
+      setName(pickRandom(FEMALE_NAMES));
+      setCity(pickRandom(CITIES));
+      setTime(pickRandom(TIME_AGO));
+      setVisible(true);
+    };
+    const initialTimer = setTimeout(() => {
+      showNew();
+      const cycleInterval = setInterval(
+        () => {
+          setVisible(false);
+          setTimeout(() => {
+            if (!dismissed) showNew();
+          }, 3000);
+        },
+        10000 + Math.random() * 2000,
+      );
+      return () => clearInterval(cycleInterval);
+    }, 3000);
+    return () => clearTimeout(initialTimer);
+  }, [dismissed]);
+
+  if (dismissed) return null;
+
+  return (
+    <div
+      data-ocid="social-proof.toast"
+      style={{
+        position: "fixed",
+        bottom: "24px",
+        left: "16px",
+        zIndex: 9999,
+        transform: visible ? "translateX(0)" : "translateX(-120%)",
+        transition: "transform 0.5s cubic-bezier(0.34,1.56,0.64,1)",
+        maxWidth: "320px",
+        width: "calc(100vw - 32px)",
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1)",
+          padding: "14px 16px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          border: "1.5px solid #d1fae5",
+          position: "relative",
+        }}
+      >
+        <div
+          style={{
+            width: "42px",
+            height: "42px",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #059669, #10b981)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
+            flexShrink: 0,
+          }}
+        >
+          📥
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "#064e3b",
+            }}
+          >
+            <span style={{ color: "#059669" }}>{name}</span> from {city}
+          </p>
+          <p
+            style={{ margin: "2px 0 0", fontSize: "11.5px", color: "#6b7280" }}
+          >
+            downloaded the wellness report <strong>{time}</strong>
+          </p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "3px",
+              marginTop: "4px",
+            }}
+          >
+            {[1, 2, 3, 4, 5].map((s) => (
+              <span key={s} style={{ color: "#f59e0b", fontSize: "10px" }}>
+                ★
+              </span>
+            ))}
+            <span
+              style={{
+                fontSize: "10px",
+                color: "#059669",
+                fontWeight: 700,
+                marginLeft: "4px",
+              }}
+            >
+              Verified
+            </span>
+          </div>
+        </div>
+        <button
+          data-ocid="social-proof.close_button"
+          type="button"
+          onClick={() => {
+            setVisible(false);
+            setDismissed(true);
+          }}
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "10px",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "#9ca3af",
+            fontSize: "14px",
+            lineHeight: 1,
+            padding: "2px 4px",
+          }}
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Report Ratings ─────────────────────────────────────────────────────────────
+const RATINGS_DATA = [
+  {
+    quote:
+      "I was shocked to see my exact health numbers! The wellness score opened my eyes. Now following the diet plan and feeling amazing!",
+    name: "Sneha",
+    city: "Pune",
+    initial: "S",
+    color: "#7c3aed",
+  },
+  {
+    quote:
+      "Never knew my visceral fat was so high. The report was a wake-up call. Diet plan is working — lost 4kg in 3 weeks!",
+    name: "Priya",
+    city: "Mumbai",
+    initial: "P",
+    color: "#db2777",
+  },
+  {
+    quote:
+      "So surprised by how accurate my biological age was! Immediately got the diet plan. My energy levels have improved so much.",
+    name: "Kavya",
+    city: "Bangalore",
+    initial: "K",
+    color: "#0891b2",
+  },
+  {
+    quote:
+      "The report showed everything about my body I never knew. My family doctor was impressed. The diet plan is easy to follow!",
+    name: "Anita",
+    city: "Delhi",
+    initial: "A",
+    color: "#059669",
+  },
+];
+
+function ReportRatings() {
+  return (
+    <div
+      data-ocid="ratings.section"
+      style={{
+        background:
+          "linear-gradient(135deg, #fffbeb 0%, #fef9ee 50%, #fef3c7 100%)",
+        borderRadius: "20px",
+        border: "2px solid #f59e0b",
+        padding: "24px 20px",
+        marginBottom: "24px",
+        boxShadow: "0 4px 24px rgba(245,158,11,0.12)",
+      }}
+    >
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <div style={{ fontSize: "22px", marginBottom: "4px" }}>💬</div>
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "17px",
+            fontWeight: 900,
+            color: "#78350f",
+            letterSpacing: "-0.3px",
+          }}
+        >
+          Real Results from Real People
+        </h3>
+        <p
+          style={{
+            margin: "6px 0 0",
+            fontSize: "12.5px",
+            color: "#92400e",
+            fontWeight: 600,
+          }}
+        >
+          Thousands of people were surprised by their wellness report — and
+          transformed their health with the diet plan
+        </p>
+      </div>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}
+      >
+        {RATINGS_DATA.map((r, i) => (
+          <div
+            key={r.name}
+            data-ocid={`ratings.item.${i + 1}`}
+            style={{
+              background: "#fff",
+              borderRadius: "14px",
+              padding: "14px 13px",
+              boxShadow: "0 2px 12px rgba(245,158,11,0.1)",
+              border: "1.5px solid #fde68a",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            <div style={{ display: "flex", gap: "2px" }}>
+              {[1, 2, 3, 4, 5].map((s) => (
+                <span key={s} style={{ color: "#f59e0b", fontSize: "13px" }}>
+                  ★
+                </span>
+              ))}
+            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "11px",
+                color: "#374151",
+                lineHeight: 1.55,
+                fontStyle: "italic",
+              }}
+            >
+              "{r.quote}"
+            </p>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginTop: "auto",
+              }}
+            >
+              <div
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  background: r.color,
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  fontWeight: 900,
+                  flexShrink: 0,
+                }}
+              >
+                {r.initial}
+              </div>
+              <div>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "11.5px",
+                    fontWeight: 800,
+                    color: "#1f2937",
+                  }}
+                >
+                  {r.name}
+                </p>
+                <p style={{ margin: 0, fontSize: "10px", color: "#6b7280" }}>
+                  {r.city}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ textAlign: "center", marginTop: "16px" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "linear-gradient(135deg, #064e3b, #059669)",
+            color: "#fff",
+            padding: "10px 24px",
+            borderRadius: "24px",
+            fontSize: "13px",
+            fontWeight: 900,
+            boxShadow:
+              "0 4px 16px rgba(5,150,105,0.4), 0 0 0 3px rgba(5,150,105,0.15)",
+            animation: "diet-plan-pulse 2s ease-in-out infinite",
+            cursor: "pointer",
+          }}
+        >
+          <span style={{ fontSize: "16px" }}>🎯</span>
+          <span>Get Your Diet Plan Now →</span>
+        </div>
+        <p
+          style={{
+            margin: "8px 0 0",
+            fontSize: "11px",
+            color: "#92400e",
+            fontWeight: 600,
+          }}
+        >
+          ⬆️ Fill the form below to get your personalized report + diet plan
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function WellnessAssessment({
   lang,
   t,
@@ -2615,6 +3061,12 @@ function WellnessAssessment({
           form.invitedBy,
           form.bedtime,
           form.wakeUpTime,
+          (() => {
+            const c = JSON.parse(
+              localStorage.getItem("hncoach_referral_counts") || "{}",
+            );
+            return c[form.whatsapp] || 0;
+          })(),
         );
         setReportHtml(html1);
         saveReport(form, results, heightCm);
@@ -2631,6 +3083,18 @@ function WellnessAssessment({
             ),
           )
           .catch(() => {});
+        // Track referral download in localStorage
+        if (form.invitedBy?.trim()) {
+          const refCounts = JSON.parse(
+            localStorage.getItem("hncoach_referral_counts") || "{}",
+          );
+          const refKey = form.invitedBy.trim().replace(/[\s\-+]/g, "");
+          refCounts[refKey] = (refCounts[refKey] || 0) + 1;
+          localStorage.setItem(
+            "hncoach_referral_counts",
+            JSON.stringify(refCounts),
+          );
+        }
         setSavedReport({
           form,
           results,
@@ -2673,6 +3137,12 @@ function WellnessAssessment({
           form.invitedBy,
           form.bedtime,
           form.wakeUpTime,
+          (() => {
+            const c = JSON.parse(
+              localStorage.getItem("hncoach_referral_counts") || "{}",
+            );
+            return c[form.whatsapp] || 0;
+          })(),
         );
         setReportHtml(html2);
         saveReport(form, results, heightCm);
@@ -2689,6 +3159,18 @@ function WellnessAssessment({
             ),
           )
           .catch(() => {});
+        // Track referral download in localStorage
+        if (form.invitedBy?.trim()) {
+          const refCounts = JSON.parse(
+            localStorage.getItem("hncoach_referral_counts") || "{}",
+          );
+          const refKey = form.invitedBy.trim().replace(/[\s\-+]/g, "");
+          refCounts[refKey] = (refCounts[refKey] || 0) + 1;
+          localStorage.setItem(
+            "hncoach_referral_counts",
+            JSON.stringify(refCounts),
+          );
+        }
         setSavedReport({
           form,
           results,
@@ -2873,6 +3355,13 @@ function WellnessAssessment({
                       savedReport.form.invitedBy,
                       savedReport.form.bedtime ?? "",
                       savedReport.form.wakeUpTime ?? "",
+                      (() => {
+                        const c = JSON.parse(
+                          localStorage.getItem("hncoach_referral_counts") ||
+                            "{}",
+                        );
+                        return c[savedReport.form.whatsapp] || 0;
+                      })(),
                     );
                     setReportHtml(h);
                     setTimeout(
@@ -3667,6 +4156,13 @@ function WellnessAssessment({
                       form.invitedBy,
                       form.bedtime,
                       form.wakeUpTime,
+                      (() => {
+                        const c = JSON.parse(
+                          localStorage.getItem("hncoach_referral_counts") ||
+                            "{}",
+                        );
+                        return c[form.whatsapp] || 0;
+                      })(),
                     );
                     setReportHtml(h);
                     setTimeout(
@@ -4822,6 +5318,7 @@ export default function App() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
         <ReportsCounter onPriceUpdate={(p) => setCurrentPrice(p)} />
         <FomoCountdown />
+        <ReportRatings />
         <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
       </main>
 
@@ -4963,6 +5460,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      <SocialProofPopup />
     </div>
   );
 }
