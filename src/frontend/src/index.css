@@ -1,0 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,900&family=Figtree:wght@400;600;700;900&family=Noto+Sans+Devanagari:wght@400;600;700;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0.98 0 0;
+    --foreground: 0.15 0 0;
+    --card: 1 0 0;
+    --card-foreground: 0.15 0 0;
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0 0;
+    --primary: 0.55 0.18 145;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.96 0.01 240;
+    --secondary-foreground: 0.15 0 0;
+    --muted: 0.96 0.01 240;
+    --muted-foreground: 0.5 0.02 240;
+    --accent: 0.96 0.01 240;
+    --accent-foreground: 0.15 0 0;
+    --destructive: 0.55 0.22 27;
+    --destructive-foreground: 1 0 0;
+    --border: 0.9 0.01 240;
+    --input: 0.9 0.01 240;
+    --ring: 0.55 0.18 145;
+    --radius: 0.5rem;
+    --chart-1: 0.55 0.18 145;
+    --chart-2: 0.6 0.15 200;
+    --chart-3: 0.65 0.18 60;
+    --chart-4: 0.55 0.2 300;
+    --chart-5: 0.6 0.22 30;
+    --sidebar: 0.97 0 0;
+    --sidebar-foreground: 0.15 0 0;
+    --sidebar-primary: 0.55 0.18 145;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.95 0.01 240;
+    --sidebar-accent-foreground: 0.15 0 0;
+    --sidebar-border: 0.9 0.01 240;
+    --sidebar-ring: 0.55 0.18 145;
+    --whatsapp: 0.6 0.2 145;
+    --result-bg: 0.97 0.02 145;
+    --result-border: 0.85 0.08 145;
+    --result-foreground: 0.2 0.08 145;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+}

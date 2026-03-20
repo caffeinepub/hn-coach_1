@@ -1977,7 +1977,7 @@ function buildReportHtml(
   .body-measure-section { margin: 20px 0 6px; }
   .body-measure-wrap { display: flex; gap: 20px; align-items: flex-start; }
   .body-img-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .body-img { width: 130px; border-radius: 12px; object-fit: contain; }
+  .body-img { width: 130px; height: 200px; border-radius: 12px; object-fit: contain; }
   .body-gender-badge { font-size: 8pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 12px; border-radius: 20px; }
   .body-gender-badge.male { background: #0d9488; color: #fff; }
   .body-gender-badge.female { background: #ec4899; color: #fff; }
@@ -2765,190 +2765,399 @@ function SocialProofPopup() {
 // ── Report Ratings ─────────────────────────────────────────────────────────────
 const RATINGS_DATA = [
   {
-    quote:
-      "I was shocked to see my exact health numbers! The wellness score opened my eyes. Now following the diet plan and feeling amazing!",
     name: "Sneha",
     city: "Pune",
-    initial: "S",
     color: "#7c3aed",
+    quote:
+      "My visceral fat level shocked me! After following the diet plan, I feel so energetic. Best ₹10 I ever spent!",
   },
   {
-    quote:
-      "Never knew my visceral fat was so high. The report was a wake-up call. Diet plan is working — lost 4kg in 3 weeks!",
     name: "Priya",
     city: "Mumbai",
-    initial: "P",
     color: "#db2777",
+    quote:
+      "Biological age showed I was aging faster. The wellness report was a wake-up call. Lost 5kg in 6 weeks!",
   },
   {
-    quote:
-      "So surprised by how accurate my biological age was! Immediately got the diet plan. My energy levels have improved so much.",
     name: "Kavya",
     city: "Bangalore",
-    initial: "K",
     color: "#0891b2",
+    quote:
+      "Wellness score of 62 pushed me to take action. Now it's 80! The diet plan is so easy to follow.",
   },
   {
-    quote:
-      "The report showed everything about my body I never knew. My family doctor was impressed. The diet plan is easy to follow!",
     name: "Anita",
     city: "Delhi",
-    initial: "A",
     color: "#059669",
+    quote:
+      "Never knew my ideal body measurements. The report showed everything. My waist is now close to ideal!",
+  },
+  {
+    name: "Riya",
+    city: "Hyderabad",
+    color: "#d97706",
+    quote:
+      "The sleep analysis was spot on. Changed my bedtime and my energy levels have doubled in 2 weeks.",
+  },
+  {
+    name: "Pooja",
+    city: "Chennai",
+    color: "#7c3aed",
+    quote:
+      "Visceral fat section opened my eyes. Following the diet plan strictly and already lost 3kg belly fat!",
+  },
+  {
+    name: "Meera",
+    city: "Jaipur",
+    color: "#be185d",
+    quote:
+      "My biological age was 8 years older than actual! Diet plan helped me feel young again. Thank you HN Coach!",
+  },
+  {
+    name: "Divya",
+    city: "Ahmedabad",
+    color: "#0284c7",
+    quote:
+      "The food to avoid list was eye-opening. Stopped sugar and sodium — down 4kg in a month!",
+  },
+  {
+    name: "Nisha",
+    city: "Kolkata",
+    color: "#16a34a",
+    quote:
+      "Wellness score 58 → now 79! Following every suggestion in the report. Body measurements improving fast.",
+  },
+  {
+    name: "Sunita",
+    city: "Lucknow",
+    color: "#dc2626",
+    quote:
+      "The diet timetable changed my eating habits completely. My digestion improved and weight is dropping!",
+  },
+  {
+    name: "Rahul",
+    city: "Pune",
+    color: "#0891b2",
+    quote:
+      "Never took health seriously until this report. Visceral fat analysis was scary but accurate. Lost 6kg now!",
+  },
+  {
+    name: "Amit",
+    city: "Delhi",
+    color: "#7c3aed",
+    quote:
+      "Steps goal of 8800/day was challenging but I did it! Energy stamina improved massively in 3 weeks.",
+  },
+  {
+    name: "Vikram",
+    city: "Bangalore",
+    color: "#059669",
+    quote:
+      "The biological age calculation using WHO guidelines was impressive. Shared with 10 friends already!",
+  },
+  {
+    name: "Deepak",
+    city: "Mumbai",
+    color: "#d97706",
+    quote:
+      "Protein and nutrition breakdown helped me plan meals better. Muscle gain has started! Highly recommend.",
+  },
+  {
+    name: "Suresh",
+    city: "Chennai",
+    color: "#be185d",
+    quote:
+      "45 mins exercise daily changed my life. Sleep quality improved and wellness score is now 81!",
+  },
+  {
+    name: "Neha",
+    city: "Surat",
+    color: "#dc2626",
+    quote:
+      "My ideal waist was 27 inches, mine was 34. Now 30! The diet plan + wellness report combo is magic.",
+  },
+  {
+    name: "Swati",
+    city: "Nagpur",
+    color: "#0284c7",
+    quote:
+      "Health risk awareness section scared me into action! BMI improved from obese to normal range now.",
+  },
+  {
+    name: "Anjali",
+    city: "Indore",
+    color: "#16a34a",
+    quote:
+      "Referred 5 friends already! Everyone was shocked by their own visceral fat levels. So useful!",
+  },
+  {
+    name: "Rekha",
+    city: "Bhopal",
+    color: "#7c3aed",
+    quote:
+      "The 30-day money back guarantee gave me confidence to try. Never needed the refund — results are real!",
+  },
+  {
+    name: "Monika",
+    city: "Chandigarh",
+    color: "#db2777",
+    quote:
+      "Diet timetable with exact meal times was a game changer. Lost belly fat and gained so much energy!",
   },
 ];
 
 function ReportRatings() {
+  const [idx, setIdx] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const [slideDir, setSlideDir] = useState<"left" | "right">("left");
+
+  const goTo = (next: number, dir: "left" | "right" = "left") => {
+    if (animating) return;
+    setSlideDir(dir);
+    setAnimating(true);
+    setTimeout(() => {
+      setIdx(next);
+      setAnimating(false);
+    }, 420);
+  };
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setIdx((i) => (i + 1) % RATINGS_DATA.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const r = RATINGS_DATA[idx];
+
   return (
     <div
       data-ocid="ratings.section"
       style={{
         background:
-          "linear-gradient(135deg, #fffbeb 0%, #fef9ee 50%, #fef3c7 100%)",
+          "linear-gradient(135deg, #1a0a00 0%, #3b1a00 50%, #1a0a00 100%)",
         borderRadius: "20px",
         border: "2px solid #f59e0b",
-        padding: "24px 20px",
+        padding: "22px 20px 18px",
         marginBottom: "24px",
-        boxShadow: "0 4px 24px rgba(245,158,11,0.12)",
+        boxShadow: "0 6px 32px rgba(245,158,11,0.25)",
+        overflow: "hidden",
+        position: "relative",
       }}
     >
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <div style={{ fontSize: "22px", marginBottom: "4px" }}>💬</div>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "18px" }}>
+        <div style={{ fontSize: "22px", marginBottom: "6px" }}>💬</div>
         <h3
           style={{
             margin: 0,
             fontSize: "17px",
             fontWeight: 900,
-            color: "#78350f",
-            letterSpacing: "-0.3px",
+            color: "#fde68a",
+            letterSpacing: "0.01em",
           }}
         >
           Real Results from Real People
         </h3>
         <p
           style={{
-            margin: "6px 0 0",
-            fontSize: "12.5px",
-            color: "#92400e",
+            margin: "5px 0 0",
+            fontSize: "12px",
+            color: "#fcd34d",
             fontWeight: 600,
           }}
         >
-          Thousands of people were surprised by their wellness report — and
-          transformed their health with the diet plan
+          Thousands were surprised by their wellness report — and transformed
+          their health
         </p>
       </div>
+
+      {/* Single card with slide animation */}
       <div
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}
+        style={{
+          overflow: "hidden",
+          borderRadius: "14px",
+          position: "relative",
+          minHeight: "160px",
+        }}
       >
-        {RATINGS_DATA.map((r, i) => (
-          <div
-            key={r.name}
-            data-ocid={`ratings.item.${i + 1}`}
+        <div
+          key={idx}
+          data-ocid="ratings.item.1"
+          style={{
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: "14px",
+            padding: "18px 20px",
+            border: "1.5px solid rgba(245,158,11,0.4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            animation: animating
+              ? `slideOut${slideDir === "left" ? "Left" : "Right"} 0.42s ease forwards`
+              : `slideIn${slideDir === "left" ? "Right" : "Left"} 0.42s ease forwards`,
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          {/* Stars */}
+          <div style={{ display: "flex", gap: "3px" }}>
+            {[1, 2, 3, 4, 5].map((s) => (
+              <span key={s} style={{ color: "#f59e0b", fontSize: "16px" }}>
+                ★
+              </span>
+            ))}
+          </div>
+          {/* Quote */}
+          <p
             style={{
-              background: "#fff",
-              borderRadius: "14px",
-              padding: "14px 13px",
-              boxShadow: "0 2px 12px rgba(245,158,11,0.1)",
-              border: "1.5px solid #fde68a",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
+              margin: 0,
+              fontSize: "14px",
+              color: "#f5f5f5",
+              lineHeight: 1.65,
+              fontStyle: "italic",
+              fontWeight: 500,
             }}
           >
-            <div style={{ display: "flex", gap: "2px" }}>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <span key={s} style={{ color: "#f59e0b", fontSize: "13px" }}>
-                  ★
-                </span>
-              ))}
-            </div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "11px",
-                color: "#374151",
-                lineHeight: 1.55,
-                fontStyle: "italic",
-              }}
-            >
-              "{r.quote}"
-            </p>
+            "{r.quote}"
+          </p>
+          {/* Author */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div
               style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                background: r.color,
+                color: "#fff",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
-                marginTop: "auto",
+                justifyContent: "center",
+                fontSize: "15px",
+                fontWeight: 900,
+                flexShrink: 0,
+                boxShadow: `0 2px 8px ${r.color}66`,
               }}
             >
-              <div
-                style={{
-                  width: "28px",
-                  height: "28px",
-                  borderRadius: "50%",
-                  background: r.color,
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                  fontWeight: 900,
-                  flexShrink: 0,
-                }}
-              >
-                {r.initial}
+              {r.name[0]}
+            </div>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>
+                {r.name}
               </div>
-              <div>
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "11.5px",
-                    fontWeight: 800,
-                    color: "#1f2937",
-                  }}
-                >
-                  {r.name}
-                </p>
-                <p style={{ margin: 0, fontSize: "10px", color: "#6b7280" }}>
-                  {r.city}
-                </p>
+              <div style={{ fontSize: "11px", color: "#fcd34d" }}>
+                📍 {r.city} · Verified Download
               </div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
-      <div style={{ textAlign: "center", marginTop: "16px" }}>
-        <div
+
+      {/* Navigation arrows + counter */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "16px",
+          marginTop: "14px",
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Previous review"
+          onClick={() =>
+            goTo((idx - 1 + RATINGS_DATA.length) % RATINGS_DATA.length, "right")
+          }
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            background: "linear-gradient(135deg, #064e3b, #059669)",
-            color: "#fff",
-            padding: "10px 24px",
-            borderRadius: "24px",
-            fontSize: "13px",
-            fontWeight: 900,
-            boxShadow:
-              "0 4px 16px rgba(5,150,105,0.4), 0 0 0 3px rgba(5,150,105,0.15)",
-            animation: "diet-plan-pulse 2s ease-in-out infinite",
+            width: "32px",
+            height: "32px",
+            borderRadius: "50%",
+            background: "rgba(245,158,11,0.2)",
+            border: "1.5px solid #f59e0b",
+            color: "#f59e0b",
+            fontSize: "14px",
             cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.2s ease",
           }}
         >
-          <span style={{ fontSize: "16px" }}>🎯</span>
-          <span>Get Your Diet Plan Now →</span>
+          ‹
+        </button>
+
+        {/* Dots */}
+        <div style={{ display: "flex", gap: "5px" }}>
+          {RATINGS_DATA.map((r, i) => (
+            <button
+              type="button"
+              key={r.name}
+              aria-label={`Go to review ${i + 1}`}
+              onClick={() => goTo(i, i > idx ? "left" : "right")}
+              style={{
+                width: i === idx ? "18px" : "7px",
+                height: "7px",
+                borderRadius: "4px",
+                background: i === idx ? "#f59e0b" : "rgba(245,158,11,0.3)",
+                transition: "all 0.3s ease",
+                cursor: "pointer",
+                border: "none",
+                padding: 0,
+              }}
+            />
+          ))}
         </div>
+
+        <button
+          type="button"
+          aria-label="Next review"
+          onClick={() => goTo((idx + 1) % RATINGS_DATA.length, "left")}
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "50%",
+            background: "rgba(245,158,11,0.2)",
+            border: "1.5px solid #f59e0b",
+            color: "#f59e0b",
+            fontSize: "14px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.2s ease",
+          }}
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Review counter */}
+      <div style={{ textAlign: "center", marginTop: "8px" }}>
+        <span style={{ fontSize: "11px", color: "#fcd34d", fontWeight: 600 }}>
+          {idx + 1} / {RATINGS_DATA.length} reviews
+        </span>
+      </div>
+
+      {/* CTA */}
+      <div style={{ textAlign: "center", marginTop: "12px" }}>
         <p
           style={{
-            margin: "8px 0 0",
-            fontSize: "11px",
-            color: "#92400e",
+            margin: 0,
+            fontSize: "12px",
+            color: "#fcd34d",
             fontWeight: 600,
           }}
         >
           ⬆️ Fill the form below to get your personalized report + diet plan
         </p>
       </div>
+
+      {/* Keyframe style tag */}
+      <style>{`
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInLeft  { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideOutLeft  { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-60px); } }
+        @keyframes slideOutRight { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(60px); } }
+      `}</style>
     </div>
   );
 }
@@ -5305,15 +5514,6 @@ export default function App() {
         </div>
       </motion.div>
 
-      {/* Banner */}
-      <div className="w-full max-w-4xl mx-auto px-4 pt-5">
-        <img
-          src="/assets/uploads/IMG-20260306-WA0009-1.jpg"
-          alt="HN Coach Wellness Transformation"
-          className="w-full rounded-2xl shadow-md object-cover"
-        />
-      </div>
-
       {/* Main */}
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
         <ReportsCounter onPriceUpdate={(p) => setCurrentPrice(p)} />
@@ -5321,76 +5521,6 @@ export default function App() {
         <ReportRatings />
         <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
       </main>
-
-      {/* 30 Days Money Back Guarantee Surprise */}
-      <div className="w-full max-w-4xl mx-auto px-4 pt-6 pb-2">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92, y: 24 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="relative overflow-hidden rounded-2xl text-center"
-          style={{
-            background:
-              "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)",
-            border: "3px solid #f59e0b",
-            boxShadow:
-              "0 8px 32px rgba(245,158,11,0.35), 0 0 0 6px rgba(245,158,11,0.1)",
-          }}
-        >
-          {/* sparkle dots */}
-          <div className="absolute top-3 left-5 text-2xl opacity-40">🎁</div>
-          <div className="absolute top-3 right-5 text-2xl opacity-40">🎁</div>
-          <div className="px-6 py-8">
-            <motion.div
-              initial={{ rotate: -6, scale: 0.8 }}
-              whileInView={{ rotate: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{
-                duration: 0.5,
-                delay: 0.2,
-                type: "spring",
-                stiffness: 200,
-              }}
-              className="inline-block px-5 py-2 rounded-full font-extrabold text-sm tracking-widest uppercase mb-4"
-              style={{
-                background: "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)",
-                color: "#fff",
-                boxShadow: "0 4px 16px rgba(245,158,11,0.5)",
-                letterSpacing: "0.1em",
-              }}
-            >
-              {t.surpriseOffer}
-            </motion.div>
-            <h2
-              className="text-3xl sm:text-4xl font-black text-amber-900 mb-3 leading-tight"
-              style={{ textShadow: "0 2px 8px rgba(120,53,15,0.15)" }}
-            >
-              {t.guarantee}
-            </h2>
-            <p
-              className="text-amber-800 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed mb-5"
-              style={
-                lang === "hi"
-                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
-                  : undefined
-              }
-            >
-              {t.guaranteeDesc}
-            </p>
-            <p
-              className="text-amber-700 text-sm font-medium mb-6"
-              style={
-                lang === "hi"
-                  ? { fontFamily: "'Noto Sans Devanagari', sans-serif" }
-                  : undefined
-              }
-            >
-              {t.guaranteeCommit}
-            </p>
-          </div>
-        </motion.div>
-      </div>
 
       {/* Join Our Team Section */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-8 pb-4">
