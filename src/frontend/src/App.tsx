@@ -100,6 +100,10 @@ const translations = {
     heightInPlaceholder: "e.g. 6",
     fieldWeight: "Weight (kg)",
     fieldWeightPlaceholder: "e.g. 70",
+    fieldWaist: "Waist Size",
+    fieldWaistPlaceholder: "e.g. 80",
+    fieldWaistInchPlaceholder: "e.g. 31",
+    fieldWaistOptional: "(Optional)",
     fieldGender: "Gender",
     genderSelect: "Select gender",
     genderMale: "Male",
@@ -151,7 +155,7 @@ const translations = {
     guaranteeCta: "Contact HN Coach — Start Today",
     // Join team
     exclusiveOpp: "Exclusive Opportunity",
-    joinTeamTitle: "Join Our Team & Become a Certified Wellness Coach",
+    joinTeamTitle: "Join Our Team & Become a Wellness Coach",
     joinTeamDesc:
       "We are looking for passionate, driven individuals who believe in the power of health and wellness. As an HN Coach partner, you will have the opportunity to transform lives, spread health awareness, and build a meaningful income — all on your own terms.",
     joinTeamEarn:
@@ -224,6 +228,10 @@ const translations = {
     heightInPlaceholder: "जैसे: 6",
     fieldWeight: "वजन (किलो)",
     fieldWeightPlaceholder: "जैसे: 70",
+    fieldWaist: "कमर का माप",
+    fieldWaistPlaceholder: "जैसे 80",
+    fieldWaistInchPlaceholder: "जैसे 31",
+    fieldWaistOptional: "(वैकल्पिक)",
     fieldGender: "लिंग",
     genderSelect: "लिंग चुनें",
     genderMale: "पुरुष",
@@ -328,6 +336,9 @@ interface UnifiedFormData {
   // Sleep schedule
   bedtime: string; // HH:MM 24h format from <input type="time">
   wakeUpTime: string; // HH:MM 24h format from <input type="time">
+  // Body optional
+  waistInput: string;
+  waistMode: "cm" | "inch";
   // Referral
   invitedBy: string;
 }
@@ -2358,85 +2369,10 @@ function clearSavedReport() {
 }
 
 // ── FOMO Countdown Component ───────────────────────────────────────────────────
-function FomoCountdown() {
-  const [seconds, setSeconds] = useState(600);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) return 600; // reset
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  const timeStr = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-  const isUrgent = seconds <= 60;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto px-4 mb-6"
-      data-ocid="fomo.countdown.section"
-    >
-      <div
-        className="rounded-2xl px-5 py-4 text-center"
-        style={{
-          background: isUrgent
-            ? "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)"
-            : "linear-gradient(135deg, #064e3b 0%, #0d9488 100%)",
-          border: isUrgent ? "2px solid #f87171" : "2px solid #34d399",
-          boxShadow: isUrgent
-            ? "0 6px 24px rgba(220,38,38,0.35)"
-            : "0 6px 24px rgba(13,148,136,0.35)",
-          transition: "all 0.5s ease",
-        }}
-      >
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-white font-black text-sm sm:text-base">
-            ⏳{" "}
-            {isUrgent
-              ? "🔥 HURRY! Offer Expires In:"
-              : "Download at Rs. 10 — Offer expires in:"}
-          </span>
-          <span
-            className="font-black text-2xl sm:text-3xl tabular-nums"
-            style={{
-              color: isUrgent ? "#fca5a5" : "#6ee7b7",
-              textShadow: "0 2px 8px rgba(0,0,0,0.3)",
-              fontFamily: "'Courier New', monospace",
-            }}
-          >
-            {timeStr}
-          </span>
-          <span
-            className="px-3 py-1 rounded-full text-xs font-black"
-            style={{
-              background: isUrgent ? "#fca5a5" : "#34d399",
-              color: isUrgent ? "#7f1d1d" : "#064e3b",
-            }}
-          >
-            Rs. <span className="line-through opacity-60">499</span> → Rs. 10
-          </span>
-        </div>
-        {isUrgent && (
-          <p className="text-red-200 text-xs font-bold mt-1 animate-pulse">
-            Last chance! Download your Wellness Assessment Report now!
-          </p>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ── Live Reports Counter Component ─────────────────────────────────────────────
-function ReportsCounter({
+function ReportsAndCountdown({
   onPriceUpdate,
 }: { onPriceUpdate?: (price: number) => void }) {
+  const [seconds, setSeconds] = useState(600);
   const [count, setCount] = useState(0);
   const [displayCount, setDisplayCount] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -2450,7 +2386,6 @@ function ReportsCounter({
       .then((actor) => actor.getRecords(null, null))
       .then((records) => {
         const total = records.length;
-        // Add a base number to make it feel established (starts at 1000+)
         const displayTotal = total + 1043;
         setCount(displayTotal);
         setLoaded(true);
@@ -2465,7 +2400,6 @@ function ReportsCounter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Animate count from 0 to actual value
   useEffect(() => {
     if (!loaded) return;
     const duration = 1500;
@@ -2482,62 +2416,104 @@ function ReportsCounter({
       }
     }, duration / steps);
     return () => clearInterval(timer);
-  }, [count, loaded]);
+  }, [loaded, count]);
 
-  const progressPct = Math.min(100, (displayCount / 1500) * 100);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) return 600;
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  const timeStr = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  const isUrgent = seconds <= 60;
+  const progressPct = Math.min((displayCount / 1500) * 100, 100);
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="w-full max-w-4xl mx-auto px-4 mb-4"
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-4xl mx-auto px-4 mb-6"
       data-ocid="reports.counter.section"
     >
       <div
-        className="rounded-2xl px-5 py-4"
+        className="rounded-2xl px-4 py-2.5"
         style={{
-          background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
-          border: "2px solid #6ee7b7",
-          boxShadow: "0 4px 16px rgba(13,148,136,0.12)",
+          background: isUrgent
+            ? "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)"
+            : "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+          border: isUrgent ? "2px solid #f87171" : "2px solid #6ee7b7",
+          boxShadow: isUrgent
+            ? "0 4px 16px rgba(220,38,38,0.25)"
+            : "0 4px 16px rgba(13,148,136,0.12)",
+          transition: "all 0.5s ease",
         }}
       >
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🏆</span>
-            <span className="font-black text-emerald-800 text-sm sm:text-base">
+            <span className="text-base">🏆</span>
+            <span
+              className={`font-black text-sm ${isUrgent ? "text-white" : "text-emerald-800"}`}
+            >
               {loaded ? (
-                <>{displayCount.toLocaleString()} Wellness Reports Generated!</>
+                <>{displayCount.toLocaleString()} Reports</>
               ) : (
                 "Loading..."
               )}
             </span>
+            <span
+              className={`text-xs font-medium ${isUrgent ? "text-red-100" : "text-emerald-600"}`}
+            >
+              | ⚡ ₹10 Today
+            </span>
           </div>
-          <span
-            className="text-xs font-bold px-2 py-0.5 rounded-full"
-            style={{ background: "#dcfce7", color: "#065f46" }}
-          >
-            🔴 LIVE
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className="font-black text-lg tabular-nums"
+              style={{
+                color: isUrgent ? "#fca5a5" : "#0d9488",
+                fontFamily: "'Courier New', monospace",
+              }}
+            >
+              ⏳ {timeStr}
+            </span>
+            {isUrgent && (
+              <span className="text-red-200 text-xs font-bold animate-pulse">
+                🔥 HURRY!
+              </span>
+            )}
+          </div>
         </div>
-        {/* Progress bar */}
         <div
-          className="w-full h-3 rounded-full overflow-hidden"
-          style={{ background: "#d1fae5" }}
+          className="w-full mt-1.5 rounded-full overflow-hidden"
+          style={{
+            height: "6px",
+            background: isUrgent ? "rgba(255,255,255,0.2)" : "#d1fae5",
+          }}
         >
           <motion.div
             className="h-full rounded-full"
             style={{
-              background: "linear-gradient(90deg, #0d9488, #059669, #10b981)",
+              background: isUrgent
+                ? "linear-gradient(90deg, #fca5a5, #ef4444)"
+                : "linear-gradient(90deg, #0d9488, #059669, #10b981)",
             }}
             initial={{ width: "0%" }}
             animate={{ width: `${progressPct}%` }}
             transition={{ duration: 1.5, ease: "easeOut" }}
           />
         </div>
-        <p className="text-emerald-600 text-xs font-medium mt-1.5 text-center">
-          After 1,500 reports — price goes to ₹49 ·{" "}
-          {displayCount.toLocaleString()} / 1,500 so far
+        <p
+          className={`text-xs font-medium mt-1 text-center ${isUrgent ? "text-red-200" : "text-emerald-600"}`}
+        >
+          Price → ₹49 after 1,500 reports · {displayCount.toLocaleString()} /
+          1,500 so far
         </p>
       </div>
     </motion.div>
@@ -2567,6 +2543,8 @@ const EMPTY_FORM: UnifiedFormData = {
   goals: [],
   bedtime: "",
   wakeUpTime: "",
+  waistInput: "",
+  waistMode: "cm",
   invitedBy: "",
 };
 
@@ -2934,42 +2912,30 @@ function ReportRatings() {
     <div
       data-ocid="ratings.section"
       style={{
-        background:
-          "linear-gradient(135deg, #1a0a00 0%, #3b1a00 50%, #1a0a00 100%)",
+        background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
         borderRadius: "20px",
-        border: "2px solid #f59e0b",
-        padding: "22px 20px 18px",
-        marginBottom: "24px",
-        boxShadow: "0 6px 32px rgba(245,158,11,0.25)",
+        border: "2px solid #6ee7b7",
+        padding: "10px 12px 10px",
+        marginBottom: "16px",
+        boxShadow: "0 4px 20px rgba(13,148,136,0.15)",
         overflow: "hidden",
         position: "relative",
       }}
     >
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "18px" }}>
+      <div style={{ textAlign: "center", marginBottom: "10px" }}>
         <div style={{ fontSize: "22px", marginBottom: "6px" }}>💬</div>
         <h3
           style={{
             margin: 0,
             fontSize: "17px",
             fontWeight: 900,
-            color: "#fde68a",
+            color: "#065f46",
             letterSpacing: "0.01em",
           }}
         >
           Real Results from Real People
         </h3>
-        <p
-          style={{
-            margin: "5px 0 0",
-            fontSize: "12px",
-            color: "#fcd34d",
-            fontWeight: 600,
-          }}
-        >
-          Thousands were surprised by their wellness report — and transformed
-          their health
-        </p>
       </div>
 
       {/* Single card with slide animation */}
@@ -2978,17 +2944,17 @@ function ReportRatings() {
           overflow: "hidden",
           borderRadius: "14px",
           position: "relative",
-          minHeight: "160px",
+          minHeight: "110px",
         }}
       >
         <div
           key={idx}
           data-ocid="ratings.item.1"
           style={{
-            background: "rgba(255,255,255,0.08)",
+            background: "rgba(6,95,70,0.06)",
             borderRadius: "14px",
-            padding: "18px 20px",
-            border: "1.5px solid rgba(245,158,11,0.4)",
+            padding: "14px 16px",
+            border: "1.5px solid rgba(6,214,160,0.4)",
             display: "flex",
             flexDirection: "column",
             gap: "12px",
@@ -3010,9 +2976,9 @@ function ReportRatings() {
           <p
             style={{
               margin: 0,
-              fontSize: "14px",
-              color: "#f5f5f5",
-              lineHeight: 1.65,
+              fontSize: "11px",
+              color: "#1f2937",
+              lineHeight: 1.5,
               fontStyle: "italic",
               fontWeight: 500,
             }}
@@ -3040,10 +3006,12 @@ function ReportRatings() {
               {r.name[0]}
             </div>
             <div>
-              <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>
+              <div
+                style={{ fontSize: "12px", fontWeight: 800, color: "#0d9488" }}
+              >
                 {r.name}
               </div>
-              <div style={{ fontSize: "11px", color: "#fcd34d" }}>
+              <div style={{ fontSize: "11px", color: "#059669" }}>
                 📍 {r.city} · Verified Download
               </div>
             </div>
@@ -3097,7 +3065,7 @@ function ReportRatings() {
                 width: i === idx ? "18px" : "7px",
                 height: "7px",
                 borderRadius: "4px",
-                background: i === idx ? "#f59e0b" : "rgba(245,158,11,0.3)",
+                background: i === idx ? "#0d9488" : "rgba(13,148,136,0.25)",
                 transition: "all 0.3s ease",
                 cursor: "pointer",
                 border: "none",
@@ -3128,27 +3096,6 @@ function ReportRatings() {
         >
           ›
         </button>
-      </div>
-
-      {/* Review counter */}
-      <div style={{ textAlign: "center", marginTop: "8px" }}>
-        <span style={{ fontSize: "11px", color: "#fcd34d", fontWeight: 600 }}>
-          {idx + 1} / {RATINGS_DATA.length} reviews
-        </span>
-      </div>
-
-      {/* CTA */}
-      <div style={{ textAlign: "center", marginTop: "12px" }}>
-        <p
-          style={{
-            margin: 0,
-            fontSize: "12px",
-            color: "#fcd34d",
-            fontWeight: 600,
-          }}
-        >
-          ⬆️ Fill the form below to get your personalized report + diet plan
-        </p>
       </div>
 
       {/* Keyframe style tag */}
@@ -3684,11 +3631,17 @@ function WellnessAssessment({
           style={{
             background: "#ffffff",
             boxShadow:
-              "0 0 0 1.5px #6ee7b7, 0 12px 48px oklch(0.5 0.145 196 / 0.14), inset 0 1px 0 rgba(255,255,255,0.9)",
+              "0 0 0 1.5px #6ee7b7, 0 2px 4px rgba(13,148,136,0.08), 0 8px 16px rgba(13,148,136,0.10), 0 24px 64px rgba(6,78,59,0.18), 0 48px 80px rgba(6,78,59,0.08), inset 0 1px 0 rgba(255,255,255,0.9)",
           }}
         >
           {/* Certificate header strip */}
-          <div className="cert-header-strip w-full px-6 py-4 flex items-center gap-3">
+          <div
+            className="cert-header-strip w-full px-6 py-4 flex items-center gap-3"
+            style={{
+              background:
+                "linear-gradient(135deg, #064e3b 0%, #0d9488 60%, #047857 100%)",
+            }}
+          >
             {/* Shield/cert icon */}
             <div
               className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
@@ -4006,6 +3959,53 @@ function WellnessAssessment({
                   placeholder={t.fieldWeightPlaceholder}
                   value={form.weight}
                   onChange={setInput("weight")}
+                  className="h-11"
+                />
+              </div>
+
+              {/* Waist Size (Optional) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="f-waist"
+                    className="text-sm font-medium text-foreground/80 flex items-center gap-1.5"
+                  >
+                    📏 {t.fieldWaist}{" "}
+                    <span className="text-muted-foreground text-xs">
+                      {t.fieldWaistOptional}
+                    </span>
+                  </Label>
+                  <div className="flex rounded-lg overflow-hidden border border-border text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((p) => ({ ...p, waistMode: "cm" }))
+                      }
+                      className={`px-3 py-1.5 transition-colors ${form.waistMode === "cm" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:bg-muted"}`}
+                    >
+                      cm
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((p) => ({ ...p, waistMode: "inch" }))
+                      }
+                      className={`px-3 py-1.5 transition-colors ${form.waistMode === "inch" ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground hover:bg-muted"}`}
+                    >
+                      inch
+                    </button>
+                  </div>
+                </div>
+                <Input
+                  id="f-waist"
+                  type="number"
+                  placeholder={
+                    form.waistMode === "cm"
+                      ? t.fieldWaistPlaceholder
+                      : t.fieldWaistInchPlaceholder
+                  }
+                  value={form.waistInput}
+                  onChange={setInput("waistInput")}
                   className="h-11"
                 />
               </div>
@@ -5308,6 +5308,60 @@ function AdminDashboard() {
   );
 }
 
+// ── StickyReportButton ────────────────────────────────────────────────────────
+function StickyReportButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleClick = () => {
+    const form = document.querySelector("form");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      const main = document.querySelector("main");
+      if (main) main.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      data-ocid="sticky.primary_button"
+      onClick={handleClick}
+      aria-label="Get Your Report"
+      style={{
+        position: "fixed",
+        bottom: "80px",
+        right: "16px",
+        zIndex: 9998,
+        background: "linear-gradient(135deg, #059669 0%, #0d9488 100%)",
+        color: "#fff",
+        fontWeight: 800,
+        fontSize: "13px",
+        padding: "10px 18px",
+        borderRadius: "999px",
+        border: "none",
+        cursor: "pointer",
+        boxShadow:
+          "0 4px 20px rgba(5,150,105,0.45), 0 2px 8px rgba(0,0,0,0.15)",
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        pointerEvents: visible ? "auto" : "none",
+        whiteSpace: "nowrap",
+        letterSpacing: "0.01em",
+      }}
+    >
+      📋 Get Your Report →
+    </button>
+  );
+}
+
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
@@ -5331,9 +5385,74 @@ export default function App() {
     : "";
 
   return (
-    <div className="min-h-screen flex flex-col bg-background page-mesh">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background:
+          "linear-gradient(160deg, #f0fdf4 0%, #ecfdf5 20%, #f8fafc 50%, #f0fdf4 80%, #ecfdf5 100%)",
+      }}
+    >
+      {/* 3D decorative orbs */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: "-80px",
+            right: "-80px",
+            width: "320px",
+            height: "320px",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(13,148,136,0.18) 0%, rgba(6,78,59,0.08) 50%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "40%",
+            left: "-100px",
+            width: "280px",
+            height: "280px",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(5,150,105,0.12) 0%, transparent 70%)",
+            filter: "blur(50px)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "10%",
+            right: "5%",
+            width: "200px",
+            height: "200px",
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(16,185,129,0.10) 0%, transparent 70%)",
+            filter: "blur(30px)",
+          }}
+        />
+      </div>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border">
+      <header
+        className="sticky top-0 z-40 backdrop-blur-xl border-b"
+        style={{
+          background: "rgba(240,253,244,0.88)",
+          borderColor: "rgba(110,231,183,0.5)",
+          boxShadow:
+            "0 4px 24px rgba(13,148,136,0.10), 0 1px 0 rgba(255,255,255,0.8) inset",
+        }}
+      >
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           {/* Logo */}
           <img
@@ -5515,13 +5634,91 @@ export default function App() {
       </motion.div>
 
       {/* Main */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
-        <ReportsCounter onPriceUpdate={(p) => setCurrentPrice(p)} />
-        <FomoCountdown />
+      <main
+        className="flex-1 max-w-4xl mx-auto w-full px-4 py-8"
+        style={{ position: "relative", zIndex: 1 }}
+      >
+        <ReportsAndCountdown onPriceUpdate={(p) => setCurrentPrice(p)} />
+        {/* What's Inside Your Report card */}
+        <div
+          style={{
+            background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
+            border: "2px solid #6ee7b7",
+            borderRadius: "16px",
+            padding: "14px 16px",
+            marginBottom: "16px",
+            boxShadow: "0 2px 12px rgba(13,148,136,0.10)",
+          }}
+        >
+          <h3
+            style={{
+              margin: "0 0 10px",
+              fontSize: "15px",
+              fontWeight: 900,
+              color: "#065f46",
+              textAlign: "center",
+            }}
+          >
+            📊 What's Inside Your Report?
+          </h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "6px 10px",
+            }}
+          >
+            {[
+              "🏋️ BMI & Body Weight Analysis",
+              "🔥 BMR & TDEE (Calorie Needs)",
+              "💧 Daily Water Intake",
+              "👣 Recommended Daily Steps",
+              "🏃 Exercise Plan (mins/day + days/week)",
+              "🫀 Biological Age (WHO Method)",
+              "⚖️ Visceral Fat Analysis",
+              "💪 Wellness Score (out of 100)",
+              "📐 Ideal Body Measurements",
+              "🕐 Personalized Diet Timetable",
+              "🥩 Nutrition Requirements",
+              "🚫 10 Foods to Avoid",
+              "⚠️ Health Risk Awareness",
+              "😴 Sleep & Recovery Analysis",
+              "🎯 Weight Goal & Timeline",
+            ].map((item) => (
+              <div
+                key={item}
+                style={{
+                  fontSize: "11px",
+                  color: "#065f46",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "4px",
+                  lineHeight: 1.4,
+                }}
+              >
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+          <p
+            style={{
+              margin: "10px 0 0",
+              fontSize: "10px",
+              color: "#0d9488",
+              textAlign: "center",
+              fontStyle: "italic",
+            }}
+          >
+            All values calculated based on WHO, ICMR &amp; IDA guidelines
+          </p>
+        </div>
         <ReportRatings />
         <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
       </main>
 
+      {/* Floating sticky Get Your Report button */}
+      <StickyReportButton />
       {/* Join Our Team Section */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-8 pb-4">
         <div
@@ -5591,6 +5788,29 @@ export default function App() {
         </div>
       </div>
       <SocialProofPopup />
+      {/* Bottom Watermark */}
+      <div
+        style={{
+          width: "100%",
+          background:
+            "linear-gradient(90deg, #064e3b 0%, #065f46 50%, #064e3b 100%)",
+          borderTop: "2px solid #10b981",
+          padding: "10px 16px",
+          textAlign: "center" as const,
+          color: "#d1fae5",
+          fontSize: "13px",
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          boxShadow: "0 -2px 12px rgba(16,185,129,0.15)",
+        }}
+      >
+        <span style={{ opacity: 0.7, marginRight: 6 }}>©</span>
+        {new Date().getFullYear()} HN Coach · All Rights Reserved
+        <span style={{ margin: "0 10px", opacity: 0.4 }}>|</span>
+        <span style={{ fontSize: "11px", opacity: 0.7 }}>
+          Social Health Awareness Mission
+        </span>
+      </div>
     </div>
   );
 }
