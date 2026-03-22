@@ -1552,6 +1552,40 @@ function buildReportHtml(
         ? "Your visceral fat level is above ideal. Reducing refined carbohydrates, increasing cardio (30 min/day), and managing stress can help lower it significantly."
         : "Your visceral fat level is very high, posing serious health risks. Immediate dietary changes, regular exercise, and medical consultation are strongly recommended.";
   const vfBarPercent = Math.round((visceralFatLevel / 20) * 100);
+
+  // Body Fat % (Deurenberg formula)
+  const bodyFatPct =
+    gender === "male"
+      ? Math.max(5, Math.round(1.2 * results.bmi + 0.23 * Number(age) - 16.2))
+      : Math.max(10, Math.round(1.2 * results.bmi + 0.23 * Number(age) - 5.4));
+  const musclePct = Math.max(20, Math.round(100 - bodyFatPct - 15));
+  const bfColor =
+    gender === "male"
+      ? bodyFatPct < 20
+        ? "#16a34a"
+        : bodyFatPct <= 25
+          ? "#d97706"
+          : "#dc2626"
+      : bodyFatPct < 28
+        ? "#16a34a"
+        : bodyFatPct <= 33
+          ? "#d97706"
+          : "#dc2626";
+  const bfCategory =
+    gender === "male"
+      ? bodyFatPct < 20
+        ? "Healthy"
+        : bodyFatPct <= 25
+          ? "Borderline"
+          : "High"
+      : bodyFatPct < 28
+        ? "Healthy"
+        : bodyFatPct <= 33
+          ? "Borderline"
+          : "High";
+  const mpColor =
+    musclePct >= 40 ? "#16a34a" : musclePct >= 30 ? "#d97706" : "#dc2626";
+
   const visceralFatHtml = `
   <div style="background:${vfBg};border:2px solid ${vfColor};border-radius:12px;padding:16px 18px;margin:10px 0;">
     <div class="section-title" style="color:${vfColor};border-bottom-color:${vfColor};margin-bottom:10px;">&#129504; Visceral Fat Analysis</div>
@@ -1574,6 +1608,18 @@ function buildReportHtml(
       &#128161; ${vfRecommendation}
     </div>
     <div style="font-size:7.5pt;color:#94a3b8;margin-top:6px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+      <div style="background:#fff;border:2px solid ${bfColor};border-radius:8px;padding:8px 10px;text-align:center;">
+        <div style="font-size:8pt;color:#64748b;font-weight:600;">🔴 Body Fat %</div>
+        <div style="font-size:18pt;font-weight:900;color:${bfColor};line-height:1.2;">${bodyFatPct}%</div>
+        <div style="font-size:8pt;font-weight:700;color:${bfColor};">${bfCategory}</div>
+      </div>
+      <div style="background:#fff;border:2px solid ${mpColor};border-radius:8px;padding:8px 10px;text-align:center;">
+        <div style="font-size:8pt;color:#64748b;font-weight:600;">💪 Muscle Mass %</div>
+        <div style="font-size:18pt;font-weight:900;color:${mpColor};line-height:1.2;">${musclePct}%</div>
+        <div style="font-size:8pt;font-weight:700;color:${mpColor};">Estimated</div>
+      </div>
+    </div>
     <div style="margin-top:12px;text-align:center;">
       <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:6px;">Understanding Your Body Fat Distribution</div>
       <img src="${window.location.origin}/assets/uploads/belly-fat-diagram_600x600-1.png" alt="Body Fat Distribution Diagram" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
@@ -5308,60 +5354,6 @@ function AdminDashboard() {
   );
 }
 
-// ── StickyReportButton ────────────────────────────────────────────────────────
-function StickyReportButton() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 300);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const handleClick = () => {
-    const form = document.querySelector("form");
-    if (form) {
-      form.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      const main = document.querySelector("main");
-      if (main) main.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      data-ocid="sticky.primary_button"
-      onClick={handleClick}
-      aria-label="Get Your Report"
-      style={{
-        position: "fixed",
-        bottom: "80px",
-        right: "16px",
-        zIndex: 9998,
-        background: "linear-gradient(135deg, #059669 0%, #0d9488 100%)",
-        color: "#fff",
-        fontWeight: 800,
-        fontSize: "13px",
-        padding: "10px 18px",
-        borderRadius: "999px",
-        border: "none",
-        cursor: "pointer",
-        boxShadow:
-          "0 4px 20px rgba(5,150,105,0.45), 0 2px 8px rgba(0,0,0,0.15)",
-        transition: "opacity 0.3s ease, transform 0.3s ease",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(20px)",
-        pointerEvents: visible ? "auto" : "none",
-        whiteSpace: "nowrap",
-        letterSpacing: "0.01em",
-      }}
-    >
-      📋 Get Your Report →
-    </button>
-  );
-}
-
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
@@ -5684,6 +5676,7 @@ export default function App() {
               "⚠️ Health Risk Awareness",
               "😴 Sleep & Recovery Analysis",
               "🎯 Weight Goal & Timeline",
+              "💪 Body Fat % & Muscle Mass %",
             ].map((item) => (
               <div
                 key={item}
@@ -5718,7 +5711,6 @@ export default function App() {
       </main>
 
       {/* Floating sticky Get Your Report button */}
-      <StickyReportButton />
       {/* Join Our Team Section */}
       <div className="w-full max-w-4xl mx-auto px-4 pt-8 pb-4">
         <div
