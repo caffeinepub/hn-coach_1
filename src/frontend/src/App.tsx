@@ -46,7 +46,7 @@ const translations = {
     downloadAgainFree: "Download My Report Again",
     generateNewReport: "Generate a New Report",
     noPaymentNeeded: "No payment needed to re-download your last report.",
-    paymentRequiredForNew: "Rs. 10 payment required to generate a new report.",
+    paymentRequiredForNew: "Rs. 20 payment required to generate a new report.",
     reportSavedOn: "Report saved on",
     calcBasedOn: "Calculations based on guidelines by these organisations",
     // Tagline
@@ -55,22 +55,22 @@ const translations = {
     fomoHeading:
       "🔥 Enroll in Our Personal Coaching Program TODAY — Get 10% OFF!",
     fomoDownload: "⚡ Download your",
-    fomoFreeNow: "report for Rs. 10 NOW!",
+    fomoFreeNow: "report for Rs. 20 NOW!",
     fomoExpires: "Offer expires in:",
     fomoSpots: "Only a few spots left!",
     fomoCta: "Claim My 10% Discount Now",
     // Section heading
-    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 10",
+    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 20",
     sectionDesc:
-      "Fill in your details once and instantly download your personalised wellness report — only Rs. 10.",
+      "Fill in your details once and instantly download your personalised wellness report — only Rs. 20.",
     // Trust badges
     trustPrivate: "100% Private & Secure",
     trustClients: "Trusted by 1000+ Clients",
-    trustFree: "Just Rs. 10 — Worth Rs. 499",
+    trustFree: "Just Rs. 20",
     trustInstant: "Instant Download",
     // Card header
     cardTitle: "Your Wellness Assessment Report",
-    cardSub: "Personalised · Science-backed · Rs. 10 only",
+    cardSub: "Personalised · Science-backed · Rs. 20 only",
     cardPowered: "Powered by",
     // Step 1
     step1Label: "Personal Details",
@@ -130,8 +130,8 @@ const translations = {
     // CTA
     fillAllFields: "Fill in all fields above to generate your report.",
     generatingReport: "Opening Payment…",
-    ctaButton: "Pay Rs. 10 & Download My Report",
-    ctaDisclaimer: "Secure payment · Rs. 10 only · Instant personalised report",
+    ctaButton: "Pay Rs. 20 & Download My Report",
+    ctaDisclaimer: "Secure payment · Rs. 20 only · Instant personalised report",
     // Referral section
     refer2Friends: "Refer 2 Friends",
     sharingIsCaring: "💚 Sharing is Caring",
@@ -162,7 +162,7 @@ const translations = {
       "🌟 Start earning while doing what you love — helping people live healthier, happier lives.",
     joinTeamCta: 'Send "START" to Join Now',
     // Badge above form
-    freeWellnessReport: "Wellness Report — Rs. 10",
+    freeWellnessReport: "Wellness Report — Rs. 20",
     // Download again
     downloadAgain: "Download Report Again",
   },
@@ -175,7 +175,7 @@ const translations = {
     downloadAgainFree: "मेरी रिपोर्ट फिर से डाउनलोड करें",
     generateNewReport: "नई रिपोर्ट बनाएं",
     noPaymentNeeded: "पिछली रिपोर्ट दोबारा डाउनलोड करने के लिए भुगतान की जरूरत नहीं।",
-    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹10 भुगतान जरूरी है।",
+    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹20 भुगतान जरूरी है।",
     reportSavedOn: "रिपोर्ट सेव हुई",
     calcBasedOn: "इन संस्थाओं के दिशानिर्देशों पर आधारित गणना",
     // Tagline
@@ -183,22 +183,22 @@ const translations = {
     // FOMO
     fomoHeading: "🔥 आज हमारे पर्सनल कोचिंग प्रोग्राम में जुड़ें — 10% छूट पाएं!",
     fomoDownload: "⚡ अपनी",
-    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹10 में!",
+    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹20 में!",
     fomoExpires: "ऑफर समाप्त होगा:",
     fomoSpots: "सीमित सीटें बची हैं!",
     fomoCta: "अभी 10% छूट पाएं",
     // Section heading
-    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹10",
+    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹20",
     sectionDesc:
-      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹10 में।",
+      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹20 में।",
     // Trust badges
     trustPrivate: "100% निजी और सुरक्षित",
     trustClients: "1000+ लोगों का भरोसा",
-    trustFree: "सिर्फ ₹10 — कीमत ₹499",
+    trustFree: "सिर्फ ₹20",
     trustInstant: "तुरंत डाउनलोड",
     // Card header
     cardTitle: "आपकी वेलनेस असेसमेंट रिपोर्ट",
-    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹10",
+    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹20",
     cardPowered: "द्वारा संचालित",
     // Step 1
     step1Label: "व्यक्तिगत जानकारी",
@@ -257,8 +257,8 @@ const translations = {
     // CTA
     fillAllFields: "अपनी रिपोर्ट बनाने के लिए ऊपर सभी जानकारी भरें।",
     generatingReport: "भुगतान खुल रहा है…",
-    ctaButton: "₹10 में भुगतान करें और रिपोर्ट डाउनलोड करें",
-    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹10 · तुरंत व्यक्तिगत रिपोर्ट",
+    ctaButton: "₹20 में भुगतान करें और रिपोर्ट डाउनलोड करें",
+    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹20 · तुरंत व्यक्तिगत रिपोर्ट",
     // Referral section
     refer2Friends: "2 दोस्तों को रेफर करें",
     sharingIsCaring: "💚 शेयरिंग ही केयरिंग है",
@@ -288,7 +288,7 @@ const translations = {
       "🌟 जो काम आपको पसंद है वो करते हुए कमाई शुरू करें — लोगों को स्वस्थ और खुशहाल जीवन जीने में मदद करें।",
     joinTeamCta: '"START" भेजकर जुड़ें',
     // Badge above form
-    freeWellnessReport: "वेलनेस रिपोर्ट — ₹10",
+    freeWellnessReport: "वेलनेस रिपोर्ट — ₹20",
     // Download again
     downloadAgain: "रिपोर्ट फिर से डाउनलोड करें",
   },
@@ -1662,7 +1662,7 @@ function buildReportHtml(
   const _refStatusColor = myReferralCount >= 2 ? "#4ade80" : "#ffd700";
   const _refStatusMsg =
     myReferralCount === 0
-      ? "\uD83C\uDFAF Share your link below \u2014 get \u20B910 refund when 2 friends download!"
+      ? "\uD83C\uDFAF Share your link below \u2014 get ₹20 refund when 6 friends download!"
       : myReferralCount === 1
         ? "\uD83D\uDD25 1 friend downloaded! Just 1 more for your full refund!"
         : "\uD83C\uDF89 Congratulations! You qualify for a full refund! Contact us on WhatsApp.";
@@ -2436,12 +2436,12 @@ function ReportsAndCountdown({
         setCount(displayTotal);
         setLoaded(true);
         if (onPriceUpdateRef.current)
-          onPriceUpdateRef.current(displayTotal >= 1500 ? 49 : 10);
+          onPriceUpdateRef.current(displayTotal >= 1500 ? 49 : 20);
       })
       .catch(() => {
         setCount(1043);
         setLoaded(true);
-        if (onPriceUpdateRef.current) onPriceUpdateRef.current(10);
+        if (onPriceUpdateRef.current) onPriceUpdateRef.current(20);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -2507,16 +2507,12 @@ function ReportsAndCountdown({
             <span
               className={`font-black text-sm ${isUrgent ? "text-white" : "text-emerald-800"}`}
             >
-              {loaded ? (
-                <>{displayCount.toLocaleString()} Reports</>
-              ) : (
-                "Loading..."
-              )}
+              {loaded ? <>1500+ Reports</> : "Loading..."}
             </span>
             <span
               className={`text-xs font-medium ${isUrgent ? "text-red-100" : "text-emerald-600"}`}
             >
-              | ⚡ ₹10 Today
+              | ⚡ ₹20 Today
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -2555,12 +2551,6 @@ function ReportsAndCountdown({
             transition={{ duration: 1.5, ease: "easeOut" }}
           />
         </div>
-        <p
-          className={`text-xs font-medium mt-1 text-center ${isUrgent ? "text-red-200" : "text-emerald-600"}`}
-        >
-          Price → ₹49 after 1,500 reports · {displayCount.toLocaleString()} /
-          1,500 so far
-        </p>
       </div>
     </motion.div>
   );
@@ -2793,7 +2783,7 @@ const RATINGS_DATA = [
     city: "Pune",
     color: "#7c3aed",
     quote:
-      "My visceral fat level shocked me! After following the diet plan, I feel so energetic. Best ₹10 I ever spent!",
+      "My visceral fat level shocked me! After following the diet plan, I feel so energetic. Best ₹20 I ever spent!",
   },
   {
     name: "Priya",
@@ -3591,7 +3581,7 @@ function WellnessAssessment({
                 </p>
               </div>
 
-              {/* Generate New Report — requires Rs. 10 payment */}
+              {/* Generate New Report — requires Rs. 20 payment */}
               <div className="flex flex-col gap-1.5">
                 <button
                   type="button"
@@ -3618,7 +3608,7 @@ function WellnessAssessment({
                       border: "1px solid rgba(245,158,11,0.4)",
                     }}
                   >
-                    Rs. 10
+                    Rs. 20
                   </span>
                 </button>
                 <p className="text-amber-300/70 text-xs text-center italic">
@@ -3629,42 +3619,6 @@ function WellnessAssessment({
           </div>
         </motion.div>
       )}
-
-      {/* ── Trust Badges ──────────────────────────────────────────── */}
-      <div
-        className="flex gap-2.5 overflow-x-auto pb-1 mb-6 justify-center flex-wrap"
-        aria-label="Trust signals"
-      >
-        {[
-          { icon: "🔒", label: t.trustPrivate },
-          { icon: "✅", label: t.trustClients },
-          { icon: "🏷️", label: t.trustFree },
-          { icon: "⚡", label: t.trustInstant },
-        ].map((badge, i) => (
-          <motion.span
-            key={badge.label}
-            initial={{ opacity: 0, y: 10, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{
-              duration: 0.38,
-              delay: 0.08 + i * 0.07,
-              ease: "easeOut",
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap flex-shrink-0 select-none"
-            style={{
-              background: "linear-gradient(135deg, #ffffff 0%, #f0fdf9 100%)",
-              border: "1.5px solid #6ee7b7",
-              color: "#065f46",
-              boxShadow:
-                "0 3px 12px rgba(13,148,136,0.15), inset 0 1px 0 rgba(255,255,255,1)",
-              letterSpacing: "0.01em",
-            }}
-          >
-            <span className="text-sm leading-none">{badge.icon}</span>
-            {badge.label}
-          </motion.span>
-        ))}
-      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -4334,14 +4288,11 @@ function WellnessAssessment({
                 border: "2px solid #16a34a",
               }}
             >
-              <span className="text-xl font-black text-red-500 line-through">
-                Rs. 499
-              </span>
               <span
                 className="text-2xl font-black"
                 style={{ color: "#16a34a" }}
               >
-                Just Rs. 10
+                Just Rs. 20
               </span>
               <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
                 99% OFF
@@ -4524,10 +4475,10 @@ function WellnessAssessment({
                 🎁 Help 2 Friends Download Their Report
               </p>
               <p className="font-bold text-white text-sm mt-1">
-                & Get Your Full Refund of ₹10 Back!
+                & Get Your Full Refund of ₹20 Back!
               </p>
               <p className="text-emerald-100/80 text-xs mt-1">
-                2 Referrals × ₹5 = ₹10 Refund 🎉
+                6 Referrals × ₹5 = ₹20 Refund 🎉
               </p>
             </div>
 
@@ -5357,7 +5308,7 @@ function AdminDashboard() {
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
-  const [currentPrice, setCurrentPrice] = useState(10);
+  const [currentPrice, setCurrentPrice] = useState(20);
   const t = translations[lang];
 
   // Check for admin mode
@@ -5575,9 +5526,8 @@ export default function App() {
 
       {/* Top Offer Banner */}
       <div className="w-full bg-gradient-to-r from-green-900 to-emerald-700 py-2.5 px-4 text-center flex flex-wrap items-center justify-center gap-2">
-        <span className="text-white/70 text-sm line-through">Rs. 499</span>
         <span className="text-yellow-300 font-black text-lg">
-          Just Rs. 10 Today!
+          Just Rs. 20 Today!
         </span>
         <span className="bg-yellow-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded-full">
           LIMITED OFFER
@@ -5630,7 +5580,43 @@ export default function App() {
         className="flex-1 max-w-4xl mx-auto w-full px-4 py-8"
         style={{ position: "relative", zIndex: 1 }}
       >
+        {/* ── Trust Badges ──────────────────────────────────────────── */}
+        <div
+          className="flex gap-2.5 overflow-x-auto pb-1 mb-4 justify-center flex-wrap"
+          aria-label="Trust signals"
+        >
+          {[
+            { icon: "🔒", label: t.trustPrivate },
+            { icon: "✅", label: t.trustClients },
+            { icon: "🏷️", label: t.trustFree },
+            { icon: "⚡", label: t.trustInstant },
+          ].map((badge, i) => (
+            <motion.span
+              key={badge.label}
+              initial={{ opacity: 0, y: 10, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.38,
+                delay: 0.08 + i * 0.07,
+                ease: "easeOut",
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap flex-shrink-0 select-none"
+              style={{
+                background: "linear-gradient(135deg, #ffffff 0%, #f0fdf9 100%)",
+                border: "1.5px solid #6ee7b7",
+                color: "#065f46",
+                boxShadow:
+                  "0 3px 12px rgba(13,148,136,0.15), inset 0 1px 0 rgba(255,255,255,1)",
+                letterSpacing: "0.01em",
+              }}
+            >
+              <span className="text-sm leading-none">{badge.icon}</span>
+              {badge.label}
+            </motion.span>
+          ))}
+        </div>
         <ReportsAndCountdown onPriceUpdate={(p) => setCurrentPrice(p)} />
+        <ReportRatings />
         {/* What's Inside Your Report card */}
         <div
           style={{
@@ -5706,7 +5692,6 @@ export default function App() {
             All values calculated based on WHO, ICMR &amp; IDA guidelines
           </p>
         </div>
-        <ReportRatings />
         <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
       </main>
 
