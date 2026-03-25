@@ -2432,14 +2432,14 @@ function ReportsAndCountdown({
       .then((actor) => actor.getRecords(null, null))
       .then((records) => {
         const total = records.length;
-        const displayTotal = total + 1043;
+        const displayTotal = total + 1509;
         setCount(displayTotal);
         setLoaded(true);
         if (onPriceUpdateRef.current)
-          onPriceUpdateRef.current(displayTotal >= 1500 ? 49 : 20);
+          onPriceUpdateRef.current(displayTotal >= 5000 ? 49 : 20);
       })
       .catch(() => {
-        setCount(1043);
+        setCount(1509);
         setLoaded(true);
         if (onPriceUpdateRef.current) onPriceUpdateRef.current(20);
       });
@@ -2478,7 +2478,7 @@ function ReportsAndCountdown({
   const secs = seconds % 60;
   const timeStr = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   const isUrgent = seconds <= 60;
-  const progressPct = Math.min((displayCount / 1500) * 100, 100);
+  const progressPct = Math.min((displayCount / 5000) * 100, 100);
 
   return (
     <motion.div
@@ -2507,7 +2507,11 @@ function ReportsAndCountdown({
             <span
               className={`font-black text-sm ${isUrgent ? "text-white" : "text-emerald-800"}`}
             >
-              {loaded ? <>1500+ Reports</> : "Loading..."}
+              {loaded ? (
+                <>{displayCount.toLocaleString()} / 5,000 Reports</>
+              ) : (
+                "Loading..."
+              )}
             </span>
             <span
               className={`text-xs font-medium ${isUrgent ? "text-red-100" : "text-emerald-600"}`}
@@ -4288,14 +4292,19 @@ function WellnessAssessment({
                 border: "2px solid #16a34a",
               }}
             >
-              <span
-                className="text-2xl font-black"
-                style={{ color: "#16a34a" }}
-              >
-                Just Rs. 20
+              <span className="flex flex-col items-center">
+                <span className="text-sm line-through text-gray-400 font-semibold">
+                  ₹799
+                </span>
+                <span
+                  className="text-2xl font-black"
+                  style={{ color: "#16a34a" }}
+                >
+                  Just Rs. 20
+                </span>
               </span>
               <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
-                99% OFF
+                97% OFF
               </span>
             </div>
 
@@ -5526,11 +5535,16 @@ export default function App() {
 
       {/* Top Offer Banner */}
       <div className="w-full bg-gradient-to-r from-green-900 to-emerald-700 py-2.5 px-4 text-center flex flex-wrap items-center justify-center gap-2">
-        <span className="text-yellow-300 font-black text-lg">
-          Just Rs. 20 Today!
+        <span className="flex items-center gap-1.5">
+          <span className="line-through text-white/50 text-sm font-semibold">
+            ₹799
+          </span>
+          <span className="text-yellow-300 font-black text-lg">
+            Just Rs. 20 Today!
+          </span>
         </span>
         <span className="bg-yellow-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded-full">
-          LIMITED OFFER
+          97% OFF
         </span>
         <span className="text-white/80 text-xs">
           Get your personalised Wellness Assessment Report
