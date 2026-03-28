@@ -2026,7 +2026,7 @@ function buildReportHtml(
   .macro-coach-title { font-size: 11pt; font-weight: 800; color: #065f46; margin-bottom: 6px; }
   .macro-coach-desc { font-size: 8.5pt; color: #374151; line-height: 1.5; margin-bottom: 10px; }
   .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 14px rgba(13,148,136,0.4); }
-  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(245,158,11,0.2); }
+  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(245,158,11,0.2); page-break-inside: avoid; break-inside: avoid; }
   .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
   .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
@@ -2108,12 +2108,25 @@ function buildReportHtml(
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 4px 8px !important; font-size: 8.5pt !important; }
     .no-print { display: none; }
     .print-btn-wrapper { display: none !important; }
-    .section { padding: 6px 8px !important; margin-bottom: 6px !important; page-break-inside: avoid; }
-    .referral-section { padding: 8px 10px !important; margin: 8px 0 !important; }
-    .wellness-score-section { padding: 8px 10px !important; margin: 8px 14px !important; }
-    .bio-age-section { padding: 8px 10px !important; }
+    .section { padding: 6px 8px !important; margin-bottom: 6px !important; page-break-inside: avoid; break-inside: avoid; }
+    .referral-section { padding: 8px 10px !important; margin: 8px 0 !important; page-break-inside: avoid; break-inside: avoid; }
+    .wellness-score-section { padding: 8px 10px !important; margin: 8px 14px !important; page-break-inside: avoid; break-inside: avoid; }
+    .bio-age-section { padding: 8px 10px !important; page-break-inside: avoid; break-inside: avoid; }
     .metric-card-body { padding: 6px 8px !important; }
-    .personal-section { margin: 0 14px 12px !important; }
+    .personal-section { margin: 0 14px 12px !important; page-break-inside: avoid; break-inside: avoid; }
+    .section-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .sleep-section { page-break-inside: avoid; break-inside: avoid; }
+    .timeline-box { page-break-inside: avoid; break-inside: avoid; }
+    .macro-grid { page-break-inside: avoid; break-inside: avoid; }
+    .macro-card { page-break-inside: avoid; break-inside: avoid; }
+    .avoid-grid { page-break-inside: avoid; break-inside: avoid; }
+    .body-measure-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .risk-table { page-break-inside: avoid; break-inside: avoid; }
+    .risk-healthy { page-break-inside: avoid; break-inside: avoid; }
+    .diet-tt-grid { page-break-inside: avoid; break-inside: avoid; }
+    .diet-tt-card { page-break-inside: avoid; break-inside: avoid; }
+    .cert-banner { page-break-inside: avoid; break-inside: avoid; }
+    .section-title { page-break-after: avoid; break-after: avoid; }
   }
   /* ── WELLNESS SCORE ─────────────────────────────────────── */
   .wellness-score-section { display:flex; align-items:center; gap:14px; margin:10px 16px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:12px; padding:10px 14px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
@@ -2301,7 +2314,7 @@ function buildReportHtml(
 
   ${healthRiskHtml}
 
-  <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #6ee7b7; border-radius: 14px; page-break-inside: avoid;">
+  <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #6ee7b7; border-radius: 14px; page-break-inside: avoid; break-inside: avoid;">
     <div style="text-align:center; margin-bottom:12px;">
       <div style="font-size:13pt; font-weight:900; color:#064e3b; letter-spacing:0.3px;">⚡ Your Immediate Next Step</div>
       <div style="font-size:10pt; color:#047857; font-weight:600; margin-top:3px;">Start practicing these today</div>
