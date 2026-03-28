@@ -3471,16 +3471,9 @@ function WellnessAssessment({
         transition={{ duration: 0.5 }}
         className="text-center mb-6"
       >
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full mb-3">
-          <FileText className="w-3.5 h-3.5" />
-          {t.freeWellnessReport}
-        </div>
         <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground leading-tight">
           {t.sectionTitle}
         </h2>
-        <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">
-          {t.sectionDesc}
-        </p>
       </motion.div>
 
       {/* ── Welcome Back Banner ───────────────────────────────────── */}
@@ -5655,58 +5648,6 @@ export default function App() {
             boxShadow: "0 2px 12px rgba(13,148,136,0.10)",
           }}
         >
-          <h3
-            style={{
-              margin: "0 0 10px",
-              fontSize: "15px",
-              fontWeight: 900,
-              color: "#065f46",
-              textAlign: "center",
-            }}
-          >
-            📊 What's Inside Your Report?
-          </h3>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "6px 10px",
-            }}
-          >
-            {[
-              "🏋️ BMI & Body Weight Analysis",
-              "🔥 BMR & TDEE (Calorie Needs)",
-              "💧 Daily Water Intake",
-              "👣 Recommended Daily Steps",
-              "🏃 Exercise Plan (mins/day + days/week)",
-              "🫀 Biological Age (WHO Method)",
-              "⚖️ Visceral Fat Analysis",
-              "💪 Wellness Score (out of 100)",
-              "📐 Ideal Body Measurements",
-              "🕐 Personalized Diet Timetable",
-              "🥩 Nutrition Requirements",
-              "🚫 10 Foods to Avoid",
-              "⚠️ Health Risk Awareness",
-              "😴 Sleep & Recovery Analysis",
-              "🎯 Weight Goal & Timeline",
-              "💪 Body Fat % & Muscle Mass %",
-            ].map((item) => (
-              <div
-                key={item}
-                style={{
-                  fontSize: "11px",
-                  color: "#065f46",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "4px",
-                  lineHeight: 1.4,
-                }}
-              >
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
           <p
             style={{
               margin: "10px 0 0",
