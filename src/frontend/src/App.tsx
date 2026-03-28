@@ -5643,21 +5643,85 @@ export default function App() {
             background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)",
             border: "2px solid #6ee7b7",
             borderRadius: "16px",
-            padding: "14px 16px",
+            padding: "20px 18px 16px",
             marginBottom: "16px",
             boxShadow: "0 2px 12px rgba(13,148,136,0.10)",
           }}
         >
+          <h3
+            style={{
+              margin: "0 0 14px",
+              fontSize: "15px",
+              fontWeight: 800,
+              color: "#065f46",
+              textAlign: "center",
+              letterSpacing: "0.01em",
+            }}
+          >
+            📋 What&apos;s Inside Your Report?
+          </h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "7px",
+            }}
+          >
+            {[
+              { icon: "⚖️", label: "BMI" },
+              { icon: "🔥", label: "BMR" },
+              { icon: "📊", label: "TDEE" },
+              { icon: "💧", label: "Water Intake" },
+              { icon: "👣", label: "Daily Steps" },
+              { icon: "🏃", label: "Exercise Plan" },
+              { icon: "🩸", label: "Visceral Fat" },
+              { icon: "💪", label: "Body Fat %" },
+              { icon: "🦾", label: "Muscle Mass %" },
+              { icon: "🧬", label: "Biological Age" },
+              { icon: "🌟", label: "Wellness Score" },
+              { icon: "📏", label: "Ideal Body Measurements" },
+              { icon: "📐", label: "Waist-to-Hip Ratio" },
+              { icon: "🫁", label: "VO2 Max" },
+              { icon: "❤️", label: "BP Risk Level" },
+              { icon: "🎯", label: "Weight Timeline" },
+              { icon: "😴", label: "Sleep & Recovery" },
+              { icon: "🍽️", label: "Diet Timetable" },
+              { icon: "🥗", label: "Daily Nutrition" },
+              { icon: "🚫", label: "Foods to Avoid" },
+              { icon: "⚠️", label: "Health Risk Awareness" },
+            ].map((param) => (
+              <div
+                key={param.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  background: "rgba(255,255,255,0.75)",
+                  border: "1px solid #a7f3d0",
+                  borderRadius: "8px",
+                  padding: "5px 7px",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  color: "#065f46",
+                }}
+              >
+                <span style={{ fontSize: "12px", lineHeight: 1 }}>
+                  {param.icon}
+                </span>
+                <span style={{ lineHeight: 1.3 }}>{param.label}</span>
+              </div>
+            ))}
+          </div>
           <p
             style={{
-              margin: "10px 0 0",
+              margin: "12px 0 0",
               fontSize: "10px",
               color: "#0d9488",
               textAlign: "center",
               fontStyle: "italic",
             }}
           >
-            All values calculated based on WHO, ICMR &amp; IDA guidelines
+            ✅ All values calculated based on WHO, ICMR &amp; IDA guidelines
           </p>
         </div>
         <WellnessAssessment lang={lang} t={t} currentPrice={currentPrice} />
