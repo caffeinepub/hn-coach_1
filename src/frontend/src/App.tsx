@@ -1649,6 +1649,10 @@ function buildReportHtml(
     ? invitedBy.trim().replace(/[\s\-+]/g, "")
     : "919155348866";
   const _waUrl = `https://wa.me/${targetNumber}?text=${waMsg}`;
+  const _dietPlanWaMsg = encodeURIComponent(
+    `Hi! I want to get my personalised Diet Plan 🥗\n\nKindly help me with my personalised diet plan.\n\n🥗 Diet Plan Link: https://dietplan-hncoach-8m2.caffeine.xyz/?ref=${targetNumber}\n\n📌 Referred By: ${targetNumber}`,
+  );
+  const _dietPlanWaUrl = `https://wa.me/${targetNumber}?text=${_dietPlanWaMsg}`;
 
   // Referral link uses the person's own WhatsApp number as the ref param
   const referralPageUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(whatsapp || name)}`;
@@ -2367,7 +2371,7 @@ function buildReportHtml(
       <span style="font-size:11pt;font-weight:900;color:#fde68a;">🎯 Don't miss this! Your personalized diet plan is ready</span>
     </div>
     <div>
-      <a href="https://dietplan-hncoach-8m2.caffeine.xyz/?ref=${encodeURIComponent(targetNumber)}" target="_blank" class="footer-wa-btn" style="cursor:pointer;border:none;display:inline-flex;align-items:center;gap:10px;text-decoration:none;background:linear-gradient(135deg,#ff6b35 0%,#ff8c42 50%,#ffaa00 100%);box-shadow:0 4px 24px rgba(255,107,53,0.6),0 0 0 4px rgba(255,107,53,0.2);border:2px solid rgba(255,255,255,0.35);animation:pulse-glow 2s ease-in-out infinite;padding:16px 36px;font-size:14pt;" rel="noreferrer">
+      <a href="${_dietPlanWaUrl}" target="_blank" class="footer-wa-btn" style="cursor:pointer;border:none;display:inline-flex;align-items:center;gap:10px;text-decoration:none;background:linear-gradient(135deg,#ff6b35 0%,#ff8c42 50%,#ffaa00 100%);box-shadow:0 4px 24px rgba(255,107,53,0.6),0 0 0 4px rgba(255,107,53,0.2);border:2px solid rgba(255,255,255,0.35);animation:pulse-glow 2s ease-in-out infinite;padding:16px 36px;font-size:14pt;" rel="noreferrer">
         <span style="font-size:24px;">🥗</span>
         <span>
           <span style="display:block;font-size:8pt;font-weight:700;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:1.5px;">✨ Special Offer — Free Today!</span>
