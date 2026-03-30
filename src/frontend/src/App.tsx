@@ -1666,7 +1666,7 @@ function buildReportHtml(
   const _refStatusColor = myReferralCount >= 2 ? "#4ade80" : "#ffd700";
   const _refStatusMsg =
     myReferralCount === 0
-      ? "\uD83C\uDFAF Share your link below \u2014 get ₹20 refund when 6 friends download!"
+      ? "\uD83C\uDFAF Share your link below — get a full refund when 2 friends download!"
       : myReferralCount === 1
         ? "\uD83D\uDD25 1 friend downloaded! Just 1 more for your full refund!"
         : "\uD83C\uDF89 Congratulations! You qualify for a full refund! Contact us on WhatsApp.";
@@ -1705,10 +1705,7 @@ function buildReportHtml(
           <div style="font-size:14pt; font-weight:800; color:${_f2Color};">${_f2Icon}</div>
           <div style="font-size:8pt; color:rgba(255,255,255,0.8);">Friend 2</div>
         </div>
-        <div style="background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.3); border-radius:8px; padding:6px 12px; text-align:center; flex:1; max-width:120px;">
-          <div style="font-size:10pt; font-weight:800; color:#ffd700;">&#x20B9;10</div>
-          <div style="font-size:8pt; color:rgba(255,255,255,0.8);">Refund Goal</div>
-        </div>
+
       </div>
     </div>
     <div class="referral-buttons">
@@ -1825,12 +1822,12 @@ function buildReportHtml(
   /* ── CERTIFICATE BANNER ─────────────────────────────────── */
   .cert-banner {
     margin: 20px 24px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%);
-    border: 2px solid #d97706;
-    padding: 16px 22px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #022c22 0%, #064e3b 40%, #065f46 70%, #047857 100%);
+    border: 2.5px solid #d97706;
+    padding: 18px 24px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(6,78,59,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+    box-shadow: 0 6px 28px rgba(6,78,59,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(217,119,6,0.2);
     position: relative;
     overflow: hidden;
   }
@@ -1867,7 +1864,7 @@ function buildReportHtml(
   .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
   .personal-row { display: flex; gap: 6px; font-size: 9.5pt; padding: 3.5px 0; border-bottom: 0.5px solid rgba(167,243,208,0.4); }
   .personal-row:last-child { border-bottom: none; }
-  .personal-chip { font-size: 7pt; font-weight: 700; color: #0d9488; background: rgba(13,148,136,0.1); padding: 1px 6px; border-radius: 10px; min-width: 80px; align-self: center; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
+  .personal-chip { font-size: 7pt; font-weight: 800; color: #065f46; background: linear-gradient(135deg, rgba(13,148,136,0.15), rgba(5,150,105,0.08)); padding: 2px 7px; border-radius: 10px; min-width: 80px; align-self: center; text-align: center; text-transform: uppercase; letter-spacing: 0.4px; border: 0.5px solid rgba(13,148,136,0.3); }
   .personal-val { font-size: 9.5pt; color: #1f2937; font-weight: 600; }
 
   /* ── SECTION TITLES ─────────────────────────────────────── */
@@ -1876,21 +1873,26 @@ function buildReportHtml(
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11pt;
-    font-weight: 800;
-    color: #065f46;
-    margin: 22px 0 8px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid #a7f3d0;
+    font-size: 11.5pt;
+    font-weight: 900;
+    color: #064e3b;
+    margin: 20px 0 8px;
+    padding: 8px 12px 8px 0;
+    border-bottom: 2px solid #6ee7b7;
+    background: linear-gradient(90deg, rgba(209,250,229,0.6) 0%, transparent 60%);
+    border-radius: 4px 4px 0 0;
+    letter-spacing: 0.2px;
   }
   .section-title::before {
     content: '';
     display: inline-block;
     width: 5px;
-    height: 18px;
-    background: linear-gradient(to bottom, #0d9488, #059669);
+    height: 22px;
+    background: linear-gradient(to bottom, #d97706, #059669);
     border-radius: 3px;
     flex-shrink: 0;
+    margin-left: -4px;
+    box-shadow: 0 0 6px rgba(217,119,6,0.35);
   }
 
   /* ── METRIC CARDS (2-col grid) ──────────────────────────── */
@@ -1900,8 +1902,10 @@ function buildReportHtml(
     align-items: stretch;
     border-radius: 10px;
     border: 1px solid #d1fae5;
+    border-top: 2.5px solid #0d9488;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(13,148,136,0.07);
+    box-shadow: 0 3px 10px rgba(13,148,136,0.1), 0 1px 3px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s;
   }
   .metric-card-accent { width: 4px; flex-shrink: 0; }
   .metric-card-accent.teal { background: linear-gradient(to bottom, #0d9488, #059669); }
@@ -2030,7 +2034,7 @@ function buildReportHtml(
   .macro-coach-title { font-size: 11pt; font-weight: 800; color: #065f46; margin-bottom: 6px; }
   .macro-coach-desc { font-size: 8.5pt; color: #374151; line-height: 1.5; margin-bottom: 10px; }
   .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 14px rgba(13,148,136,0.4); }
-  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(245,158,11,0.2); page-break-inside: avoid; break-inside: avoid; }
+  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%); border: 2.5px solid #d97706; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(217,119,6,0.25), inset 0 1px 0 rgba(255,255,255,0.6); page-break-inside: avoid; break-inside: avoid; }
   .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
   .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
@@ -2269,6 +2273,13 @@ function buildReportHtml(
   </div>
 
   <div class="section-wrap">
+  <!-- Weight Goal Section -->
+  <div class="section-wrap" style="margin-top:16px;">
+    <div class="section-title">🎯 Weight Goal</div>
+    ${weightGoalHtml}
+    ${timelineHtml}
+  </div>
+
   <!-- Biological Age Section -->
   <div class="section-wrap" style="margin-top:16px;">
     <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
@@ -2296,11 +2307,6 @@ function buildReportHtml(
   ${idealBodyMeasurementsHtml}
 
   ${visceralFatHtml}
-
-  <div class="section-title">🎯 Weight Goal</div>
-  ${weightGoalHtml}
-
-  ${timelineHtml}
 
   <div class="guarantee-box">
     <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
@@ -4490,14 +4496,8 @@ function WellnessAssessment({
                 border: "2px solid rgba(255,215,0,0.6)",
               }}
             >
-              <p className="font-black text-yellow-300 text-sm">
-                🎁 Help 2 Friends Download Their Report
-              </p>
-              <p className="font-bold text-white text-sm mt-1">
-                & Get Your Full Refund of ₹20 Back!
-              </p>
-              <p className="text-emerald-100/80 text-xs mt-1">
-                6 Referrals × ₹5 = ₹20 Refund 🎉
+              <p className="font-black text-yellow-300 text-base">
+                🎁 Refer 2 Friends &amp; Get Full Refund
               </p>
             </div>
 
