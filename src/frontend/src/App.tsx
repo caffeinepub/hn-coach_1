@@ -1300,7 +1300,7 @@ function buildReportHtml(
 
   // ── Macronutrient section HTML ──────────────────────────────────────────────
   const macroOrigin = window.location.origin;
-  const macroNutrientsHtml = `
+  const _macroNutrientsHtml = `
   <div class="section-title macro-header">&#127807; Your Daily Nutrition Requirements — ICMR Guidelines</div>
   <div class="macro-grid">
     <div class="macro-card protein-card">
@@ -1401,7 +1401,7 @@ function buildReportHtml(
   `;
 
   // Diet Timetable Section HTML
-  const dietTimetableHtml = `
+  const _dietTimetableHtml = `
   <div class="section-title diet-tt-header">&#127869; Your Personalised Diet Timetable</div>
   <div class="diet-tt-grid">
     <div class="diet-tt-card breakfast-card">
@@ -1613,11 +1613,21 @@ function buildReportHtml(
         <div style="font-size:8pt;color:#64748b;font-weight:600;">🔴 Body Fat %</div>
         <div style="font-size:18pt;font-weight:900;color:${bfColor};line-height:1.2;">${bodyFatPct}%</div>
         <div style="font-size:8pt;font-weight:700;color:${bfColor};">${bfCategory}</div>
+        <div style="margin-top:6px;font-size:7pt;color:#64748b;text-align:left;line-height:1.5;">
+          <div style="font-weight:700;color:#334155;margin-bottom:2px;">Reference Ranges:</div>
+          <div><span style="color:#6b7280;">♂ Male:</span> <span style="color:#16a34a;">Normal &lt;20%</span> · <span style="color:#d97706;">Risk 20–25%</span> · <span style="color:#dc2626;">High &gt;25%</span></div>
+          <div><span style="color:#6b7280;">♀ Female:</span> <span style="color:#16a34a;">Normal &lt;28%</span> · <span style="color:#d97706;">Risk 28–33%</span> · <span style="color:#dc2626;">High &gt;33%</span></div>
+        </div>
       </div>
       <div style="background:#fff;border:2px solid ${mpColor};border-radius:8px;padding:8px 10px;text-align:center;">
         <div style="font-size:8pt;color:#64748b;font-weight:600;">💪 Muscle Mass %</div>
         <div style="font-size:18pt;font-weight:900;color:${mpColor};line-height:1.2;">${musclePct}%</div>
         <div style="font-size:8pt;font-weight:700;color:${mpColor};">Estimated</div>
+        <div style="margin-top:6px;font-size:7pt;color:#64748b;text-align:left;line-height:1.5;">
+          <div style="font-weight:700;color:#334155;margin-bottom:2px;">Reference Ranges:</div>
+          <div><span style="color:#6b7280;">♂ Male:</span> <span style="color:#16a34a;">Good ≥40%</span> · <span style="color:#d97706;">Low 30–39%</span> · <span style="color:#dc2626;">Risk &lt;30%</span></div>
+          <div><span style="color:#6b7280;">♀ Female:</span> <span style="color:#16a34a;">Good ≥30%</span> · <span style="color:#d97706;">Low 25–29%</span> · <span style="color:#dc2626;">Risk &lt;25%</span></div>
+        </div>
       </div>
     </div>
     <div style="margin-top:12px;text-align:center;">
@@ -1679,10 +1689,6 @@ function buildReportHtml(
   const referralSection = `
   <div class="referral-section">
     <div class="referral-title">💚 Sharing is Caring</div>
-    <div style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);border-radius:10px;padding:12px 16px;margin:10px 0 14px 0;text-align:center;">
-      <div style="font-size:12pt;font-weight:800;color:#fff;line-height:1.6;">Help your 2 friends to download this report</div>
-      <div style="font-size:11pt;font-weight:700;color:#ffd700;margin-top:4px;">and get your full refund! 🎁</div>
-    </div>
     <div style="margin: 14px 0; background: rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 16px; border: 1.5px solid rgba(255,255,255,0.3);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <span style="font-size:11pt; font-weight:700; color:#fff;">&#x1F4CA; Your Referral Progress</span>
@@ -1723,7 +1729,7 @@ function buildReportHtml(
 
   </div>`;
 
-  const wellnessScore = computeWellnessScore(
+  const _wellnessScore = computeWellnessScore(
     results,
     Number.parseFloat(weight),
     sleepHoursTotal,
@@ -1737,17 +1743,17 @@ function buildReportHtml(
 <title>HN Coach – Wellness Report – ${name}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 9.5pt; color: #1f2937; background: #fff; }
-  .page { max-width: 760px; margin: 0 auto; padding: 0 0 32px; }
+  body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; font-size: 9pt; color: #1f2937; background: #fff; }
+  .page { max-width: 760px; margin: 0 auto; padding: 0 0 16px; }
 
   /* ── PREMIUM HEADER ─────────────────────────────────────── */
   .header-main {
     background: linear-gradient(135deg, #064e3b 0%, #0d9488 45%, #059669 75%, #047857 100%);
     color: #fff;
-    padding: 14px 20px;
+    padding: 10px 16px;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
   }
   .header-logo-ring {
     flex-shrink: 0;
@@ -1780,7 +1786,7 @@ function buildReportHtml(
     color: #fff;
   }
   .header-brand { flex: 1; min-width: 0; }
-  .header-brand h1 { font-size: 20pt; font-weight: 900; letter-spacing: -0.3px; text-shadow: 0 2px 8px rgba(0,0,0,0.25); line-height: 1.1; }
+  .header-brand h1 { font-size: 17pt; font-weight: 900; letter-spacing: -0.3px; text-shadow: 0 2px 8px rgba(0,0,0,0.25); line-height: 1.1; }
   .header-brand-sub { font-size: 9pt; font-weight: 700; opacity: 0.9; margin-top: 2px; letter-spacing: 0.3px; }
   .header-brand-date { font-size: 7pt; opacity: 0.65; margin-top: 3px; font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
   .header-orgs { display: flex; flex-direction: row; align-items: center; gap: 6px; flex-shrink: 0; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 14px; }
@@ -1809,10 +1815,10 @@ function buildReportHtml(
     background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
     color: #fff;
     text-align: center;
-    font-size: 16pt;
+    font-size: 13pt;
     font-weight: 900;
     font-style: italic;
-    padding: 14px 26px;
+    padding: 8px 20px;
     letter-spacing: 0.8px;
     text-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 24px rgba(167,243,208,0.25);
     border-top: 2.5px solid rgba(167,243,208,0.35);
@@ -1821,11 +1827,11 @@ function buildReportHtml(
 
   /* ── CERTIFICATE BANNER ─────────────────────────────────── */
   .cert-banner {
-    margin: 20px 24px;
-    border-radius: 12px;
+    margin: 8px 16px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #022c22 0%, #064e3b 40%, #065f46 70%, #047857 100%);
     border: 2.5px solid #d97706;
-    padding: 18px 24px;
+    padding: 10px 16px;
     text-align: center;
     box-shadow: 0 6px 28px rgba(6,78,59,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(217,119,6,0.2);
     position: relative;
@@ -1840,11 +1846,11 @@ function buildReportHtml(
     pointer-events: none;
   }
   .cert-prepared { font-size: 9.5pt; font-style: italic; color: rgba(255,255,255,0.75); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
-  .cert-name { font-size: 22pt; font-weight: 900; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.4); margin-bottom: 2px; letter-spacing: -0.3px; }
+  .cert-name { font-size: 18pt; font-weight: 900; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.4); margin-bottom: 2px; letter-spacing: -0.3px; }
   .cert-sub { font-size: 8.5pt; color: rgba(255,255,255,0.65); }
 
   /* ── PERSONAL DETAILS ───────────────────────────────────── */
-  .personal-section { margin: 0 24px 20px; position: relative; overflow: hidden; }
+  .personal-section { margin: 0 16px 12px; position: relative; overflow: hidden; }
   .personal-watermark {
     position: absolute;
     top: 50%;
@@ -1858,7 +1864,7 @@ function buildReportHtml(
     user-select: none;
     letter-spacing: 4px;
   }
-  .personal-inner { background: #f8fffe; border: 1px solid #a7f3d0; border-radius: 10px; padding: 14px 18px; border-left: 4px solid #0d9488; position: relative; }
+  .personal-inner { background: #f8fffe; border: 1px solid #a7f3d0; border-radius: 10px; padding: 9px 12px; border-left: 4px solid #0d9488; position: relative; }
   .personal h2 { color: #065f46; font-size: 9pt; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
   .personal h2::before { content: ''; display: inline-block; width: 18px; height: 3px; background: linear-gradient(90deg, #0d9488, #059669); border-radius: 2px; }
   .personal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 24px; }
@@ -1868,16 +1874,16 @@ function buildReportHtml(
   .personal-val { font-size: 9.5pt; color: #1f2937; font-weight: 600; }
 
   /* ── SECTION TITLES ─────────────────────────────────────── */
-  .section-wrap { margin: 0 24px; }
+  .section-wrap { margin: 0 16px; }
   .section-title {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11.5pt;
+    font-size: 10.5pt;
     font-weight: 900;
     color: #064e3b;
-    margin: 20px 0 8px;
-    padding: 8px 12px 8px 0;
+    margin: 12px 0 5px;
+    padding: 5px 10px 5px 0;
     border-bottom: 2px solid #6ee7b7;
     background: linear-gradient(90deg, rgba(209,250,229,0.6) 0%, transparent 60%);
     border-radius: 4px 4px 0 0;
@@ -1887,7 +1893,7 @@ function buildReportHtml(
     content: '';
     display: inline-block;
     width: 5px;
-    height: 22px;
+    height: 18px;
     background: linear-gradient(to bottom, #d97706, #059669);
     border-radius: 3px;
     flex-shrink: 0;
@@ -1915,19 +1921,19 @@ function buildReportHtml(
   .metric-card-accent.indigo { background: linear-gradient(to bottom, #4f46e5, #2563eb); }
   .metric-card-accent.violet { background: linear-gradient(to bottom, #7c3aed, #4f46e5); }
   .metric-card-accent.amber { background: linear-gradient(to bottom, #d97706, #f59e0b); }
-  .metric-card-body { flex: 1; padding: 10px 12px; background: #f8fffe; }
+  .metric-card-body { flex: 1; padding: 7px 9px; background: #f8fffe; }
   .metric-card:nth-child(even) .metric-card-body { background: #ffffff; }
   .metric-label { font-weight: 700; font-size: 8.5pt; color: #374151; line-height: 1.3; }
   .metric-note { font-size: 7pt; color: #9ca3af; font-style: italic; margin-top: 2px; }
-  .metric-value { font-weight: 900; font-size: 13pt; color: #0d9488; margin-top: 5px; }
+  .metric-value { font-weight: 900; font-size: 12pt; color: #0d9488; margin-top: 3px; }
 
   /* ── BANNERS ────────────────────────────────────────────── */
-  .banner { border-radius: 10px; padding: 12px 16px; margin: 10px 0; font-size: 11pt; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .banner { border-radius: 10px; padding: 7px 10px; margin: 6px 0; font-size: 11pt; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
   .banner.green { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #14532d; border: 1.5px solid #86efac; }
   .banner.orange { background: linear-gradient(135deg, #fff7ed, #fde68a); color: #7c2d12; border: 1.5px solid #fdba74; }
   .banner.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1e3a8a; border: 1.5px solid #93c5fd; }
-  .motivation-msg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 2px solid #f59e0b; border-radius: 10px; padding: 12px 16px; margin: 8px 0; font-size: 10pt; font-weight: 700; line-height: 1.5; box-shadow: 0 2px 12px rgba(245,158,11,0.2); }
-  .diet-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin-bottom: 6px; }
+  .motivation-msg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #78350f; border: 2px solid #f59e0b; border-radius: 10px; padding: 8px 12px; margin: 5px 0; font-size: 9.5pt; font-weight: 700; line-height: 1.5; box-shadow: 0 2px 12px rgba(245,158,11,0.2); }
+  .diet-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 8px 12px; margin-bottom: 4px; }
   .diet-box h3 { color: #065f46; font-size: 10.5pt; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
   .diet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
   .diet-row { display: flex; gap: 6px; font-size: 9.5pt; padding: 3px 0; }
@@ -1936,30 +1942,30 @@ function buildReportHtml(
     background: linear-gradient(135deg, #064e3b 0%, #0d9488 60%, #059669 100%);
     color: #fff;
     text-align: center;
-    padding: 0 26px 20px;
-    margin-top: 24px;
+    padding: 0 16px 12px;
+    margin-top: 12px;
     position: relative;
   }
-  .footer-gold-line { height: 3px; background: linear-gradient(90deg, #f59e0b, #fde68a, #f59e0b); margin-bottom: 20px; }
-  .footer-heading { font-size: 15pt; font-weight: 900; color: #fff; margin-bottom: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-  .footer-sub { font-size: 9.5pt; color: rgba(255,255,255,0.8); margin-bottom: 16px; font-weight: 600; }
+  .footer-gold-line { height: 3px; background: linear-gradient(90deg, #f59e0b, #fde68a, #f59e0b); margin-bottom: 12px; }
+  .footer-heading { font-size: 12pt; font-weight: 900; color: #fff; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .footer-sub { font-size: 8.5pt; color: rgba(255,255,255,0.8); margin-bottom: 10px; font-weight: 600; }
   .footer-wa-btn {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
     color: #fff;
-    padding: 14px 32px;
+    padding: 9px 20px;
     border-radius: 30px;
     text-decoration: none;
-    font-size: 13.5pt;
+    font-size: 11pt;
     font-weight: 900;
     box-shadow: 0 4px 24px rgba(37,211,102,0.6), 0 0 0 4px rgba(37,211,102,0.15);
     letter-spacing: 0.1px;
     border: 2px solid rgba(255,255,255,0.22);
     margin-bottom: 14px;
   }
-  .footer-cta-text { font-size: 12pt; font-weight: 900; color: #d1fae5; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .footer-cta-text { font-size: 10pt; font-weight: 900; color: #d1fae5; letter-spacing: 0.5px; margin-bottom: 8px; }
   .footer-brand { font-size: 8pt; opacity: 0.7; margin-top: 8px; }
   @keyframes pulse-glow {
     0%, 100% { box-shadow: 0 4px 24px rgba(255,107,53,0.5), 0 0 0 4px rgba(255,107,53,0.15); transform: scale(1); }
@@ -1981,12 +1987,12 @@ function buildReportHtml(
   .risk-desc { color: #4b5563; font-style: italic; }
   .risk-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 7.5pt; font-weight: 700; white-space: nowrap; }
   .risk-disclaimer { font-size: 7.5pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 6px; }
-  .timeline-box { border-radius: 10px; padding: 14px 16px; margin: 8px 0 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .timeline-box { border-radius: 10px; padding: 9px 12px; margin: 5px 0 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
   .timeline-box.loss { background: linear-gradient(135deg, #fff7ed, #fde68a22); border: 1.5px solid #fdba74; }
   .timeline-box.gain { background: linear-gradient(135deg, #eff6ff, #dbeafe22); border: 1.5px solid #93c5fd; }
   .timeline-header { font-size: 10.5pt; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
   .timeline-grid { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .timeline-col { flex: 1; text-align: center; background: linear-gradient(135deg, #fff3e0, #fef3c7); border: 1.5px solid #ffcc80; border-radius: 10px; padding: 12px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .timeline-col { flex: 1; text-align: center; background: linear-gradient(135deg, #fff3e0, #fef3c7); border: 1.5px solid #ffcc80; border-radius: 10px; padding: 7px 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .timeline-col.mid { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #fde68a; }
   .timeline-col.slow { background: linear-gradient(135deg, #fef9c3, #fef3c7); border-color: #fcd34d; }
   .timeline-vs { font-size: 11pt; font-weight: 800; color: #d1d5db; flex-shrink: 0; }
@@ -1994,47 +2000,47 @@ function buildReportHtml(
   .tl-rate-sub { font-size: 8pt; color: #ea580c; margin: 2px 0 6px; }
   .tl-months { font-size: 20pt; font-weight: 900; color: #9a3412; line-height: 1; }
   .timeline-note { font-size: 9pt; color: #7c2d12; background: #fff3e0; border: 1px solid #fdba74; border-radius: 8px; padding: 8px 12px; font-weight: 600; line-height: 1.5; }
-  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 12px 16px; margin: 12px 0 10px; box-shadow: 0 4px 20px rgba(6,78,59,0.3); }
+  .referral-section { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f766e 100%); border-radius: 12px; padding: 8px 12px; margin: 8px 0 6px; box-shadow: 0 4px 20px rgba(6,78,59,0.3); }
   .referral-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; font-size: 8pt; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
-  .referral-title { font-size: 18pt; font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
+  .referral-title { font-size: 14pt; font-weight: 900; color: #fff; text-align: center; margin-bottom: 4px; }
   .referral-subtitle { font-size: 10pt; font-weight: 700; color: rgba(255,255,255,0.95); text-align: center; margin-bottom: 4px; }
   .referral-subtitle strong { color: #fff; }
   .referral-desc { font-size: 9pt; color: rgba(255,255,255,0.8); text-align: center; margin-bottom: 14px; }
-  .referral-buttons { display: flex; gap: 10px; justify-content: center; margin-bottom: 12px; }
+  .referral-buttons { display: flex; gap: 8px; justify-content: center; margin-bottom: 7px; }
   .ref-btn-wa { display: inline-flex; align-items: center; gap: 7px; background: #25D366; color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; text-decoration: none; }
   .ref-btn-copy { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 10pt; font-weight: 800; border: 1.5px solid rgba(255,255,255,0.4); }
   .ref-link-box { background: rgba(0,0,0,0.25); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 14px; font-size: 8.5pt; color: rgba(255,255,255,0.85); font-weight: 600; text-align: center; margin: 0 auto 10px; max-width: 420px; word-break: break-all; }
   .ref-hashtag { font-size: 8pt; color: rgba(255,255,255,0.6); text-align: center; font-style: italic; }
   .macro-header { color: #5b21b6 !important; }
   .macro-header::before { background: linear-gradient(to bottom, #7c3aed, #5b21b6) !important; }
-  .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
-  .macro-card { display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 12px 14px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 5px; }
+  .macro-card { display: flex; align-items: flex-start; gap: 8px; border-radius: 10px; padding: 8px 10px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
   .protein-card { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-color: #c4b5fd; }
   .fat-card { background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%); border-color: #fcd34d; }
   .carbs-card { background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%); border-color: #fde68a; }
   .fibre-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
-  .macro-icon-wrap { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .macro-icon-wrap { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .protein-bg { background: rgba(124,58,237,0.13); }
   .fat-bg { background: rgba(245,150,0,0.13); }
   .carbs-bg { background: rgba(245,158,11,0.13); }
   .fibre-bg { background: rgba(22,163,74,0.13); }
-  .macro-icon { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; }
+  .macro-icon { width: 30px; height: 30px; object-fit: contain; border-radius: 5px; }
   .macro-content { flex: 1; }
   .macro-badge { display: inline-block; font-size: 7pt; font-weight: 800; letter-spacing: 0.8px; border-radius: 12px; padding: 2px 8px; margin-bottom: 4px; text-transform: uppercase; }
   .protein-badge { background: #7c3aed; color: #fff; }
   .fat-badge { background: #ea580c; color: #fff; }
   .carbs-badge { background: #d97706; color: #fff; }
   .fibre-badge { background: #16a34a; color: #fff; }
-  .macro-value { font-size: 20pt; font-weight: 900; line-height: 1; color: #1f2937; }
+  .macro-value { font-size: 15pt; font-weight: 900; line-height: 1; color: #1f2937; }
   .macro-unit { font-size: 9pt; font-weight: 600; color: #6b7280; margin-left: 2px; }
   .macro-formula { font-size: 7.5pt; color: #6b7280; font-style: italic; margin: 3px 0 4px; line-height: 1.3; }
   .macro-desc { font-size: 8pt; color: #374151; line-height: 1.4; }
   .macro-note { background: #f5f3ff; border: 1px solid #c4b5fd; border-left: 4px solid #7c3aed; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #5b21b6; font-style: italic; margin-top: 4px; line-height: 1.5; }
-  .macro-coach-cta { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-left: 4px solid #059669; border-radius: 10px; padding: 14px 18px; margin-top: 10px; text-align: center; }
+  .macro-coach-cta { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-left: 4px solid #059669; border-radius: 10px; padding: 8px 12px; margin-top: 6px; text-align: center; }
   .macro-coach-title { font-size: 11pt; font-weight: 800; color: #065f46; margin-bottom: 6px; }
   .macro-coach-desc { font-size: 8.5pt; color: #374151; line-height: 1.5; margin-bottom: 10px; }
   .macro-coach-btn { display: inline-block; background: linear-gradient(135deg, #0d9488 0%, #059669 100%); color: #fff; padding: 9px 22px; border-radius: 24px; font-size: 9.5pt; font-weight: 800; text-decoration: none; box-shadow: 0 3px 14px rgba(13,148,136,0.4); }
-  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%); border: 2.5px solid #d97706; border-radius: 14px; padding: 18px 22px; margin-top: 14px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(217,119,6,0.25), inset 0 1px 0 rgba(255,255,255,0.6); page-break-inside: avoid; break-inside: avoid; }
+  .guarantee-box { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%); border: 2.5px solid #d97706; border-radius: 12px; padding: 10px 14px; margin-top: 8px; text-align: center; position: relative; box-shadow: 0 4px 20px rgba(217,119,6,0.25), inset 0 1px 0 rgba(255,255,255,0.6); page-break-inside: avoid; break-inside: avoid; }
   .guarantee-badge { display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 8pt; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .guarantee-title { font-size: 16pt; font-weight: 900; color: #78350f; margin-bottom: 8px; }
   .guarantee-desc { font-size: 9.5pt; color: #92400e; line-height: 1.6; max-width: 520px; margin: 0 auto; }
@@ -2046,8 +2052,8 @@ function buildReportHtml(
   .body-gender-badge { font-size: 8pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 12px; border-radius: 20px; }
   .body-gender-badge.male { background: #0d9488; color: #fff; }
   .body-gender-badge.female { background: #ec4899; color: #fff; }
-  .body-measure-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-  .measure-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 2px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .body-measure-cards { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .measure-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 2px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   .measure-card.chest { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; }
   .measure-card.waist { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
   .measure-card.hips { background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%); border-color: #d8b4fe; }
@@ -2069,7 +2075,7 @@ function buildReportHtml(
   .avoid-header { color: #dc2626 !important; }
   .avoid-header::before { background: linear-gradient(to bottom, #dc2626, #b91c1c) !important; }
   .avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .avoid-card { display: flex; align-items: flex-start; gap: 10px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecaca; border-radius: 8px; padding: 10px 12px; }
+  .avoid-card { display: flex; align-items: flex-start; gap: 7px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecaca; border-radius: 8px; padding: 6px 8px; }
   .avoid-icon { font-size: 20pt; flex-shrink: 0; line-height: 1; }
   .avoid-content { flex: 1; }
   .avoid-name { font-size: 9pt; font-weight: 800; color: #991b1b; margin-bottom: 2px; }
@@ -2079,14 +2085,14 @@ function buildReportHtml(
   .sleep-header { color: #1e40af !important; }
   .sleep-header::before { background: linear-gradient(to bottom, #3b82f6, #1d4ed8) !important; }
   .sleep-section { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%); border: 1.5px solid #93c5fd; border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
-  .sleep-summary-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  .sleep-summary-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
   .sleep-img { width: 80px; height: 80px; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,0.7); padding: 4px; border: 1px solid #bfdbfe; flex-shrink: 0; }
   .sleep-data { flex: 1; }
   .sleep-hours-badge { font-size: 20pt; font-weight: 900; color: #1e40af; margin-bottom: 6px; line-height: 1; }
   .sleep-bedtime-row { display: flex; align-items: center; gap: 4px; font-size: 9pt; flex-wrap: wrap; }
   .sleep-chip { font-size: 7pt; font-weight: 700; color: #1e40af; background: rgba(59,130,246,0.15); padding: 1px 7px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
   .sleep-time-val { font-size: 10pt; font-weight: 800; color: #1e3a8a; }
-  .sleep-who-msg { border-radius: 8px; padding: 10px 14px; font-size: 9.5pt; font-weight: 600; line-height: 1.5; }
+  .sleep-who-msg { border-radius: 8px; padding: 6px 10px; font-size: 9pt; font-weight: 600; line-height: 1.5; }
   .sleep-who-msg.optimal { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-left: 4px solid #16a34a; color: #14532d; }
   .sleep-who-msg.warning { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #fcd34d; border-left: 4px solid #f59e0b; color: #78350f; }
   .sleep-who-msg.danger { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1.5px solid #fecaca; border-left: 4px solid #dc2626; color: #7f1d1d; }
@@ -2094,35 +2100,38 @@ function buildReportHtml(
   /* ── DIET TIMETABLE ────────────────────────────────────────── */
   .diet-tt-header { color: #b45309 !important; }
   .diet-tt-header::before { background: linear-gradient(to bottom, #f59e0b, #d97706) !important; }
-  .diet-tt-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
-  .diet-tt-card { display: flex; align-items: flex-start; gap: 14px; border-radius: 12px; padding: 14px 16px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .diet-tt-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 5px; }
+  .diet-tt-card { display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 9px 12px; border: 1.5px solid; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
   .breakfast-card { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fde68a; }
   .lunch-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
   .dinner-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #93c5fd; }
-  .diet-tt-icon-wrap { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .diet-tt-icon-wrap { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .breakfast-icon-bg { background: rgba(245,158,11,0.15); }
   .lunch-icon-bg { background: rgba(22,163,74,0.15); }
   .dinner-icon-bg { background: rgba(59,130,246,0.15); }
-  .diet-tt-icon { width: 48px; height: 48px; object-fit: contain; }
+  .diet-tt-icon { width: 34px; height: 34px; object-fit: contain; }
   .diet-tt-content { flex: 1; }
   .diet-tt-badge { display: inline-block; font-size: 7pt; font-weight: 800; letter-spacing: 0.8px; border-radius: 12px; padding: 2px 9px; margin-bottom: 5px; text-transform: uppercase; }
   .breakfast-badge { background: #f59e0b; color: #fff; }
   .lunch-badge { background: #16a34a; color: #fff; }
   .dinner-badge { background: #2563eb; color: #fff; }
-  .diet-tt-time { font-size: 16pt; font-weight: 900; color: #1f2937; line-height: 1; margin-bottom: 4px; }
+  .diet-tt-time { font-size: 13pt; font-weight: 900; color: #1f2937; line-height: 1; margin-bottom: 3px; }
   .diet-tt-tip { font-size: 8pt; color: #4b5563; font-style: italic; line-height: 1.4; }
   .diet-tt-note { background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #78350f; font-style: italic; margin-top: 4px; line-height: 1.5; }
+  @page { margin: 0.5cm 0.6cm; }
   @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 4px 8px !important; font-size: 8.5pt !important; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 2px 4px !important; font-size: 7pt !important; }
+    * { line-height: 1.2 !important; }
+    h1, h2, h3 { margin: 0 0 2px 0 !important; }
     .no-print { display: none; }
     .print-btn-wrapper { display: none !important; }
-    .section { padding: 6px 8px !important; margin-bottom: 6px !important; page-break-inside: avoid; break-inside: avoid; }
-    .referral-section { padding: 8px 10px !important; margin: 8px 0 !important; page-break-inside: avoid; break-inside: avoid; }
-    .wellness-score-section { padding: 8px 10px !important; margin: 8px 14px !important; page-break-inside: avoid; break-inside: avoid; }
-    .bio-age-section { padding: 8px 10px !important; page-break-inside: avoid; break-inside: avoid; }
-    .metric-card-body { padding: 6px 8px !important; }
-    .personal-section { margin: 0 14px 12px !important; page-break-inside: avoid; break-inside: avoid; }
-    .section-wrap { page-break-inside: avoid; break-inside: avoid; }
+    .section { padding: 2px 4px !important; margin-bottom: 2px !important; page-break-inside: avoid; break-inside: avoid; }
+    .referral-section { padding: 6px 8px !important; margin: 6px 0 !important; page-break-inside: avoid; break-inside: avoid; }
+    .wellness-score-section { padding: 6px 8px !important; margin: 6px 10px !important; page-break-inside: avoid; break-inside: avoid; }
+    .bio-age-section { padding: 6px 8px !important; page-break-inside: avoid; break-inside: avoid; }
+    .metric-card-body { padding: 4px 6px !important; }
+    .personal-section { margin: 0 10px 8px !important; page-break-inside: avoid; break-inside: avoid; }
+    .section-wrap { page-break-inside: avoid; break-inside: avoid; margin: 0 8px !important; }
     .sleep-section { page-break-inside: avoid; break-inside: avoid; }
     .timeline-box { page-break-inside: avoid; break-inside: avoid; }
     .macro-grid { page-break-inside: avoid; break-inside: avoid; }
@@ -2134,11 +2143,99 @@ function buildReportHtml(
     .diet-tt-grid { page-break-inside: avoid; break-inside: avoid; }
     .diet-tt-card { page-break-inside: avoid; break-inside: avoid; }
     .cert-banner { page-break-inside: avoid; break-inside: avoid; }
-    .section-title { page-break-after: avoid; break-after: avoid; }
+    .section-title { page-break-after: avoid; break-after: avoid; margin: 6px 0 3px !important; padding: 3px 6px 3px 0 !important; font-size: 9.5pt !important; }
+    /* Compact bio-age boxes */
+    .bio-age-box { padding: 6px 12px !important; }
+    .bio-age-box-value { font-size: 20pt !important; }
+    .bio-age-vs { font-size: 14pt !important; }
+    /* Compact wellness score ring */
+    .ws-ring-wrap { width: 70px !important; height: 70px !important; }
+    /* Shrink large inline font sizes */
+    [style*="font-size:32pt"] { font-size: 16pt !important; }
+    [style*="font-size:24pt"] { font-size: 13pt !important; }
+    [style*="font-size:22pt"] { font-size: 12pt !important; }
+    [style*="font-size:20pt"] { font-size: 12pt !important; }
+    [style*="font-size:18pt"] { font-size: 11pt !important; }
+    [style*="font-size:16pt"] { font-size: 10.5pt !important; }
+    [style*="font-size:14pt"] { font-size: 10pt !important; }
+    [style*="font-size:12pt"] { font-size: 9pt !important; }
+    [style*="font-size:11pt"] { font-size: 8.5pt !important; }
+    [style*="font-size:10pt"] { font-size: 8pt !important; }
+    [style*="font-size:9.5pt"] { font-size: 7.5pt !important; }
+    [style*="font-size:9pt"] { font-size: 7pt !important; }
+    /* Compact paddings */
+    div[style*="padding: 18px"], div[style*="padding:18px"] { padding: 5px !important; }
+    div[style*="padding: 16px"], div[style*="padding:16px"] { padding: 4px !important; }
+    div[style*="padding: 14px"], div[style*="padding:14px"] { padding: 4px !important; }
+    div[style*="padding: 12px"], div[style*="padding:12px"] { padding: 3px !important; }
+    /* Compact margins */
+    div[style*="margin-bottom: 16px"], div[style*="margin-bottom:16px"] { margin-bottom: 4px !important; }
+    div[style*="margin-bottom: 14px"], div[style*="margin-bottom:14px"] { margin-bottom: 3px !important; }
+    div[style*="margin-bottom: 12px"], div[style*="margin-bottom:12px"] { margin-bottom: 3px !important; }
+    /* Compact gaps */
+    div[style*="gap: 16px"], div[style*="gap:16px"] { gap: 4px !important; }
+    div[style*="gap: 14px"], div[style*="gap:14px"] { gap: 4px !important; }
+    div[style*="gap: 12px"], div[style*="gap:12px"] { gap: 3px !important; }
+    /* Extra compaction pass */
+    .cert-banner { margin: 4px 8px !important; padding: 6px 12px !important; }
+    .cert-name { font-size: 14pt !important; }
+    .tagline-center { padding: 5px 14px !important; font-size: 10pt !important; }
+    .referral-section { padding: 5px 8px !important; margin: 4px 0 !important; }
+    .referral-title { font-size: 11pt !important; margin-bottom: 3px !important; }
+    .macro-grid { gap: 4px !important; }
+    .macro-card { padding: 5px 7px !important; gap: 6px !important; }
+    .macro-icon-wrap { width: 28px !important; height: 28px !important; }
+    .macro-icon { width: 22px !important; height: 22px !important; }
+    .macro-value { font-size: 12pt !important; }
+    .diet-tt-grid { gap: 4px !important; }
+    .diet-tt-card { padding: 5px 8px !important; gap: 7px !important; }
+    .diet-tt-icon-wrap { width: 28px !important; height: 28px !important; }
+    .diet-tt-icon { width: 24px !important; height: 24px !important; }
+    .diet-tt-time { font-size: 11pt !important; margin-bottom: 1px !important; }
+    .timeline-box { padding: 5px 8px !important; margin: 3px 0 !important; }
+    .timeline-col { padding: 4px 3px !important; }
+    .tl-months { font-size: 15pt !important; }
+    .body-measure-cards { gap: 4px !important; }
+    .measure-card { padding: 4px 7px !important; gap: 6px !important; }
+    .avoid-card { padding: 4px 6px !important; }
+    .metric-card-body { padding: 3px 5px !important; }
+    .metric-grid { gap: 4px !important; margin-bottom: 4px !important; }
+    .wellness-score-section { padding: 4px 7px !important; margin: 3px 8px !important; }
+    .ws-ring-wrap { width: 50px !important; height: 50px !important; }
+    .bio-age-section { padding: 4px 7px !important; }
+    .bio-age-box { padding: 4px 10px !important; min-width: 70px !important; }
+    .bio-age-compare { margin-bottom: 5px !important; gap: 8px !important; }
+    .bio-age-box-value { font-size: 16pt !important; }
+    .bio-age-vs { font-size: 12pt !important; }
+    .footer { padding: 0 12px 8px !important; margin-top: 6px !important; }
+    .footer-gold-line { margin-bottom: 6px !important; }
+    .footer-heading { font-size: 10pt !important; margin-bottom: 2px !important; }
+    .footer-sub { margin-bottom: 5px !important; font-size: 8pt !important; }
+    .footer-wa-btn { padding: 5px 14px !important; font-size: 9pt !important; margin-bottom: 6px !important; }
+    .footer-cta-text { font-size: 8.5pt !important; margin-bottom: 5px !important; }
+    .banner { padding: 4px 8px !important; margin: 3px 0 !important; font-size: 8.5pt !important; }
+    .motivation-msg { padding: 5px 8px !important; margin: 3px 0 !important; font-size: 8.5pt !important; }
+    .risk-healthy { padding: 4px 7px !important; margin-bottom: 3px !important; font-size: 8.5pt !important; }
+    .risk-table th { padding: 4px 6px !important; }
+    .risk-table td { padding: 3px 6px !important; }
+    .sleep-summary-row { gap: 8px !important; margin-bottom: 4px !important; }
+    .sleep-who-msg { padding: 4px 7px !important; font-size: 8pt !important; }
+    .guarantee-box { padding: 6px 10px !important; margin-top: 4px !important; }
+    .referral-desc { margin-bottom: 6px !important; }
+    .ref-link-box { padding: 4px 8px !important; margin-bottom: 5px !important; }
+    .personal-inner { padding: 5px 8px !important; }
+    .personal-grid { gap: 2px 16px !important; }
+    .macro-note { padding: 4px 8px !important; }
+    .diet-tt-note { padding: 4px 8px !important; }
+    .section-wrap { margin: 0 8px !important; }
+    /* Next step merged box */
+    div[style*="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4"] { margin: 6px 0 !important; padding: 8px 10px !important; }
+    /* Utilize empty print space - allow referral section to fill remaining space */
+    .referral-section { flex: 1 !important; }
   }
   /* ── WELLNESS SCORE ─────────────────────────────────────── */
-  .wellness-score-section { display:flex; align-items:center; gap:14px; margin:10px 16px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:12px; padding:10px 14px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
-  .ws-ring-wrap { flex-shrink:0; width:100px; height:100px; position:relative; }
+  .wellness-score-section { display:flex; align-items:center; gap:10px; margin:7px 16px; background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%); border:2px solid #a7f3d0; border-radius:12px; padding:7px 10px; box-shadow:0 3px 14px rgba(13,148,136,0.1); }
+  .ws-ring-wrap { flex-shrink:0; width:70px; height:70px; position:relative; }
   .ws-content { flex:1; }
   .ws-label { font-size:13pt; font-weight:900; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px; }
   .ws-title { font-size:10pt; font-weight:700; color:#374151; margin-bottom:4px; }
@@ -2150,14 +2247,14 @@ function buildReportHtml(
   /* ── BIOLOGICAL AGE ─────────────────────────────────────── */
   .bio-age-header { color: #7c3aed !important; }
   .bio-age-header::before { background: linear-gradient(to bottom, #7c3aed, #5b21b6) !important; }
-  .bio-age-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 10px 12px; }
-  .bio-age-compare { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 12px; }
-  .bio-age-box { text-align: center; padding: 14px 22px; border-radius: 10px; border: 2px solid #e5e7eb; min-width: 110px; }
+  .bio-age-section { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #c4b5fd; border-radius: 12px; padding: 7px 10px; }
+  .bio-age-compare { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+  .bio-age-box { text-align: center; padding: 8px 14px; border-radius: 10px; border: 2px solid #e5e7eb; min-width: 90px; }
   .bio-age-box.chrono { background: #f8fafc; border-color: #94a3b8; }
   .bio-age-box-label { font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280; margin-bottom: 4px; }
-  .bio-age-box-value { font-size: 32pt; font-weight: 900; color: #1f2937; line-height: 1; }
+  .bio-age-box-value { font-size: 24pt; font-weight: 900; color: #1f2937; line-height: 1; }
   .bio-age-box-unit { font-size: 8pt; color: #9ca3af; margin-top: 2px; }
-  .bio-age-vs { font-size: 20pt; font-weight: 900; color: #9ca3af; flex-shrink: 0; }
+  .bio-age-vs { font-size: 15pt; font-weight: 900; color: #9ca3af; flex-shrink: 0; }
   .bio-age-badge { display: block; font-size: 9.5pt; font-weight: 800; padding: 5px 18px; border-radius: 20px; text-align: center; width: fit-content; margin: 0 auto 10px; }
   .bio-age-msg { font-size: 9.5pt; font-weight: 600; color: #374151; line-height: 1.5; border-left: 4px solid #7c3aed; padding-left: 12px; margin-bottom: 8px; }
   .bio-age-note { font-size: 7.5pt; color: #6b7280; font-style: italic; margin-top: 6px; }
@@ -2209,32 +2306,9 @@ function buildReportHtml(
     <div class="cert-sub">Your personalised wellness data is ready · Based on WHO &amp; ICMR guidelines</div>
   </div>
 
-  <!-- Wellness Score -->
-  <div class="wellness-score-section">
-    <div class="ws-ring-wrap">
-      <svg viewBox="0 0 120 120" style="width:100px;height:100px;transform:rotate(-90deg);display:block;">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="10"/>
-        <circle cx="60" cy="60" r="52" fill="none" stroke="${wellnessScore.ringColor}" stroke-width="10"
-          stroke-dasharray="${Math.round((2 * Math.PI * 52 * wellnessScore.score) / 100)} 999"
-          stroke-linecap="round"/>
-      </svg>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;line-height:1;">
-        <div style="font-size:22pt;font-weight:900;color:${wellnessScore.color};line-height:1;">${wellnessScore.score}</div>
-        <div style="font-size:7pt;color:#6b7280;margin-top:2px;">/100</div>
-      </div>
-    </div>
-    <div class="ws-content">
-      <div class="ws-label" style="color:${wellnessScore.color};">${wellnessScore.label}</div>
-      <div class="ws-title">Your Wellness Score</div>
-      <div class="ws-desc">Based on your BMI, BMR, hydration, steps and exercise data — calculated per WHO/ICMR standards.</div>
-      <div class="ws-bar-wrap">
-        <div class="ws-bar-bg">
-          <div class="ws-bar-fill" style="width:${wellnessScore.score}%;background:${wellnessScore.ringColor};"></div>
-        </div>
-        <span class="ws-bar-pct" style="color:${wellnessScore.color};">${wellnessScore.score}%</span>
-      </div>
-    </div>
-  </div>
+
+
+  <!-- Personal Details with watermark -->
 
   <!-- Personal Details with watermark -->
   <div class="personal-section">
@@ -2272,12 +2346,20 @@ function buildReportHtml(
     </div>
   </div>
 
+  ${sleepSectionHtml}
+
   <div class="section-wrap">
   <!-- Weight Goal Section -->
   <div class="section-wrap" style="margin-top:16px;">
     <div class="section-title">🎯 Weight Goal</div>
     ${weightGoalHtml}
     ${timelineHtml}
+  </div>
+
+  <div class="guarantee-box">
+    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
+    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
+    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
   </div>
 
   <!-- Biological Age Section -->
@@ -2308,58 +2390,127 @@ function buildReportHtml(
 
   ${visceralFatHtml}
 
-  <div class="guarantee-box">
-    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
-    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
-    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
-  </div>
-
-  ${macroNutrientsHtml}
-
-  ${sleepSectionHtml}
-
-  ${dietTimetableHtml}
-
   ${foodsToAvoidHtml}
 
   ${healthRiskHtml}
 
   <div style="margin: 16px 0; padding: 16px; background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid #6ee7b7; border-radius: 14px; page-break-inside: avoid; break-inside: avoid;">
-    <div style="text-align:center; margin-bottom:12px;">
+    <div style="text-align:center; margin-bottom:14px;">
       <div style="font-size:13pt; font-weight:900; color:#064e3b; letter-spacing:0.3px;">⚡ Your Immediate Next Step</div>
       <div style="font-size:10pt; color:#047857; font-weight:600; margin-top:3px;">Start practicing these today</div>
     </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-      <div style="background:#fff; border:1.5px solid #a7f3d0; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-        <div style="font-size:22pt; flex-shrink:0;">💧</div>
+
+    <!-- Row 1: Water, Footsteps, Exercise, Weight Target — 4 cols -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+      <div style="background:#fff; border:1.5px solid #a7f3d0; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
+        <div style="font-size:18pt; flex-shrink:0;">💧</div>
         <div>
-          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Water Intake</div>
-          <div style="font-size:14pt; font-weight:900; color:#0d9488;">${results.waterIntake.toFixed(1)}L</div>
-          <div style="font-size:7.5pt; color:#6b7280;">per day</div>
+          <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Water</div>
+          <div style="font-size:12pt; font-weight:900; color:#0d9488;">${results.waterIntake.toFixed(1)}L</div>
+          <div style="font-size:7pt; color:#6b7280;">per day</div>
         </div>
       </div>
-      <div style="background:#fff; border:1.5px solid #fde68a; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-        <div style="font-size:22pt; flex-shrink:0;">👟</div>
+      <div style="background:#fff; border:1.5px solid #fde68a; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
+        <div style="font-size:18pt; flex-shrink:0;">👟</div>
         <div>
-          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Footsteps</div>
-          <div style="font-size:14pt; font-weight:900; color:#d97706;">${results.footsteps}</div>
-          <div style="font-size:7.5pt; color:#6b7280;">steps / day</div>
+          <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Steps</div>
+          <div style="font-size:12pt; font-weight:900; color:#d97706;">${results.footsteps}</div>
+          <div style="font-size:7pt; color:#6b7280;">per day</div>
         </div>
       </div>
-      <div style="background:#fff; border:1.5px solid #c7d2fe; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-        <div style="font-size:22pt; flex-shrink:0;">🏃</div>
+      <div style="background:#fff; border:1.5px solid #c7d2fe; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
+        <div style="font-size:18pt; flex-shrink:0;">🏃</div>
         <div>
-          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Exercise</div>
-          <div style="font-size:13pt; font-weight:900; color:#7c3aed;">${results.exerciseMinutes}</div>
-          <div style="font-size:7.5pt; color:#6b7280;">per week</div>
+          <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Exercise</div>
+          <div style="font-size:11pt; font-weight:900; color:#7c3aed; line-height:1.2;">${results.exerciseMinutes}</div>
         </div>
       </div>
-      <div style="background:#fff; border:1.5px solid #fed7aa; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;">
-        <div style="font-size:22pt; flex-shrink:0;">🥗</div>
+      <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
+        <div style="font-size:18pt; flex-shrink:0;">🎯</div>
         <div>
-          <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Daily Nutrition</div>
-          <div style="font-size:9pt; font-weight:800; color:#ea580c;">P: ${macros.protein}g · C: ${macros.carbs}g</div>
-          <div style="font-size:8.5pt; font-weight:700; color:#ea580c;">F: ${macros.fat}g · Fi: ${macros.fibre}g</div>
+          <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Weight Target</div>
+          <div style="font-size:12pt; font-weight:900; color:#dc2626;">${results.idealWeight.toFixed(1)} kg</div>
+          <div style="font-size:7pt; color:#${Math.abs(weightDiff) <= 1 ? "16a34a" : weightDiff > 0 ? "ea580c" : "2563eb"};">${Math.abs(weightDiff) <= 1 ? "✓ At goal" : weightDiff > 0 ? `Lose ${absWeightDiff} kg` : `Gain ${absWeightDiff} kg`}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Waist target (compact 1-line) -->
+    ${
+      idealMeasurements
+        ? `<div style="background:#fff; border:1.5px solid #d8b4fe; border-radius:10px; padding:7px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+      <div style="font-size:16pt; flex-shrink:0;">📏</div>
+      <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; flex-shrink:0;">Waist Target:</div>
+      <div style="font-size:11pt; font-weight:900; color:#7c3aed;">${idealMeasurements.waist.inch}" &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(${idealMeasurements.waist.cm} cm)</span></div>
+    </div>`
+        : ""
+    }
+
+    <!-- Diet Timetable sub-section -->
+    <div style="border-top: 1.5px dashed #6ee7b7; padding-top:10px; margin-bottom:10px;">
+      <div style="font-size:9.5pt; font-weight:800; color:#065f46; margin-bottom:8px; text-align:center;">🍽️ Your Personalised Meal Timings</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px;">
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:10px; padding:9px 7px; text-align:center;">
+          <div style="font-size:16pt; margin-bottom:3px;">🌅</div>
+          <div style="font-size:6.5pt; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.5px; background:#fef3c7; border-radius:4px; padding:2px 5px; display:inline-block; margin-bottom:4px;">BREAKFAST</div>
+          <div style="font-size:9.5pt; font-weight:900; color:#92400e;">${dietTimetable.breakfast.from} – ${dietTimetable.breakfast.to}</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1.5px solid #86efac; border-radius:10px; padding:9px 7px; text-align:center;">
+          <div style="font-size:16pt; margin-bottom:3px;">☀️</div>
+          <div style="font-size:6.5pt; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:0.5px; background:#dcfce7; border-radius:4px; padding:2px 5px; display:inline-block; margin-bottom:4px;">LUNCH</div>
+          <div style="font-size:9.5pt; font-weight:900; color:#14532d;">${dietTimetable.lunch.from} – ${dietTimetable.lunch.to}</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1.5px solid #93c5fd; border-radius:10px; padding:9px 7px; text-align:center;">
+          <div style="font-size:16pt; margin-bottom:3px;">🌙</div>
+          <div style="font-size:6.5pt; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px; background:#dbeafe; border-radius:4px; padding:2px 5px; display:inline-block; margin-bottom:4px;">DINNER</div>
+          <div style="font-size:9.5pt; font-weight:900; color:#1e3a8a;">${dietTimetable.dinner.from} – ${dietTimetable.dinner.to}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutrition Requirements + Limits -->
+    <div style="border-top: 1.5px dashed #6ee7b7; padding-top:10px;">
+      <div style="font-size:9.5pt; font-weight:800; color:#065f46; margin-bottom:8px; text-align:center;">🥗 Daily Nutrition Requirements — ICMR &amp; WHO Guidelines</div>
+      <!-- Macros row: 4 cols -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:7px; margin-bottom:7px;">
+        <div style="background:linear-gradient(135deg,#fef2f2,#fff5f5); border:1.5px solid #fca5a5; border-radius:9px; padding:8px 7px; text-align:center;">
+          <div style="font-size:7pt; font-weight:800; color:#dc2626; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">PROTEIN</div>
+          <div style="font-size:13pt; font-weight:900; color:#b91c1c;">${macros.protein}g</div>
+          <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:9px; padding:8px 7px; text-align:center;">
+          <div style="font-size:7pt; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">CARBS</div>
+          <div style="font-size:13pt; font-weight:900; color:#92400e;">${macros.carbs}g</div>
+          <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1.5px solid #86efac; border-radius:9px; padding:8px 7px; text-align:center;">
+          <div style="font-size:7pt; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">HEALTHY FAT</div>
+          <div style="font-size:13pt; font-weight:900; color:#14532d;">${macros.fat}g</div>
+          <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1.5px solid #93c5fd; border-radius:9px; padding:8px 7px; text-align:center;">
+          <div style="font-size:7pt; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">FIBRE</div>
+          <div style="font-size:13pt; font-weight:900; color:#1d4ed8;">${macros.fibre}g</div>
+          <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+        </div>
+      </div>
+      <!-- Limits row: Sugar + Sodium -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+        <div style="background:linear-gradient(135deg,#fff1f2,#ffe4e6); border:1.5px solid #fca5a5; border-radius:9px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+          <div style="font-size:16pt;">🍬</div>
+          <div>
+            <div style="font-size:7pt; font-weight:800; color:#dc2626; text-transform:uppercase; letter-spacing:0.5px;">SUGAR LIMIT</div>
+            <div style="font-size:12pt; font-weight:900; color:#b91c1c;">&lt;25g<span style="font-size:8pt; color:#64748b; font-weight:600;">/day</span></div>
+            <div style="font-size:6.5pt; color:#dc2626;">Excess → Diabetes, Obesity</div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1.5px solid #93c5fd; border-radius:9px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+          <div style="font-size:16pt;">🧂</div>
+          <div>
+            <div style="font-size:7pt; font-weight:800; color:#2563eb; text-transform:uppercase; letter-spacing:0.5px;">SODIUM LIMIT</div>
+            <div style="font-size:12pt; font-weight:900; color:#1d4ed8;">&lt;2000mg<span style="font-size:8pt; color:#64748b; font-weight:600;">/day</span></div>
+            <div style="font-size:6.5pt; color:#2563eb;">Excess → Hypertension, Heart Risk</div>
+          </div>
         </div>
       </div>
     </div>
