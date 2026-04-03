@@ -46,7 +46,7 @@ const translations = {
     downloadAgainFree: "Download My Report Again",
     generateNewReport: "Generate a New Report",
     noPaymentNeeded: "No payment needed to re-download your last report.",
-    paymentRequiredForNew: "Rs. 20 payment required to generate a new report.",
+    paymentRequiredForNew: "Rs. 49 payment required to generate a new report.",
     reportSavedOn: "Report saved on",
     calcBasedOn: "Calculations based on guidelines by these organisations",
     // Tagline
@@ -55,22 +55,22 @@ const translations = {
     fomoHeading:
       "🔥 Enroll in Our Personal Coaching Program TODAY — Get 10% OFF!",
     fomoDownload: "⚡ Download your",
-    fomoFreeNow: "report for Rs. 20 NOW!",
+    fomoFreeNow: "report for Rs. 49 NOW!",
     fomoExpires: "Offer expires in:",
     fomoSpots: "Only a few spots left!",
     fomoCta: "Claim My 10% Discount Now",
     // Section heading
-    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 20",
+    sectionTitle: "Get Your Wellness Assessment Report — Just Rs. 49",
     sectionDesc:
-      "Fill in your details once and instantly download your personalised wellness report — only Rs. 20.",
+      "Fill in your details once and instantly download your personalised wellness report — only Rs. 49.",
     // Trust badges
     trustPrivate: "100% Private & Secure",
     trustClients: "Trusted by 1000+ Clients",
-    trustFree: "Just Rs. 20",
+    trustFree: "Just Rs. 49",
     trustInstant: "Instant Download",
     // Card header
     cardTitle: "Your Wellness Assessment Report",
-    cardSub: "Personalised · Science-backed · Rs. 20 only",
+    cardSub: "Personalised · Science-backed · Rs. 49 only",
     cardPowered: "Powered by",
     // Step 1
     step1Label: "Personal Details",
@@ -130,8 +130,8 @@ const translations = {
     // CTA
     fillAllFields: "Fill in all fields above to generate your report.",
     generatingReport: "Opening Payment…",
-    ctaButton: "Pay Rs. 20 & Download My Report",
-    ctaDisclaimer: "Secure payment · Rs. 20 only · Instant personalised report",
+    ctaButton: "Pay Rs. 49 & Download My Report",
+    ctaDisclaimer: "Secure payment · Rs. 49 only · Instant personalised report",
     // Referral section
     refer2Friends: "Refer 2 Friends",
     sharingIsCaring: "💚 Sharing is Caring",
@@ -162,7 +162,7 @@ const translations = {
       "🌟 Start earning while doing what you love — helping people live healthier, happier lives.",
     joinTeamCta: 'Send "START" to Join Now',
     // Badge above form
-    freeWellnessReport: "Wellness Report — Rs. 20",
+    freeWellnessReport: "Wellness Report — Rs. 49",
     // Download again
     downloadAgain: "Download Report Again",
   },
@@ -175,7 +175,7 @@ const translations = {
     downloadAgainFree: "मेरी रिपोर्ट फिर से डाउनलोड करें",
     generateNewReport: "नई रिपोर्ट बनाएं",
     noPaymentNeeded: "पिछली रिपोर्ट दोबारा डाउनलोड करने के लिए भुगतान की जरूरत नहीं।",
-    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹20 भुगतान जरूरी है।",
+    paymentRequiredForNew: "नई रिपोर्ट बनाने के लिए ₹49 भुगतान जरूरी है।",
     reportSavedOn: "रिपोर्ट सेव हुई",
     calcBasedOn: "इन संस्थाओं के दिशानिर्देशों पर आधारित गणना",
     // Tagline
@@ -183,22 +183,22 @@ const translations = {
     // FOMO
     fomoHeading: "🔥 आज हमारे पर्सनल कोचिंग प्रोग्राम में जुड़ें — 10% छूट पाएं!",
     fomoDownload: "⚡ अपनी",
-    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹20 में!",
+    fomoFreeNow: "रिपोर्ट अभी सिर्फ ₹49 में!",
     fomoExpires: "ऑफर समाप्त होगा:",
     fomoSpots: "सीमित सीटें बची हैं!",
     fomoCta: "अभी 10% छूट पाएं",
     // Section heading
-    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹20",
+    sectionTitle: "अपनी वेलनेस असेसमेंट रिपोर्ट पाएं — सिर्फ ₹49",
     sectionDesc:
-      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹20 में।",
+      "अपनी जानकारी एक बार भरें और तुरंत अपनी व्यक्तिगत वेलनेस रिपोर्ट डाउनलोड करें — सिर्फ ₹49 में।",
     // Trust badges
     trustPrivate: "100% निजी और सुरक्षित",
     trustClients: "1000+ लोगों का भरोसा",
-    trustFree: "सिर्फ ₹20",
+    trustFree: "सिर्फ ₹49",
     trustInstant: "तुरंत डाउनलोड",
     // Card header
     cardTitle: "आपकी वेलनेस असेसमेंट रिपोर्ट",
-    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹20",
+    cardSub: "व्यक्तिगत · विज्ञान आधारित · सिर्फ ₹49",
     cardPowered: "द्वारा संचालित",
     // Step 1
     step1Label: "व्यक्तिगत जानकारी",
@@ -257,8 +257,8 @@ const translations = {
     // CTA
     fillAllFields: "अपनी रिपोर्ट बनाने के लिए ऊपर सभी जानकारी भरें।",
     generatingReport: "भुगतान खुल रहा है…",
-    ctaButton: "₹20 में भुगतान करें और रिपोर्ट डाउनलोड करें",
-    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹20 · तुरंत व्यक्तिगत रिपोर्ट",
+    ctaButton: "₹49 में भुगतान करें और रिपोर्ट डाउनलोड करें",
+    ctaDisclaimer: "सुरक्षित भुगतान · सिर्फ ₹49 · तुरंत व्यक्तिगत रिपोर्ट",
     // Referral section
     refer2Friends: "2 दोस्तों को रेफर करें",
     sharingIsCaring: "💚 शेयरिंग ही केयरिंग है",
@@ -288,7 +288,7 @@ const translations = {
       "🌟 जो काम आपको पसंद है वो करते हुए कमाई शुरू करें — लोगों को स्वस्थ और खुशहाल जीवन जीने में मदद करें।",
     joinTeamCta: '"START" भेजकर जुड़ें',
     // Badge above form
-    freeWellnessReport: "वेलनेस रिपोर्ट — ₹20",
+    freeWellnessReport: "वेलनेस रिपोर्ट — ₹49",
     // Download again
     downloadAgain: "रिपोर्ट फिर से डाउनलोड करें",
   },
@@ -648,199 +648,6 @@ function computeIdealMeasurements(
   };
 }
 
-// ── Foods to Avoid Helper ──────────────────────────────────────────────────────
-interface FoodToAvoid {
-  food: string;
-  reason: string;
-  icon: string;
-}
-
-function getFoodsToAvoid(goals: string[]): FoodToAvoid[] {
-  const allFoods: FoodToAvoid[] = [
-    {
-      icon: "🍟",
-      food: "Deep Fried Foods",
-      reason:
-        "High in trans fats, causes inflammation and promotes fat storage around the belly.",
-    },
-    {
-      icon: "🥤",
-      food: "Sugary Drinks & Sodas",
-      reason:
-        "Liquid calories spike insulin rapidly and promote fat gain without satiety.",
-    },
-    {
-      icon: "🍰",
-      food: "Refined Sugar & Sweets",
-      reason:
-        "Triggers fat storage hormones (insulin), leads to energy crashes and cravings.",
-    },
-    {
-      icon: "🍞",
-      food: "White Bread & Maida Products",
-      reason:
-        "Causes blood sugar spikes and drops, low nutritional value, promotes belly fat.",
-    },
-    {
-      icon: "🧀",
-      food: "Processed Cheese & Dairy",
-      reason:
-        "High in sodium and saturated fats, contributes to belly fat and water retention.",
-    },
-    {
-      icon: "🍟",
-      food: "Chips, Namkeen & Wafers",
-      reason:
-        "Empty calories loaded with addictive salt and hidden trans fats, zero nutrition.",
-    },
-    {
-      icon: "🍺",
-      food: "Alcohol",
-      reason:
-        "Stops fat burning completely, adds empty calories, disrupts sleep and recovery.",
-    },
-    {
-      icon: "🌭",
-      food: "Processed & Packaged Meats",
-      reason:
-        "Preservatives, sodium, and nitrates are harmful to metabolism and muscle synthesis.",
-    },
-    {
-      icon: "🍦",
-      food: "Ice Cream & Frozen Desserts",
-      reason:
-        "High sugar + fat combination triggers maximum fat storage response in the body.",
-    },
-    {
-      icon: "☕",
-      food: "Excess Caffeine & Energy Drinks",
-      reason:
-        "Disrupts cortisol balance, promotes belly fat accumulation when overconsumed.",
-    },
-    {
-      icon: "🥐",
-      food: "Packaged Biscuits & Cookies",
-      reason:
-        "Hidden trans fats, excess sugar, and refined flour with minimal nutritional value.",
-    },
-    {
-      icon: "🍕",
-      food: "Fast Food Burgers & Pizza",
-      reason:
-        "Extreme calorie density with low nutrients, loaded with sodium and saturated fat.",
-    },
-    {
-      icon: "🫙",
-      food: "Canned & Packaged Foods",
-      reason:
-        "High sodium, preservatives, and hidden sugars that spike insulin and cause bloating.",
-    },
-    {
-      icon: "🍫",
-      food: "Milk Chocolate & Candy",
-      reason:
-        "Pure sugar with minimal nutrients, causes rapid insulin spikes and fat storage.",
-    },
-  ];
-
-  const hasWeightLoss = goals.some((g) =>
-    ["weight_loss", "fat_loss", "belly_fat_loss"].includes(g),
-  );
-  const hasMuscleGain = goals.includes("muscle_gain");
-  const hasWeightGain = goals.includes("weight_gain");
-  const hasEnergy = goals.includes("energy_stamina");
-
-  let selected: FoodToAvoid[];
-
-  if (hasWeightLoss && hasMuscleGain) {
-    // Fat loss + muscle gain: avoid sugar, fried, alcohol, processed
-    selected = [
-      allFoods[0], // Deep Fried
-      allFoods[1], // Sugary Drinks
-      allFoods[2], // Refined Sugar
-      allFoods[6], // Alcohol
-      allFoods[7], // Processed Meats
-      allFoods[5], // Chips
-      allFoods[3], // White Bread
-      allFoods[10], // Packaged Biscuits
-      allFoods[8], // Ice Cream
-      allFoods[11], // Fast Food
-    ];
-  } else if (hasWeightLoss) {
-    // Weight/fat loss focus
-    selected = [
-      allFoods[0], // Deep Fried
-      allFoods[1], // Sugary Drinks
-      allFoods[2], // Refined Sugar
-      allFoods[3], // White Bread
-      allFoods[4], // Processed Cheese
-      allFoods[5], // Chips
-      allFoods[8], // Ice Cream
-      allFoods[9], // Excess Caffeine
-      allFoods[11], // Fast Food
-      allFoods[12], // Canned Foods
-    ];
-  } else if (hasMuscleGain) {
-    // Muscle gain: avoid alcohol, sugar, processed meats, energy-draining foods
-    selected = [
-      allFoods[6], // Alcohol
-      allFoods[7], // Processed Meats
-      allFoods[2], // Refined Sugar
-      allFoods[1], // Sugary Drinks
-      allFoods[9], // Excess Caffeine
-      allFoods[0], // Deep Fried
-      allFoods[10], // Packaged Biscuits
-      allFoods[3], // White Bread
-      allFoods[12], // Canned Foods
-      allFoods[13], // Milk Chocolate
-    ];
-  } else if (hasWeightGain) {
-    // Weight gain: avoid appetite-suppressing, low-calorie fillers
-    selected = [
-      allFoods[6], // Alcohol (disrupts appetite)
-      allFoods[9], // Excess Caffeine
-      allFoods[1], // Diet/Sugary Drinks (no nutrition)
-      allFoods[5], // Chips (low calorie quality)
-      allFoods[12], // Canned Foods (low calorie density)
-      allFoods[0], // Deep Fried (poor quality calories)
-      allFoods[7], // Processed Meats
-      allFoods[2], // Refined Sugar (energy crashes)
-      allFoods[10], // Packaged Biscuits
-      allFoods[13], // Milk Chocolate
-    ];
-  } else if (hasEnergy) {
-    // Energy & stamina: avoid energy-draining, blood sugar spiking foods
-    selected = [
-      allFoods[1], // Sugary Drinks
-      allFoods[2], // Refined Sugar
-      allFoods[3], // White Bread
-      allFoods[6], // Alcohol
-      allFoods[9], // Excess Caffeine
-      allFoods[0], // Deep Fried
-      allFoods[5], // Chips
-      allFoods[11], // Fast Food
-      allFoods[10], // Packaged Biscuits
-      allFoods[8], // Ice Cream
-    ];
-  } else {
-    // Default: general top 10 unhealthy foods
-    selected = [
-      allFoods[0],
-      allFoods[1],
-      allFoods[2],
-      allFoods[3],
-      allFoods[5],
-      allFoods[6],
-      allFoods[7],
-      allFoods[8],
-      allFoods[11],
-      allFoods[12],
-    ];
-  }
-
-  return selected.slice(0, 10);
-}
-
 // ── Wellness Score Calculator ──────────────────────────────────────────────────
 function computeWellnessScore(
   results: AssessmentResults,
@@ -1182,13 +989,12 @@ function buildReportHtml(
   const healthRisks = getHealthRisks(results.bmi);
 
   let weightGoalHtml = "";
-  const motivationMsg = `<div class="motivation-msg">&#127775; Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>`;
   if (Math.abs(weightDiff) <= 1) {
-    weightGoalHtml = `<div class="banner green">&#10003; You are at your <strong>IDEAL WEIGHT!</strong> Keep it up.</div>${motivationMsg}`;
+    weightGoalHtml = `<div class="banner green">&#10003; You are at your <strong>IDEAL WEIGHT!</strong> Keep it up.</div>`;
   } else if (weightDiff > 0) {
-    weightGoalHtml = `<div class="banner orange">&#9888; You need to <strong>LOSE ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>${motivationMsg}`;
+    weightGoalHtml = `<div class="banner orange">&#9888; You need to <strong>LOSE ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>`;
   } else {
-    weightGoalHtml = `<div class="banner blue">&#8593; You need to <strong>GAIN ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>${motivationMsg}`;
+    weightGoalHtml = `<div class="banner blue">&#8593; You need to <strong>GAIN ${absWeightDiff} kg</strong> to reach your ideal weight (${results.idealWeight.toFixed(1)} kg)</div>`;
   }
 
   // Timeline calculation
@@ -1436,29 +1242,6 @@ function buildReportHtml(
     </div>
   </div>
   <div class="diet-tt-note">&#9889; Following this personalised meal schedule supports your metabolism, stabilises blood sugar, and improves energy levels throughout the day. Contact HN Coach for a personalised diet plan.</div>
-  `;
-
-  // Foods to Avoid HTML
-  const foodsToAvoidList = getFoodsToAvoid(goals);
-  const foodCardsHtml = foodsToAvoidList
-    .map(
-      (f) => `
-    <div class="avoid-card">
-      <div class="avoid-icon">${f.icon}</div>
-      <div class="avoid-content">
-        <div class="avoid-name">${f.food}</div>
-        <div class="avoid-reason">${f.reason}</div>
-      </div>
-    </div>`,
-    )
-    .join("");
-
-  const foodsToAvoidHtml = `
-  <div class="section-title avoid-header">&#9888; Foods to Avoid to Achieve Your Goals</div>
-  <div class="avoid-grid">
-    ${foodCardsHtml}
-  </div>
-  <div class="avoid-note">&#128161; Avoiding these foods combined with your personalised nutrition plan above will accelerate your goal achievement. Contact HN Coach for a custom meal plan tailored to your specific goals and body type.</div>
   `;
 
   // Ideal Body Measurements HTML
@@ -2072,15 +1855,7 @@ function buildReportHtml(
   .measure-val-secondary { font-size: 11pt; font-weight: 700; color: #374151; }
   .measure-note-inline { font-size: 7.5pt; color: #9ca3af; font-style: italic; margin-top: 2px; }
   .body-measure-disclaimer { font-size: 7.5pt; color: #6b7280; font-style: italic; text-align: center; margin-top: 8px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; }
-  .avoid-header { color: #dc2626 !important; }
-  .avoid-header::before { background: linear-gradient(to bottom, #dc2626, #b91c1c) !important; }
-  .avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .avoid-card { display: flex; align-items: flex-start; gap: 7px; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1.5px solid #fecaca; border-radius: 8px; padding: 6px 8px; }
-  .avoid-icon { font-size: 20pt; flex-shrink: 0; line-height: 1; }
   .avoid-content { flex: 1; }
-  .avoid-name { font-size: 9pt; font-weight: 800; color: #991b1b; margin-bottom: 2px; }
-  .avoid-reason { font-size: 7.5pt; color: #6b7280; font-style: italic; line-height: 1.3; }
-  .avoid-note { background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1px solid #fecaca; border-left: 4px solid #dc2626; border-radius: 8px; padding: 8px 12px; font-size: 8pt; color: #991b1b; font-style: italic; margin-top: 4px; line-height: 1.5; }
   /* ── SLEEP & RECOVERY ──────────────────────────────────────── */
   .sleep-header { color: #1e40af !important; }
   .sleep-header::before { background: linear-gradient(to bottom, #3b82f6, #1d4ed8) !important; }
@@ -2136,7 +1911,6 @@ function buildReportHtml(
     .timeline-box { page-break-inside: avoid; break-inside: avoid; }
     .macro-grid { page-break-inside: avoid; break-inside: avoid; }
     .macro-card { page-break-inside: avoid; break-inside: avoid; }
-    .avoid-grid { page-break-inside: avoid; break-inside: avoid; }
     .body-measure-wrap { page-break-inside: avoid; break-inside: avoid; }
     .risk-table { page-break-inside: avoid; break-inside: avoid; }
     .risk-healthy { page-break-inside: avoid; break-inside: avoid; }
@@ -2197,7 +1971,6 @@ function buildReportHtml(
     .tl-months { font-size: 15pt !important; }
     .body-measure-cards { gap: 4px !important; }
     .measure-card { padding: 4px 7px !important; gap: 6px !important; }
-    .avoid-card { padding: 4px 6px !important; }
     .metric-card-body { padding: 3px 5px !important; }
     .metric-grid { gap: 4px !important; margin-bottom: 4px !important; }
     .wellness-score-section { padding: 4px 7px !important; margin: 3px 8px !important; }
@@ -2349,17 +2122,18 @@ function buildReportHtml(
   ${sleepSectionHtml}
 
   <div class="section-wrap">
-  <!-- Weight Goal Section -->
+  <!-- Weight Goal + Guarantee Combined Section -->
   <div class="section-wrap" style="margin-top:16px;">
-    <div class="section-title">🎯 Weight Goal</div>
+    <div class="section-title">🎯 Weight Goal & 30-Day Guarantee</div>
     ${weightGoalHtml}
-    ${timelineHtml}
-  </div>
-
-  <div class="guarantee-box">
-    <div class="guarantee-badge">&#127873; SURPRISE OFFER</div>
-    <div class="guarantee-title">&#9989; 30 Days Money Back Guarantee</div>
-    <div class="guarantee-desc">We are so confident in our coaching program that we offer a full <strong>30-day money back guarantee</strong>. If you are not completely satisfied with your results within 30 days, we will refund your investment — no questions asked. Your health transformation is our commitment.</div>
+    <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; margin-top:8px;">
+      <div style="flex:1;">${timelineHtml}</div>
+      <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:2px solid #d97706; border-radius:10px; padding:8px 12px; text-align:center; min-width:130px; max-width:155px; page-break-inside:avoid; break-inside:avoid; box-shadow:0 3px 12px rgba(217,119,6,0.2);">
+        <div style="display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; padding:2px 10px; border-radius:20px; font-size:6.5pt; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:5px;">&#127873; SURPRISE OFFER</div>
+        <div style="font-size:12pt; font-weight:900; color:#78350f; line-height:1.2; margin-bottom:4px;">&#9989; 30 Days<br/>Money Back</div>
+        <div style="font-size:7.5pt; color:#92400e; line-height:1.4;">Not satisfied in 30 days? Full refund — no questions asked.</div>
+      </div>
+    </div>
   </div>
 
   <!-- Biological Age Section -->
@@ -2390,7 +2164,6 @@ function buildReportHtml(
 
   ${visceralFatHtml}
 
-  ${foodsToAvoidHtml}
 
   ${healthRiskHtml}
 
@@ -2425,23 +2198,35 @@ function buildReportHtml(
           <div style="font-size:11pt; font-weight:900; color:#7c3aed; line-height:1.2;">${results.exerciseMinutes}</div>
         </div>
       </div>
-      <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
+      <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:flex-start; gap:8px;">
         <div style="font-size:18pt; flex-shrink:0;">🎯</div>
         <div>
           <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Weight Target</div>
           <div style="font-size:12pt; font-weight:900; color:#dc2626;">${results.idealWeight.toFixed(1)} kg</div>
           <div style="font-size:7pt; color:#${Math.abs(weightDiff) <= 1 ? "16a34a" : weightDiff > 0 ? "ea580c" : "2563eb"};">${Math.abs(weightDiff) <= 1 ? "✓ At goal" : weightDiff > 0 ? `Lose ${absWeightDiff} kg` : `Gain ${absWeightDiff} kg`}</div>
+          <div style="font-size:6pt; color:#78350f; font-style:italic; line-height:1.3; margin-top:3px;">Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>
         </div>
       </div>
     </div>
 
-    <!-- Row 2: Waist target (compact 1-line) -->
+    <!-- Row 2: Weight target (compact 1-line) -->
+    ${
+      Math.abs(weightDiff) > 1
+        ? `<div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:7px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+      <div style="font-size:16pt; flex-shrink:0;">🎯</div>
+      <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; flex-shrink:0;">Weight Target:</div>
+      <div style="font-size:11pt; font-weight:900; color:#dc2626;">${weightDiff > 0 ? `Lose ${absWeightDiff} kgs` : `Gain ${absWeightDiff} kgs`} &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(Goal: ${results.idealWeight.toFixed(1)} kg)</span></div>
+    </div>`
+        : ""
+    }
+
+    <!-- Row 3: Waist target (compact 1-line) -->
     ${
       idealMeasurements
         ? `<div style="background:#fff; border:1.5px solid #d8b4fe; border-radius:10px; padding:7px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
       <div style="font-size:16pt; flex-shrink:0;">📏</div>
       <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; flex-shrink:0;">Waist Target:</div>
-      <div style="font-size:11pt; font-weight:900; color:#7c3aed;">${idealMeasurements.waist.inch}" &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(${idealMeasurements.waist.cm} cm)</span></div>
+      <div style="font-size:11pt; font-weight:900; color:#7c3aed;">${idealMeasurements.waist.inch}" &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(${idealMeasurements.waist.cm} cm ideal waist)</span></div>
     </div>`
         : ""
     }
@@ -2609,13 +2394,12 @@ function ReportsAndCountdown({
         const displayTotal = total + 1509;
         setCount(displayTotal);
         setLoaded(true);
-        if (onPriceUpdateRef.current)
-          onPriceUpdateRef.current(displayTotal >= 5000 ? 49 : 20);
+        if (onPriceUpdateRef.current) onPriceUpdateRef.current(49);
       })
       .catch(() => {
         setCount(1509);
         setLoaded(true);
-        if (onPriceUpdateRef.current) onPriceUpdateRef.current(20);
+        if (onPriceUpdateRef.current) onPriceUpdateRef.current(49);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -2690,7 +2474,7 @@ function ReportsAndCountdown({
             <span
               className={`text-xs font-medium ${isUrgent ? "text-red-100" : "text-emerald-600"}`}
             >
-              | ⚡ ₹20 Today
+              | ⚡ ₹49 Today
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -2961,7 +2745,7 @@ const RATINGS_DATA = [
     city: "Pune",
     color: "#7c3aed",
     quote:
-      "My visceral fat level shocked me! After following the diet plan, I feel so energetic. Best ₹20 I ever spent!",
+      "My visceral fat level shocked me! After following the diet plan, I feel so energetic. Best ₹49 I ever spent!",
   },
   {
     name: "Priya",
@@ -3779,7 +3563,7 @@ function WellnessAssessment({
                       border: "1px solid rgba(245,158,11,0.4)",
                     }}
                   >
-                    Rs. 20
+                    Rs. 49
                   </span>
                 </button>
                 <p className="text-amber-300/70 text-xs text-center italic">
@@ -4467,11 +4251,11 @@ function WellnessAssessment({
                   className="text-2xl font-black"
                   style={{ color: "#16a34a" }}
                 >
-                  Just Rs. 20
+                  Just Rs. 49
                 </span>
               </span>
               <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
-                97% OFF
+                94% OFF
               </span>
             </div>
 
@@ -5478,7 +5262,7 @@ function AdminDashboard() {
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [lang, setLang] = useState<Lang>("en");
-  const [currentPrice, setCurrentPrice] = useState(20);
+  const [currentPrice, setCurrentPrice] = useState(49);
   const t = translations[lang];
 
   // Check for admin mode
@@ -5701,11 +5485,11 @@ export default function App() {
             ₹799
           </span>
           <span className="text-yellow-300 font-black text-lg">
-            Just Rs. 20 Today!
+            Just Rs. 49 Today!
           </span>
         </span>
         <span className="bg-yellow-400 text-gray-900 text-xs font-black px-2 py-0.5 rounded-full">
-          97% OFF
+          94% OFF
         </span>
         <span className="text-white/80 text-xs">
           Get your personalised Wellness Assessment Report
@@ -5833,16 +5617,15 @@ export default function App() {
               { icon: "💪", label: "Body Fat %" },
               { icon: "🦾", label: "Muscle Mass %" },
               { icon: "🧬", label: "Biological Age" },
-              { icon: "🌟", label: "Wellness Score" },
               { icon: "📏", label: "Ideal Body Measurements" },
               { icon: "📐", label: "Waist-to-Hip Ratio" },
               { icon: "🫁", label: "VO2 Max" },
               { icon: "❤️", label: "BP Risk Level" },
-              { icon: "🎯", label: "Weight Timeline" },
+              { icon: "🎯", label: "Weight Target" },
+              { icon: "📏", label: "Waist Target" },
               { icon: "😴", label: "Sleep & Recovery" },
               { icon: "🍽️", label: "Diet Timetable" },
               { icon: "🥗", label: "Daily Nutrition" },
-              { icon: "🚫", label: "Foods to Avoid" },
               { icon: "⚠️", label: "Health Risk Awareness" },
             ].map((param) => (
               <div
