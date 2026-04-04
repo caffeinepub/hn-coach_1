@@ -1006,7 +1006,6 @@ function buildReportHtml(
       const months4 = Math.ceil(absWeightDiffNum / 4);
       const months3 = Math.ceil(absWeightDiffNum / 3);
       timelineHtml = `
-      <div class="section-title" style="color:#ea580c;border-bottom-color:#ea580c;">&#128197; Your Weight Loss Timeline</div>
       <div class="timeline-box loss">
         <div class="timeline-header">&#128170; To lose <strong>${absWeightDiff} kg</strong> and reach your ideal weight of <strong>${results.idealWeight.toFixed(1)} kg</strong>:</div>
         <div class="timeline-grid">
@@ -1036,7 +1035,6 @@ function buildReportHtml(
       const midMonths = Math.ceil(absWeightDiffNum / 2.5);
       const slowMonths = Math.ceil(absWeightDiffNum / 2);
       timelineHtml = `
-      <div class="section-title" style="color:#2563eb;border-bottom-color:#2563eb;">&#128197; Your Weight Gain Timeline</div>
       <div class="timeline-box gain">
         <div class="timeline-header">&#127807; To gain <strong>${absWeightDiff} kg</strong> and reach your ideal weight of <strong>${results.idealWeight.toFixed(1)} kg</strong>:</div>
         <div class="timeline-grid">
@@ -2119,23 +2117,6 @@ function buildReportHtml(
     </div>
   </div>
 
-  ${sleepSectionHtml}
-
-  <div class="section-wrap">
-  <!-- Weight Goal + Guarantee Combined Section -->
-  <div class="section-wrap" style="margin-top:16px;">
-    <div class="section-title">🎯 Weight Goal & 30-Day Guarantee</div>
-    ${weightGoalHtml}
-    <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; margin-top:8px;">
-      <div style="flex:1;">${timelineHtml}</div>
-      <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:2px solid #d97706; border-radius:10px; padding:8px 12px; text-align:center; min-width:130px; max-width:155px; page-break-inside:avoid; break-inside:avoid; box-shadow:0 3px 12px rgba(217,119,6,0.2);">
-        <div style="display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; padding:2px 10px; border-radius:20px; font-size:6.5pt; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:5px;">&#127873; SURPRISE OFFER</div>
-        <div style="font-size:12pt; font-weight:900; color:#78350f; line-height:1.2; margin-bottom:4px;">&#9989; 30 Days<br/>Money Back</div>
-        <div style="font-size:7.5pt; color:#92400e; line-height:1.4;">Not satisfied in 30 days? Full refund — no questions asked.</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Biological Age Section -->
   <div class="section-wrap" style="margin-top:16px;">
     <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
@@ -2160,10 +2141,18 @@ function buildReportHtml(
       <div class="bio-age-note">&#128218; Based on WHO guidelines and Mayo Clinic biological age methodology. Factors: BMI, sleep quality, physical activity, and hydration levels.</div>
     </div>
   </div>
-  ${idealBodyMeasurementsHtml}
 
   ${visceralFatHtml}
 
+  <!-- Sleep Recovery + Ideal Body Measurements — 2 col row -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; page-break-inside:avoid; break-inside:avoid;">
+    <div style="border:1.5px solid #a7f3d0; border-radius:12px; overflow:hidden; background:#f0fdf4;">
+      ${sleepSectionHtml}
+    </div>
+    <div style="border:1.5px solid #bfdbfe; border-radius:12px; overflow:hidden; background:#eff6ff;">
+      ${idealBodyMeasurementsHtml}
+    </div>
+  </div>
 
   ${healthRiskHtml}
 
@@ -2198,13 +2187,12 @@ function buildReportHtml(
           <div style="font-size:11pt; font-weight:900; color:#7c3aed; line-height:1.2;">${results.exerciseMinutes}</div>
         </div>
       </div>
-      <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:flex-start; gap:8px;">
+      <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
         <div style="font-size:18pt; flex-shrink:0;">🎯</div>
         <div>
           <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Weight Target</div>
           <div style="font-size:12pt; font-weight:900; color:#dc2626;">${results.idealWeight.toFixed(1)} kg</div>
           <div style="font-size:7pt; color:#${Math.abs(weightDiff) <= 1 ? "16a34a" : weightDiff > 0 ? "ea580c" : "2563eb"};">${Math.abs(weightDiff) <= 1 ? "✓ At goal" : weightDiff > 0 ? `Lose ${absWeightDiff} kg` : `Gain ${absWeightDiff} kg`}</div>
-          <div style="font-size:6pt; color:#78350f; font-style:italic; line-height:1.3; margin-top:3px;">Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>
         </div>
       </div>
     </div>
@@ -2212,10 +2200,13 @@ function buildReportHtml(
     <!-- Row 2: Weight target (compact 1-line) -->
     ${
       Math.abs(weightDiff) > 1
-        ? `<div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:7px 12px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-      <div style="font-size:16pt; flex-shrink:0;">🎯</div>
-      <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; flex-shrink:0;">Weight Target:</div>
-      <div style="font-size:11pt; font-weight:900; color:#dc2626;">${weightDiff > 0 ? `Lose ${absWeightDiff} kgs` : `Gain ${absWeightDiff} kgs`} &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(Goal: ${results.idealWeight.toFixed(1)} kg)</span></div>
+        ? `<div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:7px 12px; margin-bottom:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="font-size:16pt; flex-shrink:0;">🎯</div>
+        <div style="font-size:8pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; flex-shrink:0;">Weight Target:</div>
+        <div style="font-size:11pt; font-weight:900; color:#dc2626;">${weightDiff > 0 ? `Lose ${absWeightDiff} kgs` : `Gain ${absWeightDiff} kgs`} &nbsp;<span style="font-size:8pt;color:#6b7280;font-weight:500;">(Goal: ${results.idealWeight.toFixed(1)} kg)</span></div>
+      </div>
+      <div style="font-size:7.5pt; color:#78350f; font-style:italic; line-height:1.5; margin-top:4px; padding-left:34px;">Achieve your ideal weight without wasting any single minute to avoid long-term disease, disorders and live a medicine-free life. Consult HN Coach for personalized guidance.</div>
     </div>`
         : ""
     }
@@ -2295,6 +2286,26 @@ function buildReportHtml(
             <div style="font-size:7pt; font-weight:800; color:#2563eb; text-transform:uppercase; letter-spacing:0.5px;">SODIUM LIMIT</div>
             <div style="font-size:12pt; font-weight:900; color:#1d4ed8;">&lt;2000mg<span style="font-size:8pt; color:#64748b; font-weight:600;">/day</span></div>
             <div style="font-size:6.5pt; color:#2563eb;">Excess → Hypertension, Heart Risk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight Goal + 30 Days Guarantee (merged, compact) -->
+    <div style="border-top: 1.5px dashed #6ee7b7; padding-top:10px; margin-top:8px;">
+      <div style="background:linear-gradient(135deg,#fff7ed,#fef3c7); border:2px solid #d97706; border-radius:12px; padding:12px 14px; page-break-inside:avoid; break-inside:avoid;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+          <div style="font-size:11pt; font-weight:900; color:#78350f;">🎯 Weight Goal &amp; Timeline</div>
+          <div style="display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; padding:2px 8px; border-radius:20px; font-size:6pt; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">✅ 30 Days Money Back</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start;">
+          <div>
+            ${weightGoalHtml}
+            ${timelineHtml}
+          </div>
+          <div style="background:rgba(255,255,255,0.8); border:1.5px solid #f59e0b; border-radius:10px; padding:8px 12px; text-align:center; min-width:110px; max-width:130px;">
+            <div style="font-size:9pt; font-weight:900; color:#78350f; line-height:1.3; margin-bottom:3px;">✅ 30 Days<br/>Money Back</div>
+            <div style="font-size:7pt; color:#92400e; line-height:1.4;">Not satisfied in 30 days? Full refund — no questions asked.</div>
           </div>
         </div>
       </div>
