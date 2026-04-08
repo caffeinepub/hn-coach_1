@@ -1,0 +1,15 @@
+type DownloadRecord = 
+ record {
+   city: text;
+   invitedBy: text;
+   name: text;
+   occupation: text;
+   timestamp: int;
+   whatsapp: text;
+ };
+service : {
+  getCount: () -> (nat) query;
+  getRecords: (from: opt nat, take: opt nat) -> (vec DownloadRecord) query;
+  recordDownload: (name: text, whatsapp: text, city: text, occupation: 
+   text, invitedBy: text, timestamp: int) -> (int);
+}

@@ -974,6 +974,26 @@ function buildReportHtml(
     "moderately_active",
   );
   const dietTimetable = computeDietTimetable(wakeUpTime);
+  // Compute WHO-recommended bedtime and wake-up from dinner end time
+  // Dinner end = wakeUp + 2h (breakfast start) + 10h (dinner start from bf) + 1h (dinner duration) = wakeUp + 13h
+  // WHO Bedtime: dinner_end + 2.5h (sleep 2-3h after last meal)
+  // WHO Wake-Up: dinner_end + 10h (10h gap between dinner and next morning per WHO sleep guidelines)
+  const dinnerEndForSleep = (() => {
+    const wu = parseTime24(wakeUpTime);
+    if (!wu) return null;
+    // dinner end = wakeUp.hours + 2 (bf start offset) + 10 (dinner start) + 1 (duration) = +13h
+    const dinnerEndH = wu.hours + 13;
+    const dinnerEndM = wu.minutes;
+    return { h: dinnerEndH, m: dinnerEndM };
+  })();
+  const whoRecommendedBedtime = dinnerEndForSleep
+    ? addMinutesToTime(dinnerEndForSleep.h, dinnerEndForSleep.m, 150) // +2.5h = 150 min
+    : "—";
+  const whoRecommendedWakeUp = dinnerEndForSleep
+    ? addMinutesToTime(dinnerEndForSleep.h, dinnerEndForSleep.m, 600) // +10h = 600 min
+    : "—";
+  const actualBedtime12h = formatTo12h(bedtime);
+  const actualWakeUp12h = formatTo12h(wakeUpTime);
   const today = new Date().toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "long",
@@ -1198,6 +1218,7 @@ function buildReportHtml(
           <span class="sleep-chip">Wake Up</span>
           <span class="sleep-time-val">${formatTo12h(wakeUpTime)}</span>
         </div>
+        <div style="margin-top:5px;font-size:6.5pt;line-height:1.5;"><span style="color:#16a34a;font-weight:700;">✓ Normal: 7–9 hrs/night</span> &nbsp;·&nbsp; <span style="color:#dc2626;font-weight:600;">✗ Risk: &lt;6 or &gt;10 hrs</span></div>
       </div>
     </div>
     <div class="sleep-who-msg ${sleepData.whoCategory}">${sleepData.whoMessage}</div>
@@ -1368,53 +1389,31 @@ function buildReportHtml(
     musclePct >= 40 ? "#16a34a" : musclePct >= 30 ? "#d97706" : "#dc2626";
 
   const visceralFatHtml = `
-  <div style="background:${vfBg};border:2px solid ${vfColor};border-radius:12px;padding:16px 18px;margin:10px 0;">
-    <div class="section-title" style="color:${vfColor};border-bottom-color:${vfColor};margin-bottom:10px;">&#129504; Visceral Fat Analysis</div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+  <div style="background:${vfBg};border:2px solid ${vfColor};border-radius:12px;padding:10px 12px;margin:8px 0;">
+    <div class="section-title" style="color:${vfColor};border-bottom-color:${vfColor};margin-bottom:7px;font-size:9pt;padding-bottom:4px;">&#129504; Visceral Fat Analysis</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:10px;">
       <div>
-        <div style="font-size:11pt;font-weight:700;color:#334155;">Estimated Visceral Fat Level</div>
-        <div style="font-size:24pt;font-weight:900;color:${vfColor};line-height:1.1;">${visceralFatLevel} <span style="font-size:10pt;color:#64748b;">/ 20</span></div>
-        <div style="font-size:10pt;font-weight:800;color:${vfColor};margin-top:2px;">● ${vfCategory}</div>
+        <div style="font-size:8.5pt;font-weight:700;color:#334155;">Estimated Visceral Fat Level</div>
+        <div style="font-size:20pt;font-weight:900;color:${vfColor};line-height:1.1;">${visceralFatLevel} <span style="font-size:9pt;color:#64748b;">/ 20</span></div>
+        <div style="font-size:8.5pt;font-weight:800;color:${vfColor};margin-top:1px;">● ${vfCategory}</div>
       </div>
-      <div style="text-align:right;font-size:8.5pt;color:#64748b;">
-        <div style="margin-bottom:3px;color:#16a34a;font-weight:700;">● Healthy: 1–9</div>
-        <div style="margin-bottom:3px;color:#d97706;font-weight:700;">● High: 10–14</div>
+      <div style="text-align:right;font-size:7.5pt;color:#64748b;">
+        <div style="margin-bottom:2px;color:#16a34a;font-weight:700;">● Healthy: 1–9</div>
+        <div style="margin-bottom:2px;color:#d97706;font-weight:700;">● High: 10–14</div>
         <div style="color:#dc2626;font-weight:700;">● Very High: 15–20</div>
       </div>
     </div>
-    <div style="background:#e2e8f0;border-radius:8px;height:12px;overflow:hidden;margin-bottom:10px;">
-      <div style="width:${vfBarPercent}%;background:${vfColor};height:100%;border-radius:8px;transition:width 0.5s;"></div>
+    <div style="background:#e2e8f0;border-radius:6px;height:9px;overflow:hidden;margin-bottom:7px;">
+      <div style="width:${vfBarPercent}%;background:${vfColor};height:100%;border-radius:6px;"></div>
     </div>
-    <div style="font-size:9pt;color:#334155;background:rgba(255,255,255,0.7);border-radius:8px;padding:8px 12px;border-left:3px solid ${vfColor};">
+    <div style="font-size:7.5pt;color:#334155;background:rgba(255,255,255,0.7);border-radius:8px;padding:6px 10px;border-left:3px solid ${vfColor};margin-bottom:5px;">
       &#128161; ${vfRecommendation}
     </div>
-    <div style="font-size:7.5pt;color:#94a3b8;margin-top:6px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
-      <div style="background:#fff;border:2px solid ${bfColor};border-radius:8px;padding:8px 10px;text-align:center;">
-        <div style="font-size:8pt;color:#64748b;font-weight:600;">🔴 Body Fat %</div>
-        <div style="font-size:18pt;font-weight:900;color:${bfColor};line-height:1.2;">${bodyFatPct}%</div>
-        <div style="font-size:8pt;font-weight:700;color:${bfColor};">${bfCategory}</div>
-        <div style="margin-top:6px;font-size:7pt;color:#64748b;text-align:left;line-height:1.5;">
-          <div style="font-weight:700;color:#334155;margin-bottom:2px;">Reference Ranges:</div>
-          <div><span style="color:#6b7280;">♂ Male:</span> <span style="color:#16a34a;">Normal &lt;20%</span> · <span style="color:#d97706;">Risk 20–25%</span> · <span style="color:#dc2626;">High &gt;25%</span></div>
-          <div><span style="color:#6b7280;">♀ Female:</span> <span style="color:#16a34a;">Normal &lt;28%</span> · <span style="color:#d97706;">Risk 28–33%</span> · <span style="color:#dc2626;">High &gt;33%</span></div>
-        </div>
-      </div>
-      <div style="background:#fff;border:2px solid ${mpColor};border-radius:8px;padding:8px 10px;text-align:center;">
-        <div style="font-size:8pt;color:#64748b;font-weight:600;">💪 Muscle Mass %</div>
-        <div style="font-size:18pt;font-weight:900;color:${mpColor};line-height:1.2;">${musclePct}%</div>
-        <div style="font-size:8pt;font-weight:700;color:${mpColor};">Estimated</div>
-        <div style="margin-top:6px;font-size:7pt;color:#64748b;text-align:left;line-height:1.5;">
-          <div style="font-weight:700;color:#334155;margin-bottom:2px;">Reference Ranges:</div>
-          <div><span style="color:#6b7280;">♂ Male:</span> <span style="color:#16a34a;">Good ≥40%</span> · <span style="color:#d97706;">Low 30–39%</span> · <span style="color:#dc2626;">Risk &lt;30%</span></div>
-          <div><span style="color:#6b7280;">♀ Female:</span> <span style="color:#16a34a;">Good ≥30%</span> · <span style="color:#d97706;">Low 25–29%</span> · <span style="color:#dc2626;">Risk &lt;25%</span></div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:12px;text-align:center;">
-      <div style="font-size:9pt;font-weight:700;color:#334155;margin-bottom:6px;">Understanding Your Body Fat Distribution</div>
-      <img src="${window.location.origin}/assets/uploads/belly-fat-diagram_600x600-1.png" alt="Body Fat Distribution Diagram" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
-      <div style="font-size:7.5pt;color:#64748b;margin-top:4px;">Subcutaneous fat (under skin) vs. Visceral fat (around organs) — based on your gender</div>
+    <div style="font-size:6.5pt;color:#94a3b8;margin-bottom:7px;text-align:center;">Estimated using BMI, age &amp; gender — based on clinical approximation guidelines.</div>
+    <div style="text-align:center;">
+      <div style="font-size:8pt;font-weight:700;color:#334155;margin-bottom:4px;">Understanding Your Body Fat Distribution</div>
+      <img src="${window.location.origin}/assets/uploads/belly-fat-diagram_600x600-1.png" alt="Body Fat Distribution Diagram" style="max-width:55%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" />
+      <div style="font-size:6.5pt;color:#64748b;margin-top:3px;">Subcutaneous fat (under skin) vs. Visceral fat (around organs)</div>
     </div>
   </div>
   `;
@@ -2110,37 +2109,38 @@ function buildReportHtml(
   <div class="section-wrap">
     <div class="section-title">📊 Wellness Assessment Results</div>
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-card-accent teal"></div><div class="metric-card-body"><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent emerald"></div><div class="metric-card-body"><div class="metric-label">BMI <span style="color:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};font-size:8pt;">(${results.bmiCategory})</span></div><div class="metric-note">Body Mass Index</div><div class="metric-value">${results.bmi.toFixed(1)}</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent cyan"></div><div class="metric-card-body"><div class="metric-label">BMR</div><div class="metric-note">Calories burned at rest</div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent blue"></div><div class="metric-card-body"><div class="metric-label">TDEE</div><div class="metric-note">Calories to maintain weight</div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent" style="background:#e11d48;"></div><div class="metric-card-body"><div class="metric-label">Body Fat % <span style="color:${bfColor};font-size:8pt;">(${bfCategory})</span></div><div class="metric-note">Deurenberg Formula</div><div class="metric-value" style="color:${bfColor};">${bodyFatPct}%</div></div></div>
-      <div class="metric-card"><div class="metric-card-accent" style="background:#7c3aed;"></div><div class="metric-card-body"><div class="metric-label">Muscle %</div><div class="metric-note">Estimated lean mass</div><div class="metric-value" style="color:${mpColor};">${musclePct}%</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent teal"></div><div class="metric-card-body"><div class="metric-label">Ideal Weight</div><div class="metric-note">Devine Formula</div><div class="metric-value">${results.idealWeight.toFixed(1)} kg</div><div style="margin-top:3px;font-size:6.5pt;color:#16a34a;font-weight:700;">● Normal: within ±2 kg</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent emerald"></div><div class="metric-card-body"><div class="metric-label">BMI <span style="color:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};font-size:8pt;">(${results.bmiCategory})</span></div><div class="metric-note">Body Mass Index</div><div class="metric-value">${results.bmi.toFixed(1)}</div><div style="margin-top:3px;font-size:6.5pt;line-height:1.4;"><span style="color:#16a34a;font-weight:700;">✓ Normal: 18.5–24.9</span> <span style="color:#d97706;font-weight:600;">⚠ Over: 25–29.9</span> <span style="color:#dc2626;font-weight:600;">✗ Obese: ≥30</span></div></div></div>
+      <div class="metric-card"><div class="metric-card-accent cyan"></div><div class="metric-card-body"><div class="metric-label">BMR</div><div class="metric-note">Calories burned at rest</div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div><div style="margin-top:3px;font-size:6.5pt;color:#0891b2;font-weight:600;">● Your minimum calorie need to survive</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent blue"></div><div class="metric-card-body"><div class="metric-label">TDEE</div><div class="metric-note">Calories to maintain weight</div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div><div style="margin-top:3px;font-size:6.5pt;color:#2563eb;font-weight:600;">● Your total daily calorie requirement</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent" style="background:#e11d48;"></div><div class="metric-card-body"><div class="metric-label">Body Fat % <span style="color:${bfColor};font-size:8pt;">(${bfCategory})</span></div><div class="metric-note">Deurenberg Formula</div><div class="metric-value" style="color:${bfColor};">${bodyFatPct}%</div><div style="margin-top:3px;font-size:6.5pt;line-height:1.5;">${gender === "male" ? '<span style="color:#16a34a;font-weight:700;">✓ Normal: &lt;20%</span> <span style="color:#d97706;font-weight:600;">⚠ Risk: 20–25%</span> <span style="color:#dc2626;font-weight:600;">✗ High: &gt;25%</span>' : '<span style="color:#16a34a;font-weight:700;">✓ Normal: &lt;28%</span> <span style="color:#d97706;font-weight:600;">⚠ Risk: 28–33%</span> <span style="color:#dc2626;font-weight:600;">✗ High: &gt;33%</span>'}</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent" style="background:#7c3aed;"></div><div class="metric-card-body"><div class="metric-label">Muscle %</div><div class="metric-note">Estimated lean mass</div><div class="metric-value" style="color:${mpColor};">${musclePct}%</div><div style="margin-top:3px;font-size:6.5pt;line-height:1.5;">${gender === "male" ? '<span style="color:#16a34a;font-weight:700;">✓ Good: ≥40%</span> <span style="color:#d97706;font-weight:600;">⚠ Low: 30–39%</span> <span style="color:#dc2626;font-weight:600;">✗ Risk: &lt;30%</span>' : '<span style="color:#16a34a;font-weight:700;">✓ Good: ≥30%</span> <span style="color:#d97706;font-weight:600;">⚠ Low: 25–29%</span> <span style="color:#dc2626;font-weight:600;">✗ Risk: &lt;25%</span>'}</div></div></div>
     </div>
   </div>
 
   <!-- Biological Age Section -->
-  <div class="section-wrap" style="margin-top:16px;">
-    <div class="section-title bio-age-header">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
-    <div class="bio-age-section">
-      <div class="bio-age-compare">
-        <div class="bio-age-box chrono">
-          <div class="bio-age-box-label">Chronological Age</div>
-          <div class="bio-age-box-value">${age}</div>
-          <div class="bio-age-box-unit">years</div>
+  <div class="section-wrap" style="margin-top:12px;">
+    <div class="section-title bio-age-header" style="font-size:9pt;padding-bottom:4px;margin-bottom:6px;">&#129516; Your Biological Age — WHO / Mayo Clinic Methodology</div>
+    <div class="bio-age-section" style="padding:8px 10px;">
+      <div class="bio-age-compare" style="gap:10px;margin-bottom:6px;">
+        <div class="bio-age-box chrono" style="padding:6px 12px;">
+          <div class="bio-age-box-label" style="font-size:6.5pt;">Chronological Age</div>
+          <div class="bio-age-box-value" style="font-size:22pt;">${age}</div>
+          <div class="bio-age-box-unit" style="font-size:7pt;">years</div>
         </div>
-        <div class="bio-age-vs">→</div>
-        <div class="bio-age-box bio" style="border-color:${bioAge.color};background:${bioAge.category === "younger" ? "#f0fdf4" : bioAge.category === "older" ? "#fff1f2" : "#fffbeb"};">
-          <div class="bio-age-box-label" style="color:${bioAge.color};">Biological Age</div>
-          <div class="bio-age-box-value" style="color:${bioAge.color};">${bioAge.bioAge}</div>
-          <div class="bio-age-box-unit" style="color:${bioAge.color};">years</div>
+        <div class="bio-age-vs" style="font-size:14pt;">→</div>
+        <div class="bio-age-box bio" style="border-color:${bioAge.color};background:${bioAge.category === "younger" ? "#f0fdf4" : bioAge.category === "older" ? "#fff1f2" : "#fffbeb"};padding:6px 12px;">
+          <div class="bio-age-box-label" style="color:${bioAge.color};font-size:6.5pt;">Biological Age</div>
+          <div class="bio-age-box-value" style="color:${bioAge.color};font-size:22pt;">${bioAge.bioAge}</div>
+          <div class="bio-age-box-unit" style="color:${bioAge.color};font-size:7pt;">years</div>
         </div>
       </div>
-      <div class="bio-age-badge" style="background:${bioAge.category === "younger" ? "#dcfce7" : bioAge.category === "older" ? "#fee2e2" : "#fef3c7"};color:${bioAge.color};border:1.5px solid ${bioAge.color};">
+      <div class="bio-age-badge" style="background:${bioAge.category === "younger" ? "#dcfce7" : bioAge.category === "older" ? "#fee2e2" : "#fef3c7"};color:${bioAge.color};border:1.5px solid ${bioAge.color};font-size:8pt;padding:3px 10px;margin-bottom:5px;">
         ${bioAge.category === "younger" ? "&#10003; Biologically Younger" : bioAge.category === "older" ? "&#9888; Biologically Older" : "&#8594; Biologically At Par"}
       </div>
-      <div class="bio-age-msg" style="border-left-color:${bioAge.color};">${bioAge.message}</div>
-      <div class="bio-age-note">&#128218; Based on WHO guidelines and Mayo Clinic biological age methodology. Factors: BMI, sleep quality, physical activity, and hydration levels.</div>
+      <div class="bio-age-msg" style="border-left-color:${bioAge.color};font-size:7.5pt;padding:5px 8px;margin-bottom:4px;">${bioAge.message}</div>
+      <div class="bio-age-note" style="font-size:6pt;padding:4px 8px;">&#128218; Based on WHO guidelines &amp; Mayo Clinic methodology. Factors: BMI, sleep, activity, hydration.</div>
+      <div style="margin-top:3px;font-size:6pt;line-height:1.4;text-align:center;"><span style="color:#16a34a;font-weight:700;">✓ Good: Biological Age &lt; Chronological Age</span> &nbsp;·&nbsp; <span style="color:#dc2626;font-weight:600;">✗ Risk: Biological Age &gt; Chronological Age</span></div>
     </div>
   </div>
 
@@ -2172,6 +2172,7 @@ function buildReportHtml(
           <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Water</div>
           <div style="font-size:12pt; font-weight:900; color:#0d9488;">${results.waterIntake.toFixed(1)}L</div>
           <div style="font-size:7pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Normal: 2–3L/day</div>
         </div>
       </div>
       <div style="background:#fff; border:1.5px solid #fde68a; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
@@ -2180,6 +2181,7 @@ function buildReportHtml(
           <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Steps</div>
           <div style="font-size:12pt; font-weight:900; color:#d97706;">${results.footsteps}</div>
           <div style="font-size:7pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Target: 8,000–10,000/day</div>
         </div>
       </div>
       <div style="background:#fff; border:1.5px solid #c7d2fe; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
@@ -2187,6 +2189,7 @@ function buildReportHtml(
         <div>
           <div style="font-size:7pt; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.4px;">Exercise</div>
           <div style="font-size:11pt; font-weight:900; color:#7c3aed; line-height:1.2;">${results.exerciseMinutes}</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Normal: 150+ mins/week</div>
         </div>
       </div>
       <div style="background:#fff; border:1.5px solid #fca5a5; border-radius:10px; padding:9px 10px; display:flex; align-items:center; gap:8px;">
@@ -2227,7 +2230,8 @@ function buildReportHtml(
     <!-- Diet Timetable sub-section -->
     <div style="border-top: 1.5px dashed #6ee7b7; padding-top:10px; margin-bottom:10px;">
       <div style="font-size:9.5pt; font-weight:800; color:#065f46; margin-bottom:8px; text-align:center;">🍽️ Your Personalised Meal Timings</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px;">
+      <!-- Row 1: Breakfast / Lunch / Dinner -->
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin-bottom:7px;">
         <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:10px; padding:9px 7px; text-align:center;">
           <div style="font-size:16pt; margin-bottom:3px;">🌅</div>
           <div style="font-size:6.5pt; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.5px; background:#fef3c7; border-radius:4px; padding:2px 5px; display:inline-block; margin-bottom:4px;">BREAKFAST</div>
@@ -2244,6 +2248,43 @@ function buildReportHtml(
           <div style="font-size:9.5pt; font-weight:900; color:#1e3a8a;">${dietTimetable.dinner.from} – ${dietTimetable.dinner.to}</div>
         </div>
       </div>
+      <!-- Row 2: Bedtime / Wake-Up Time -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:7px;">
+        <div style="background:linear-gradient(135deg,#1e1b4b,#312e81); border:1.5px solid #6366f1; border-radius:10px; padding:9px 10px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <div style="font-size:18pt; flex-shrink:0;">🌙</div>
+            <div style="font-size:7pt; font-weight:800; color:#c7d2fe; text-transform:uppercase; letter-spacing:0.5px; background:rgba(99,102,241,0.3); border-radius:4px; padding:2px 6px; display:inline-block;">BEDTIME</div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:flex-start;">
+            <div style="flex:1; background:rgba(255,255,255,0.1); border-radius:7px; padding:5px 7px; text-align:center;">
+              <div style="font-size:6pt; color:#a5b4fc; font-weight:600; margin-bottom:1px;">Your Bedtime</div>
+              <div style="font-size:10pt; font-weight:900; color:#e0e7ff;">${actualBedtime12h}</div>
+            </div>
+            <div style="flex:1; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); border-radius:7px; padding:5px 7px; text-align:center;">
+              <div style="font-size:6pt; color:#a5b4fc; font-weight:600; margin-bottom:1px;">WHO Recommended</div>
+              <div style="font-size:10pt; font-weight:900; color:#818cf8;">${whoRecommendedBedtime}</div>
+              <div style="font-size:5.5pt; color:#c7d2fe; margin-top:1px;">2.5h after dinner</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fefce8,#fef9c3); border:1.5px solid #fbbf24; border-radius:10px; padding:9px 10px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <div style="font-size:18pt; flex-shrink:0;">☀️</div>
+            <div style="font-size:7pt; font-weight:800; color:#92400e; text-transform:uppercase; letter-spacing:0.5px; background:#fef3c7; border-radius:4px; padding:2px 6px; display:inline-block;">WAKE-UP TIME</div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:flex-start;">
+            <div style="flex:1; background:rgba(255,255,255,0.7); border-radius:7px; padding:5px 7px; text-align:center;">
+              <div style="font-size:6pt; color:#78350f; font-weight:600; margin-bottom:1px;">Your Wake-Up</div>
+              <div style="font-size:10pt; font-weight:900; color:#92400e;">${actualWakeUp12h}</div>
+            </div>
+            <div style="flex:1; background:rgba(251,191,36,0.2); border:1px solid rgba(251,191,36,0.5); border-radius:7px; padding:5px 7px; text-align:center;">
+              <div style="font-size:6pt; color:#78350f; font-weight:600; margin-bottom:1px;">WHO Recommended</div>
+              <div style="font-size:10pt; font-weight:900; color:#b45309;">${whoRecommendedWakeUp}</div>
+              <div style="font-size:5.5pt; color:#92400e; margin-top:1px;">10h after dinner (5–7 AM ideal)</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Nutrition Requirements + Limits -->
@@ -2255,21 +2296,25 @@ function buildReportHtml(
           <div style="font-size:7pt; font-weight:800; color:#dc2626; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">PROTEIN</div>
           <div style="font-size:13pt; font-weight:900; color:#b91c1c;">${macros.protein}g</div>
           <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Target: 1.5g/kg body wt</div>
         </div>
         <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1.5px solid #fde68a; border-radius:9px; padding:8px 7px; text-align:center;">
           <div style="font-size:7pt; font-weight:800; color:#b45309; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">CARBS</div>
           <div style="font-size:13pt; font-weight:900; color:#92400e;">${macros.carbs}g</div>
           <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Normal: 45–65% calories</div>
         </div>
         <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1.5px solid #86efac; border-radius:9px; padding:8px 7px; text-align:center;">
           <div style="font-size:7pt; font-weight:800; color:#166534; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">HEALTHY FAT</div>
           <div style="font-size:13pt; font-weight:900; color:#14532d;">${macros.fat}g</div>
           <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Normal: 20–35% calories</div>
         </div>
         <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe); border:1.5px solid #93c5fd; border-radius:9px; padding:8px 7px; text-align:center;">
           <div style="font-size:7pt; font-weight:800; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">FIBRE</div>
           <div style="font-size:13pt; font-weight:900; color:#1d4ed8;">${macros.fibre}g</div>
           <div style="font-size:6.5pt; color:#6b7280;">per day</div>
+          <div style="font-size:6pt; color:#16a34a; font-weight:700; margin-top:2px;">✓ Normal: 25–40g/day</div>
         </div>
       </div>
       <!-- Limits row: Sugar + Sodium -->
@@ -2298,18 +2343,22 @@ function buildReportHtml(
       <div style="background:linear-gradient(135deg,#fff7ed,#fef3c7); border:2px solid #d97706; border-radius:12px; padding:12px 14px; page-break-inside:avoid; break-inside:avoid;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
           <div style="font-size:11pt; font-weight:900; color:#78350f;">🎯 Weight Goal &amp; Timeline</div>
-          <div style="display:inline-block; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; padding:2px 8px; border-radius:20px; font-size:6pt; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">✅ 30 Days Money Back</div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start;">
+        <div style="display:grid; grid-template-columns:1fr; gap:10px; align-items:start;">
           <div>
             ${weightGoalHtml}
             ${timelineHtml}
           </div>
-          <div style="background:rgba(255,255,255,0.8); border:1.5px solid #f59e0b; border-radius:10px; padding:8px 12px; text-align:center; min-width:110px; max-width:130px;">
-            <div style="font-size:9pt; font-weight:900; color:#78350f; line-height:1.3; margin-bottom:3px;">✅ 30 Days<br/>Money Back</div>
-            <div style="font-size:7pt; color:#92400e; line-height:1.4;">Not satisfied in 30 days? Full refund — no questions asked.</div>
-          </div>
         </div>
+      </div>
+      <!-- 30 Days Money Back Guarantee — prominent trust card -->
+      <div style="margin-top:10px; background:linear-gradient(135deg,#052e16,#064e3b,#065f46); border:2.5px solid #22c55e; border-radius:14px; padding:14px 18px; text-align:center; page-break-inside:avoid; break-inside:avoid; box-shadow:0 4px 18px rgba(34,197,94,0.25);">
+        <div style="font-size:22pt; margin-bottom:4px;">🛡️</div>
+        <div style="font-size:13pt; font-weight:900; color:#4ade80; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:3px;">30 Days Money Back Guarantee</div>
+        <div style="width:50px; height:3px; background:linear-gradient(90deg,#4ade80,#fbbf24); border-radius:2px; margin:6px auto 8px;"></div>
+        <div style="font-size:9.5pt; color:#bbf7d0; font-weight:600; line-height:1.6; margin-bottom:4px;">Not satisfied with your results in 30 days?</div>
+        <div style="font-size:11pt; font-weight:900; color:#fde68a; margin-bottom:6px;">✅ Full Refund — No Questions Asked</div>
+        <div style="display:inline-block; background:rgba(74,222,128,0.15); border:1.5px solid rgba(74,222,128,0.4); border-radius:20px; padding:4px 16px; font-size:7.5pt; font-weight:800; color:#4ade80; letter-spacing:0.8px; text-transform:uppercase;">100% Risk Free · Trusted by 1000+ Clients</div>
       </div>
     </div>
   </div>
@@ -6307,6 +6356,42 @@ export default function App() {
         </div>
       </div>
       <SocialProofPopup />
+      {/* Hidden Admin Access Button — bottom-right corner */}
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = "?admin=1";
+        }}
+        title=""
+        aria-label="Admin"
+        style={{
+          position: "fixed",
+          bottom: "12px",
+          right: "12px",
+          zIndex: 9999,
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px",
+          opacity: 0.18,
+          transition: "opacity 0.25s",
+          fontSize: "11px",
+          color: "#064e3b",
+          fontWeight: 700,
+          letterSpacing: "0.5px",
+          lineHeight: 1,
+          userSelect: "none",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.opacity = "0.55";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.opacity = "0.18";
+        }}
+        data-ocid="hidden.admin.access"
+      >
+        ⚙
+      </button>
       {/* Bottom Watermark */}
       <div
         style={{
