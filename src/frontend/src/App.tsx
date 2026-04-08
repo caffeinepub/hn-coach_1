@@ -2114,6 +2114,8 @@ function buildReportHtml(
       <div class="metric-card"><div class="metric-card-accent emerald"></div><div class="metric-card-body"><div class="metric-label">BMI <span style="color:${results.bmiCategory === "Normal" ? "#16a34a" : results.bmiCategory === "Overweight" ? "#ea580c" : "#dc2626"};font-size:8pt;">(${results.bmiCategory})</span></div><div class="metric-note">Body Mass Index</div><div class="metric-value">${results.bmi.toFixed(1)}</div></div></div>
       <div class="metric-card"><div class="metric-card-accent cyan"></div><div class="metric-card-body"><div class="metric-label">BMR</div><div class="metric-note">Calories burned at rest</div><div class="metric-value">${results.bmr.toLocaleString()} kcal/day</div></div></div>
       <div class="metric-card"><div class="metric-card-accent blue"></div><div class="metric-card-body"><div class="metric-label">TDEE</div><div class="metric-note">Calories to maintain weight</div><div class="metric-value">${results.tdee.toLocaleString()} kcal/day</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent" style="background:#e11d48;"></div><div class="metric-card-body"><div class="metric-label">Body Fat % <span style="color:${bfColor};font-size:8pt;">(${bfCategory})</span></div><div class="metric-note">Deurenberg Formula</div><div class="metric-value" style="color:${bfColor};">${bodyFatPct}%</div></div></div>
+      <div class="metric-card"><div class="metric-card-accent" style="background:#7c3aed;"></div><div class="metric-card-body"><div class="metric-label">Muscle %</div><div class="metric-note">Estimated lean mass</div><div class="metric-value" style="color:${mpColor};">${musclePct}%</div></div></div>
     </div>
   </div>
 
@@ -4691,6 +4693,31 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "report">(
+    "dashboard",
+  );
+  const [adminForm, setAdminForm] = useState({
+    fullName: "",
+    age: "",
+    city: "",
+    whatsapp: "",
+    occupation: "",
+    gender: "" as "" | "male" | "female",
+    heightMode: "cm" as "cm" | "ft",
+    height: "",
+    heightFt: "",
+    heightIn: "",
+    weight: "",
+    waistInput: "",
+    hipInput: "",
+    bedtime: "",
+    wakeUpTime: "",
+    invitedBy: "admin",
+    goals: ["weight_loss"] as string[],
+    activityLevel: "moderately_active",
+  });
+  const [adminReportHtml, setAdminReportHtml] = useState<string | null>(null);
+  const adminReportRef = useRef<HTMLDivElement>(null);
 
   const handleLogin = () => {
     if (password === "hncoach2024") {
@@ -4757,6 +4784,52 @@ function AdminDashboard() {
     a.download = `hn-coach-referrals-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const generateAdminReport = () => {
+    const heightCm =
+      adminForm.heightMode === "ft"
+        ? String(
+            Math.round(
+              (Number.parseFloat(adminForm.heightFt || "0") * 12 +
+                Number.parseFloat(adminForm.heightIn || "0")) *
+                2.54,
+            ),
+          )
+        : adminForm.height;
+
+    const results = computeResults({
+      weight: adminForm.weight,
+      height: heightCm,
+      age: adminForm.age,
+      gender: adminForm.gender as "male" | "female",
+      activityLevel: adminForm.activityLevel,
+    });
+    if (!results) return;
+
+    const html = buildReportHtml(
+      adminForm.fullName,
+      adminForm.age,
+      adminForm.city,
+      adminForm.whatsapp,
+      adminForm.occupation,
+      heightCm,
+      adminForm.weight,
+      adminForm.goals,
+      results,
+      adminForm.gender as "male" | "female",
+      adminForm.invitedBy,
+      adminForm.bedtime,
+      adminForm.wakeUpTime,
+      0,
+    );
+    setAdminReportHtml(html);
+    setTimeout(() => {
+      adminReportRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 300);
   };
 
   const { roots } = buildTree(filtered);
@@ -4866,10 +4939,36 @@ function AdminDashboard() {
             <ArrowLeft className="w-4 h-4" />
             Back to App
           </button>
-          <div className="flex-1 text-center">
+          <div className="flex-1 flex flex-col items-center gap-1">
             <h1 className="text-white font-black text-lg">
               HN Coach · Referral Admin
             </h1>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                data-ocid="admin.tab.dashboard.button"
+                onClick={() => setActiveTab("dashboard")}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-colors ${
+                  activeTab === "dashboard"
+                    ? "bg-white text-emerald-800"
+                    : "bg-white/15 text-white hover:bg-white/25"
+                }`}
+              >
+                📊 Dashboard
+              </button>
+              <button
+                type="button"
+                data-ocid="admin.tab.report.button"
+                onClick={() => setActiveTab("report")}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-colors ${
+                  activeTab === "report"
+                    ? "bg-white text-emerald-800"
+                    : "bg-white/15 text-white hover:bg-white/25"
+                }`}
+              >
+                📄 Generate Report
+              </button>
+            </div>
           </div>
           <button
             type="button"
@@ -4884,359 +4983,139 @@ function AdminDashboard() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {loading ? (
-          <div
-            className="flex items-center justify-center py-20"
-            data-ocid="admin.loading_state"
-          >
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mr-3" />
-            <span className="text-gray-500 font-medium">
-              Loading referral data…
-            </span>
-          </div>
-        ) : (
-          <>
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                {
-                  label: "Total Downloads",
-                  value: records.length,
-                  color: "#0d9488",
-                  bg: "#f0fdf4",
-                  border: "#a7f3d0",
-                  icon: "📥",
-                },
-                {
-                  label: "Unique Referrers",
-                  value: uniqueReferrers,
-                  color: "#7c3aed",
-                  bg: "#faf5ff",
-                  border: "#c4b5fd",
-                  icon: "👥",
-                },
-                {
-                  label: "Direct (No Referral)",
-                  value: directCount,
-                  color: "#0891b2",
-                  bg: "#f0f9ff",
-                  border: "#7dd3fc",
-                  icon: "🎯",
-                },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl p-4 text-center shadow-sm"
-                  style={{
-                    background: stat.bg,
-                    border: `1.5px solid ${stat.border}`,
-                  }}
-                  data-ocid="admin.stats.card"
-                >
-                  <div className="text-2xl mb-1">{stat.icon}</div>
-                  <div
-                    className="text-3xl font-black"
-                    style={{ color: stat.color }}
-                  >
-                    {stat.value}
-                  </div>
-                  <div className="text-xs font-semibold text-gray-500 mt-1">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
+        {activeTab === "dashboard" &&
+          (loading ? (
+            <div
+              className="flex items-center justify-center py-20"
+              data-ocid="admin.loading_state"
+            >
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mr-3" />
+              <span className="text-gray-500 font-medium">
+                Loading referral data…
+              </span>
             </div>
-
-            {/* Referral Leaderboard with Reward Counter */}
-            {(() => {
-              const referrerMap: Record<string, number> = {};
-              for (const r of records) {
-                if (r.invitedBy?.trim()) {
-                  const key = r.invitedBy.trim();
-                  referrerMap[key] = (referrerMap[key] || 0) + 1;
-                }
-              }
-              const leaderboard = Object.entries(referrerMap)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 20);
-              if (leaderboard.length === 0) return null;
-              return (
-                <div
-                  className="bg-white rounded-2xl border border-yellow-200 shadow-sm overflow-hidden"
-                  data-ocid="admin.referral.reward.panel"
-                >
+          ) : (
+            <>
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  {
+                    label: "Total Downloads",
+                    value: records.length,
+                    color: "#0d9488",
+                    bg: "#f0fdf4",
+                    border: "#a7f3d0",
+                    icon: "📥",
+                  },
+                  {
+                    label: "Unique Referrers",
+                    value: uniqueReferrers,
+                    color: "#7c3aed",
+                    bg: "#faf5ff",
+                    border: "#c4b5fd",
+                    icon: "👥",
+                  },
+                  {
+                    label: "Direct (No Referral)",
+                    value: directCount,
+                    color: "#0891b2",
+                    bg: "#f0f9ff",
+                    border: "#7dd3fc",
+                    icon: "🎯",
+                  },
+                ].map((stat) => (
                   <div
-                    className="flex items-center gap-2 px-5 py-4 border-b border-yellow-100"
+                    key={stat.label}
+                    className="rounded-2xl p-4 text-center shadow-sm"
                     style={{
-                      background: "linear-gradient(135deg, #fffbeb, #fef9c3)",
+                      background: stat.bg,
+                      border: `1.5px solid ${stat.border}`,
                     }}
+                    data-ocid="admin.stats.card"
                   >
-                    <span className="text-xl">💰</span>
-                    <h2 className="font-black text-gray-800 text-base">
-                      Referral Rewards Counter
-                    </h2>
-                    <span className="text-xs text-amber-600 font-semibold ml-auto">
-                      ₹5 per Referral
-                    </span>
+                    <div className="text-2xl mb-1">{stat.icon}</div>
+                    <div
+                      className="text-3xl font-black"
+                      style={{ color: stat.color }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div className="text-xs font-semibold text-gray-500 mt-1">
+                      {stat.label}
+                    </div>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr style={{ background: "#fffbeb" }}>
-                          <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
-                            #
-                          </th>
-                          <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
-                            Referrer (WhatsApp)
-                          </th>
-                          <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
-                            Downloads Referred
-                          </th>
-                          <th className="px-4 py-2 text-center text-xs font-bold text-amber-600 uppercase">
-                            Reward Earned (₹)
-                          </th>
-                          <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
-                            Status
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {leaderboard.map(([ref, count], i) => (
-                          <tr
-                            key={ref}
-                            className="border-t border-gray-50 hover:bg-amber-50 transition-colors"
-                            data-ocid={`admin.referral.reward.row.${i + 1}`}
-                          >
-                            <td className="px-4 py-2.5 text-gray-400 font-bold text-xs">
-                              {i + 1}
-                            </td>
-                            <td className="px-4 py-2.5 font-semibold text-gray-800 font-mono text-xs">
-                              {ref}
-                            </td>
-                            <td className="px-4 py-2.5 text-center">
-                              <span
-                                className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-black"
-                                style={{
-                                  background:
-                                    "linear-gradient(135deg, #dcfce7, #d1fae5)",
-                                  color: "#065f46",
-                                  border: "1px solid #86efac",
-                                }}
-                              >
-                                {count}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2.5 text-center">
-                              <span
-                                className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-black"
-                                style={{
-                                  background:
-                                    "linear-gradient(135deg, #fef3c7, #fde68a)",
-                                  color: "#92400e",
-                                  border: "1px solid #fcd34d",
-                                }}
-                              >
-                                ₹{count * 5}
-                              </span>
-                            </td>
-                            <td className="px-4 py-2.5 text-center">
-                              {paidOut[ref] ? (
-                                <div className="flex flex-col items-center gap-0.5">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
-                                    ✓ Paid
-                                  </span>
-                                  <span className="text-xs text-gray-400">
-                                    {paidOut[ref]}
-                                  </span>
-                                </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const dateStr =
-                                      new Date().toLocaleDateString("en-IN");
-                                    const updated = {
-                                      ...paidOut,
-                                      [ref]: dateStr,
-                                    };
-                                    setPaidOut(updated);
-                                    localStorage.setItem(
-                                      "hncoach_paid_out",
-                                      JSON.stringify(updated),
-                                    );
-                                  }}
-                                  className="px-2 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors"
-                                  data-ocid={`admin.referral.payout.button.${i + 1}`}
-                                >
-                                  Mark Paid
-                                </button>
-                              )}
-                            </td>
+                ))}
+              </div>
+
+              {/* Referral Leaderboard with Reward Counter */}
+              {(() => {
+                const referrerMap: Record<string, number> = {};
+                for (const r of records) {
+                  if (r.invitedBy?.trim()) {
+                    const key = r.invitedBy.trim();
+                    referrerMap[key] = (referrerMap[key] || 0) + 1;
+                  }
+                }
+                const leaderboard = Object.entries(referrerMap)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 20);
+                if (leaderboard.length === 0) return null;
+                return (
+                  <div
+                    className="bg-white rounded-2xl border border-yellow-200 shadow-sm overflow-hidden"
+                    data-ocid="admin.referral.reward.panel"
+                  >
+                    <div
+                      className="flex items-center gap-2 px-5 py-4 border-b border-yellow-100"
+                      style={{
+                        background: "linear-gradient(135deg, #fffbeb, #fef9c3)",
+                      }}
+                    >
+                      <span className="text-xl">💰</span>
+                      <h2 className="font-black text-gray-800 text-base">
+                        Referral Rewards Counter
+                      </h2>
+                      <span className="text-xs text-amber-600 font-semibold ml-auto">
+                        ₹5 per Referral
+                      </span>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr style={{ background: "#fffbeb" }}>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
+                              #
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
+                              Referrer (WhatsApp)
+                            </th>
+                            <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
+                              Downloads Referred
+                            </th>
+                            <th className="px-4 py-2 text-center text-xs font-bold text-amber-600 uppercase">
+                              Reward Earned (₹)
+                            </th>
+                            <th className="px-4 py-2 text-center text-xs font-bold text-gray-500 uppercase">
+                              Status
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Search + View Toggle */}
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="relative flex-1 min-w-[220px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  data-ocid="admin.search.search_input"
-                  placeholder="Search by name, WhatsApp, city…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
-                />
-              </div>
-              <div
-                className="flex rounded-xl overflow-hidden border border-gray-200 shadow-sm"
-                aria-label="View mode"
-              >
-                <button
-                  type="button"
-                  data-ocid="admin.tree.toggle"
-                  onClick={() => setViewMode("tree")}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all"
-                  style={{
-                    background:
-                      viewMode === "tree"
-                        ? "linear-gradient(135deg, #0d9488, #059669)"
-                        : "#fff",
-                    color: viewMode === "tree" ? "#fff" : "#374151",
-                  }}
-                >
-                  <TreePine className="w-4 h-4" />
-                  Tree View
-                </button>
-                <button
-                  type="button"
-                  data-ocid="admin.table.toggle"
-                  onClick={() => setViewMode("table")}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all border-l border-gray-200"
-                  style={{
-                    background:
-                      viewMode === "table"
-                        ? "linear-gradient(135deg, #0d9488, #059669)"
-                        : "#fff",
-                    color: viewMode === "table" ? "#fff" : "#374151",
-                  }}
-                >
-                  <Table className="w-4 h-4" />
-                  Table View
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            {filtered.length === 0 ? (
-              <div
-                className="text-center py-16 rounded-2xl bg-white border border-gray-100 shadow-sm"
-                data-ocid="admin.records.empty_state"
-              >
-                <div className="text-4xl mb-3">🔍</div>
-                <p className="text-gray-500 font-semibold">
-                  {searchQuery
-                    ? "No results match your search."
-                    : "No download records yet."}
-                </p>
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="mt-3 text-sm text-emerald-600 font-bold hover:underline"
-                  >
-                    Clear search
-                  </button>
-                )}
-              </div>
-            ) : viewMode === "tree" ? (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <TreePine className="w-5 h-5 text-emerald-600" />
-                  <h2 className="font-black text-gray-800 text-base">
-                    Referral Tree
-                  </h2>
-                  <span className="text-xs text-gray-400 font-medium ml-auto">
-                    {filtered.length} records · click nodes to expand
-                  </span>
-                </div>
-                <div className="space-y-1" data-ocid="admin.tree.panel">
-                  {roots.map((node, i) => (
-                    <TreeNodeCard
-                      key={`root-${node.record.whatsapp}-${i}`}
-                      node={node}
-                      depth={0}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-                data-ocid="admin.records.table"
-              >
-                <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
-                  <Table className="w-5 h-5 text-emerald-600" />
-                  <h2 className="font-black text-gray-800 text-base">
-                    All Records
-                  </h2>
-                  <span className="text-xs text-gray-400 font-medium ml-auto">
-                    {filtered.length} records
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr
-                        className="text-left text-xs font-extrabold uppercase tracking-wider text-gray-500"
-                        style={{ background: "#f8fafc" }}
-                      >
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3">WhatsApp</th>
-                        <th className="px-4 py-3">City</th>
-                        <th className="px-4 py-3">Occupation</th>
-                        <th className="px-4 py-3">Invited By</th>
-                        <th className="px-4 py-3">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtered.map((r, i) => {
-                        const date = new Date(
-                          Number(r.timestamp / BigInt(1_000_000)),
-                        ).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        });
-                        const rowKey = `${r.whatsapp || "anon"}-${String(r.timestamp)}-${i}`;
-                        return (
-                          <tr
-                            key={rowKey}
-                            className="border-t border-gray-50 hover:bg-emerald-50/40 transition-colors"
-                            data-ocid={`admin.records.row.${i + 1}`}
-                          >
-                            <td className="px-4 py-3 font-semibold text-gray-800">
-                              {r.name || "—"}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600 font-mono text-xs">
-                              {r.whatsapp || "—"}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600">
-                              {r.city || "—"}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600">
-                              {r.occupation || "—"}
-                            </td>
-                            <td className="px-4 py-3">
-                              {r.invitedBy ? (
+                        </thead>
+                        <tbody>
+                          {leaderboard.map(([ref, count], i) => (
+                            <tr
+                              key={ref}
+                              className="border-t border-gray-50 hover:bg-amber-50 transition-colors"
+                              data-ocid={`admin.referral.reward.row.${i + 1}`}
+                            >
+                              <td className="px-4 py-2.5 text-gray-400 font-bold text-xs">
+                                {i + 1}
+                              </td>
+                              <td className="px-4 py-2.5 font-semibold text-gray-800 font-mono text-xs">
+                                {ref}
+                              </td>
+                              <td className="px-4 py-2.5 text-center">
                                 <span
-                                  className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
+                                  className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-black"
                                   style={{
                                     background:
                                       "linear-gradient(135deg, #dcfce7, #d1fae5)",
@@ -5244,26 +5123,708 @@ function AdminDashboard() {
                                     border: "1px solid #86efac",
                                   }}
                                 >
-                                  {r.invitedBy}
+                                  {count}
                                 </span>
-                              ) : (
-                                <span className="text-gray-400 text-xs italic">
-                                  Direct
+                              </td>
+                              <td className="px-4 py-2.5 text-center">
+                                <span
+                                  className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-black"
+                                  style={{
+                                    background:
+                                      "linear-gradient(135deg, #fef3c7, #fde68a)",
+                                    color: "#92400e",
+                                    border: "1px solid #fcd34d",
+                                  }}
+                                >
+                                  ₹{count * 5}
                                 </span>
-                              )}
-                            </td>
-                            <td className="px-4 py-3 text-gray-500 text-xs">
-                              {date}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              </td>
+                              <td className="px-4 py-2.5 text-center">
+                                {paidOut[ref] ? (
+                                  <div className="flex flex-col items-center gap-0.5">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-300">
+                                      ✓ Paid
+                                    </span>
+                                    <span className="text-xs text-gray-400">
+                                      {paidOut[ref]}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const dateStr =
+                                        new Date().toLocaleDateString("en-IN");
+                                      const updated = {
+                                        ...paidOut,
+                                        [ref]: dateStr,
+                                      };
+                                      setPaidOut(updated);
+                                      localStorage.setItem(
+                                        "hncoach_paid_out",
+                                        JSON.stringify(updated),
+                                      );
+                                    }}
+                                    className="px-2 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 transition-colors"
+                                    data-ocid={`admin.referral.payout.button.${i + 1}`}
+                                  >
+                                    Mark Paid
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Search + View Toggle */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="relative flex-1 min-w-[220px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    data-ocid="admin.search.search_input"
+                    placeholder="Search by name, WhatsApp, city…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div
+                  className="flex rounded-xl overflow-hidden border border-gray-200 shadow-sm"
+                  aria-label="View mode"
+                >
+                  <button
+                    type="button"
+                    data-ocid="admin.tree.toggle"
+                    onClick={() => setViewMode("tree")}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all"
+                    style={{
+                      background:
+                        viewMode === "tree"
+                          ? "linear-gradient(135deg, #0d9488, #059669)"
+                          : "#fff",
+                      color: viewMode === "tree" ? "#fff" : "#374151",
+                    }}
+                  >
+                    <TreePine className="w-4 h-4" />
+                    Tree View
+                  </button>
+                  <button
+                    type="button"
+                    data-ocid="admin.table.toggle"
+                    onClick={() => setViewMode("table")}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition-all border-l border-gray-200"
+                    style={{
+                      background:
+                        viewMode === "table"
+                          ? "linear-gradient(135deg, #0d9488, #059669)"
+                          : "#fff",
+                      color: viewMode === "table" ? "#fff" : "#374151",
+                    }}
+                  >
+                    <Table className="w-4 h-4" />
+                    Table View
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              {filtered.length === 0 ? (
+                <div
+                  className="text-center py-16 rounded-2xl bg-white border border-gray-100 shadow-sm"
+                  data-ocid="admin.records.empty_state"
+                >
+                  <div className="text-4xl mb-3">🔍</div>
+                  <p className="text-gray-500 font-semibold">
+                    {searchQuery
+                      ? "No results match your search."
+                      : "No download records yet."}
+                  </p>
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="mt-3 text-sm text-emerald-600 font-bold hover:underline"
+                    >
+                      Clear search
+                    </button>
+                  )}
+                </div>
+              ) : viewMode === "tree" ? (
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <TreePine className="w-5 h-5 text-emerald-600" />
+                    <h2 className="font-black text-gray-800 text-base">
+                      Referral Tree
+                    </h2>
+                    <span className="text-xs text-gray-400 font-medium ml-auto">
+                      {filtered.length} records · click nodes to expand
+                    </span>
+                  </div>
+                  <div className="space-y-1" data-ocid="admin.tree.panel">
+                    {roots.map((node, i) => (
+                      <TreeNodeCard
+                        key={`root-${node.record.whatsapp}-${i}`}
+                        node={node}
+                        depth={0}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                  data-ocid="admin.records.table"
+                >
+                  <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100">
+                    <Table className="w-5 h-5 text-emerald-600" />
+                    <h2 className="font-black text-gray-800 text-base">
+                      All Records
+                    </h2>
+                    <span className="text-xs text-gray-400 font-medium ml-auto">
+                      {filtered.length} records
+                    </span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr
+                          className="text-left text-xs font-extrabold uppercase tracking-wider text-gray-500"
+                          style={{ background: "#f8fafc" }}
+                        >
+                          <th className="px-4 py-3">Name</th>
+                          <th className="px-4 py-3">WhatsApp</th>
+                          <th className="px-4 py-3">City</th>
+                          <th className="px-4 py-3">Occupation</th>
+                          <th className="px-4 py-3">Invited By</th>
+                          <th className="px-4 py-3">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.map((r, i) => {
+                          const date = new Date(
+                            Number(r.timestamp / BigInt(1_000_000)),
+                          ).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          });
+                          const rowKey = `${r.whatsapp || "anon"}-${String(r.timestamp)}-${i}`;
+                          return (
+                            <tr
+                              key={rowKey}
+                              className="border-t border-gray-50 hover:bg-emerald-50/40 transition-colors"
+                              data-ocid={`admin.records.row.${i + 1}`}
+                            >
+                              <td className="px-4 py-3 font-semibold text-gray-800">
+                                {r.name || "—"}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                                {r.whatsapp || "—"}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600">
+                                {r.city || "—"}
+                              </td>
+                              <td className="px-4 py-3 text-gray-600">
+                                {r.occupation || "—"}
+                              </td>
+                              <td className="px-4 py-3">
+                                {r.invitedBy ? (
+                                  <span
+                                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold"
+                                    style={{
+                                      background:
+                                        "linear-gradient(135deg, #dcfce7, #d1fae5)",
+                                      color: "#065f46",
+                                      border: "1px solid #86efac",
+                                    }}
+                                  >
+                                    {r.invitedBy}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-xs italic">
+                                    Direct
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-gray-500 text-xs">
+                                {date}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          ))}
+
+        {activeTab === "report" && (
+          <div className="space-y-6">
+            <div
+              className="rounded-2xl p-6 shadow-sm border"
+              style={{
+                background: "#fff",
+                border: "1.5px solid #a7f3d0",
+              }}
+            >
+              <h2
+                className="text-xl font-black mb-1"
+                style={{ color: "#064e3b" }}
+              >
+                📄 Generate Report — Admin (Free)
+              </h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Fill in the details below. No payment required for admin
+                reports.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Full Name */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Full Name
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.fullname.input"
+                    placeholder="e.g. Rahul Sharma"
+                    value={adminForm.fullName}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, fullName: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Age */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Age
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.age.input"
+                    type="number"
+                    placeholder="e.g. 32"
+                    value={adminForm.age}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, age: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* City */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    City
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.city.input"
+                    placeholder="e.g. Mumbai"
+                    value={adminForm.city}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, city: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* WhatsApp */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    WhatsApp No.
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.whatsapp.input"
+                    placeholder="e.g. 9876543210"
+                    value={adminForm.whatsapp}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, whatsapp: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Occupation */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Occupation
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.occupation.input"
+                    placeholder="e.g. Software Engineer"
+                    value={adminForm.occupation}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({
+                        ...p,
+                        occupation: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* Gender */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Gender
+                  </Label>
+                  <div className="flex gap-2">
+                    {(["male", "female"] as const).map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        data-ocid={`admin.report.gender.${g}.button`}
+                        onClick={() =>
+                          setAdminForm((p) => ({ ...p, gender: g }))
+                        }
+                        className="flex-1 py-2 rounded-lg text-sm font-bold transition-all border"
+                        style={{
+                          background:
+                            adminForm.gender === g
+                              ? "linear-gradient(135deg,#0d9488,#059669)"
+                              : "#f8fafc",
+                          color: adminForm.gender === g ? "#fff" : "#374151",
+                          border:
+                            adminForm.gender === g
+                              ? "none"
+                              : "1.5px solid #d1d5db",
+                        }}
+                      >
+                        {g === "male" ? "👨 Male" : "👩 Female"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Height Mode + Input */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Height
+                  </Label>
+                  <div className="flex gap-2 mb-2">
+                    {(["cm", "ft"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        data-ocid={`admin.report.height.${m}.toggle`}
+                        onClick={() =>
+                          setAdminForm((p) => ({ ...p, heightMode: m }))
+                        }
+                        className="flex-1 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                        style={{
+                          background:
+                            adminForm.heightMode === m ? "#0d9488" : "#f8fafc",
+                          color:
+                            adminForm.heightMode === m ? "#fff" : "#374151",
+                          border:
+                            adminForm.heightMode === m
+                              ? "none"
+                              : "1.5px solid #d1d5db",
+                        }}
+                      >
+                        {m === "cm" ? "cm" : "ft + in"}
+                      </button>
+                    ))}
+                  </div>
+                  {adminForm.heightMode === "cm" ? (
+                    <Input
+                      data-ocid="admin.report.height.input"
+                      type="number"
+                      placeholder="Height in cm, e.g. 170"
+                      value={adminForm.height}
+                      onChange={(e) =>
+                        setAdminForm((p) => ({ ...p, height: e.target.value }))
+                      }
+                    />
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        data-ocid="admin.report.height.ft.input"
+                        type="number"
+                        placeholder="ft"
+                        value={adminForm.heightFt}
+                        onChange={(e) =>
+                          setAdminForm((p) => ({
+                            ...p,
+                            heightFt: e.target.value,
+                          }))
+                        }
+                      />
+                      <Input
+                        data-ocid="admin.report.height.in.input"
+                        type="number"
+                        placeholder="in"
+                        value={adminForm.heightIn}
+                        onChange={(e) =>
+                          setAdminForm((p) => ({
+                            ...p,
+                            heightIn: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Weight */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Weight (kg)
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.weight.input"
+                    type="number"
+                    placeholder="e.g. 72"
+                    value={adminForm.weight}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, weight: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Waist Size (optional) */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Waist Size (cm){" "}
+                    <span className="text-gray-400 font-normal text-xs">
+                      optional
+                    </span>
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.waist.input"
+                    type="number"
+                    placeholder="e.g. 85"
+                    value={adminForm.waistInput}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({
+                        ...p,
+                        waistInput: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* Hip Size (optional) */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Hip Size (cm){" "}
+                    <span className="text-gray-400 font-normal text-xs">
+                      optional
+                    </span>
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.hip.input"
+                    type="number"
+                    placeholder="e.g. 95"
+                    value={adminForm.hipInput}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, hipInput: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Bedtime */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Bedtime
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.bedtime.input"
+                    type="time"
+                    value={adminForm.bedtime}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, bedtime: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Wake Up Time */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Wake Up Time
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.wakeup.input"
+                    type="time"
+                    value={adminForm.wakeUpTime}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({
+                        ...p,
+                        wakeUpTime: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* Activity Level */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Activity Level
+                  </Label>
+                  <select
+                    data-ocid="admin.report.activity.select"
+                    value={adminForm.activityLevel}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({
+                        ...p,
+                        activityLevel: e.target.value,
+                      }))
+                    }
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="sedentary">
+                      Sedentary (desk job, no exercise)
+                    </option>
+                    <option value="lightly_active">
+                      Lightly Active (light exercise 1–3 days/week)
+                    </option>
+                    <option value="moderately_active">
+                      Moderately Active (moderate exercise 3–5 days)
+                    </option>
+                    <option value="very_active">
+                      Very Active (hard exercise 6–7 days)
+                    </option>
+                    <option value="extra_active">
+                      Extra Active (very hard exercise / physical job)
+                    </option>
+                  </select>
+                </div>
+
+                {/* Who Invited You */}
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-semibold text-gray-700">
+                    Who Invited You? (Referrer)
+                  </Label>
+                  <Input
+                    data-ocid="admin.report.invitedby.input"
+                    placeholder="Referrer WhatsApp no. or leave as admin"
+                    value={adminForm.invitedBy}
+                    onChange={(e) =>
+                      setAdminForm((p) => ({ ...p, invitedBy: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Goals */}
+              <div className="mt-4 space-y-1.5">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Goals
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries({
+                    weight_loss: "Weight Loss",
+                    fat_loss: "Fat Loss",
+                    belly_fat_loss: "Belly Fat Loss",
+                    muscle_gain: "Muscle Gain",
+                    weight_gain: "Weight Gain",
+                    weight_maintain: "Weight Maintain",
+                    energy_stamina: "Increase Energy & Stamina",
+                  }).map(([key, label]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      data-ocid={`admin.report.goal.${key}.toggle`}
+                      onClick={() =>
+                        setAdminForm((p) => ({
+                          ...p,
+                          goals: p.goals.includes(key)
+                            ? p.goals.filter((g) => g !== key)
+                            : [...p.goals, key],
+                        }))
+                      }
+                      className="px-3 py-1.5 rounded-full text-xs font-bold border transition-all"
+                      style={{
+                        background: adminForm.goals.includes(key)
+                          ? "linear-gradient(135deg,#0d9488,#059669)"
+                          : "#f8fafc",
+                        color: adminForm.goals.includes(key)
+                          ? "#fff"
+                          : "#374151",
+                        border: adminForm.goals.includes(key)
+                          ? "none"
+                          : "1.5px solid #d1d5db",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                data-ocid="admin.report.generate.primary_button"
+                onClick={generateAdminReport}
+                className="w-full mt-6 h-12 text-base font-black tracking-wide"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #064e3b 0%, #0d9488 100%)",
+                  border: "none",
+                  color: "#fff",
+                  boxShadow: "0 4px 20px rgba(13,148,136,0.45)",
+                }}
+              >
+                📄 Generate Report (Free — No Payment)
+              </Button>
+            </div>
+
+            {/* Report Output */}
+            {adminReportHtml && (
+              <div ref={adminReportRef} className="space-y-3">
+                <div className="flex gap-3 items-center flex-wrap">
+                  <button
+                    type="button"
+                    data-ocid="admin.report.print.button"
+                    onClick={() => {
+                      const win = window.open("", "_blank");
+                      if (win) {
+                        win.document.write(adminReportHtml);
+                        win.document.close();
+                        win.focus();
+                        setTimeout(() => win.print(), 600);
+                      }
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white shadow-lg transition-transform hover:scale-105"
+                    style={{
+                      background: "linear-gradient(135deg,#059669,#0d9488)",
+                    }}
+                  >
+                    🖨️ Print / Download as PDF
+                  </button>
+                  <button
+                    type="button"
+                    data-ocid="admin.report.download_again.button"
+                    onClick={() => {
+                      const win = window.open("", "_blank");
+                      if (win) {
+                        win.document.write(adminReportHtml);
+                        win.document.close();
+                        win.focus();
+                        setTimeout(() => win.print(), 600);
+                      }
+                    }}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                  >
+                    ⬇️ Download Again
+                  </button>
+                </div>
+                <div
+                  className="rounded-2xl overflow-hidden border shadow-lg"
+                  style={{ border: "1.5px solid #a7f3d0" }}
+                  data-ocid="admin.report.panel"
+                >
+                  <iframe
+                    srcDoc={adminReportHtml}
+                    title="Admin Generated Report"
+                    style={{ width: "100%", height: "800px", border: "none" }}
+                  />
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -5763,6 +6324,25 @@ export default function App() {
         }}
       >
         <span style={{ opacity: 0.7, marginRight: 6 }}>©</span>
+        <span
+          onClick={() => {
+            window.location.href = "?admin=1";
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") window.location.href = "?admin=1";
+          }}
+          style={{
+            opacity: 0,
+            cursor: "default",
+            userSelect: "none",
+            fontSize: "inherit",
+            padding: "0 2px",
+          }}
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          &nbsp;
+        </span>
         {new Date().getFullYear()} HN Coach · All Rights Reserved
         <span style={{ margin: "0 10px", opacity: 0.4 }}>|</span>
         <span style={{ fontSize: "11px", opacity: 0.7 }}>
